@@ -1,0 +1,13 @@
+body {
+    padding-top: 100px;
+}
+
+.square {
+    position: absolute;
+    background-color: #7b92ee;
+}
+
+#grid {
+    background-color: #dfe4f9;
+    margin: 0 auto;
+}
