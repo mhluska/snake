@@ -24,7 +24,6 @@ Game.Snake = class Snake
                 when 40 then newDirection = 'down'
                 
             @queuedDirection = newDirection unless @isOpposite newDirection
-            console.log @queuedDirection
 
     isOpposite: (newDirection) ->
         return true if newDirection is 'left' and @direction is 'right'

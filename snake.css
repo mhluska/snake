@@ -2,9 +2,17 @@ body {
     padding-top: 100px;
 }
 
-.square {
+.food, .square {
     position: absolute;
+}
+
+.square {
     background-color: #7b92ee;
+}
+
+.food {
+    background-color: #9afc77;
+    display: none;
 }
 
 #grid {

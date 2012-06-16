@@ -7,8 +7,7 @@
 
   run = function() {
     snake.move();
-    grid.update();
-    return console.log('yo');
+    return grid.update();
   };
 
   setInterval(run, 150);

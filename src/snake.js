@@ -1,7 +1,9 @@
 (function() {
-  var Snake;
+  var Snake, _ref;
 
-  if (window.Game == null) window.Game = {};
+  if ((_ref = window.Game) == null) {
+    window.Game = {};
+  }
 
   Game.Snake = Snake = (function() {
 
@@ -15,9 +17,9 @@
       this.boundaryY = null;
       this.queuedDirection = this.direction;
       this.chain = (function() {
-        var _ref, _results;
+        var _i, _ref1, _results;
         _results = [];
-        for (piece = 0, _ref = this.length - 1; 0 <= _ref ? piece <= _ref : piece >= _ref; 0 <= _ref ? piece++ : piece--) {
+        for (piece = _i = 0, _ref1 = this.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; piece = 0 <= _ref1 ? ++_i : --_i) {
           _results.push({
             x: this.x,
             y: this.y - piece
@@ -46,16 +48,25 @@
           case 40:
             newDirection = 'down';
         }
-        if (!_this.isOpposite(newDirection)) _this.queuedDirection = newDirection;
-        return console.log(_this.queuedDirection);
+        if (!_this.isOpposite(newDirection)) {
+          return _this.queuedDirection = newDirection;
+        }
       });
     };
 
     Snake.prototype.isOpposite = function(newDirection) {
-      if (newDirection === 'left' && this.direction === 'right') return true;
-      if (newDirection === 'right' && this.direction === 'left') return true;
-      if (newDirection === 'up' && this.direction === 'down') return true;
-      if (newDirection === 'down' && this.direction === 'up') return true;
+      if (newDirection === 'left' && this.direction === 'right') {
+        return true;
+      }
+      if (newDirection === 'right' && this.direction === 'left') {
+        return true;
+      }
+      if (newDirection === 'up' && this.direction === 'down') {
+        return true;
+      }
+      if (newDirection === 'down' && this.direction === 'up') {
+        return true;
+      }
       return false;
     };
 
@@ -65,23 +76,31 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, piece, temp, _len, _ref, _ref2, _ref3, _results;
+      var index, moveTo, piece, temp, _i, _len, _ref1, _ref2, _ref3, _results;
       this.direction = this.queuedDirection;
       switch (this.direction) {
         case 'up':
-          if (this.y <= 0) return;
+          if (this.y <= 0) {
+            return;
+          }
           this.y -= 1;
           break;
         case 'right':
-          if (this.x >= this.boundaryX - 1) return;
+          if (this.x >= this.boundaryX - 1) {
+            return;
+          }
           this.x += 1;
           break;
         case 'down':
-          if (this.y >= this.boundaryY - 1) return;
+          if (this.y >= this.boundaryY - 1) {
+            return;
+          }
           this.y += 1;
           break;
         case 'left':
-          if (this.x <= 0) return;
+          if (this.x <= 0) {
+            return;
+          }
           this.x -= 1;
       }
       moveTo = {
@@ -92,10 +111,10 @@
         x: this.chain[0].x,
         y: this.chain[0].y
       };
-      _ref = this.chain;
+      _ref1 = this.chain;
       _results = [];
-      for (index = 0, _len = _ref.length; index < _len; index++) {
-        piece = _ref[index];
+      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
+        piece = _ref1[index];
         piece.x = moveTo.x;
         piece.y = moveTo.y;
         moveTo.x = temp.x;
