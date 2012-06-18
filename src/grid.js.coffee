@@ -4,53 +4,100 @@ Game.Grid = class Grid
     
         @snake.cage @squaresX, @squaresY
     
+        # gridData holds the contents of each cell (snake, food etc.)
+        @gridData = ( ({} for [0...@squaresY]) for [0...@squaresX] )
         @grid = $('<div id="grid"></div>')
-        
+
         @squareWidth = 15
         @squareHeight = 15
 
-        @foodDropped = false
-        
         @grid.width @squareWidth * @squaresX
         @grid.height @squareHeight * @squaresY
         
-        square = @makeSquare 'square'
-        @activeSquares = @snake.chain.map => square.clone().appendTo @grid
+        @snakeSquares = @snake.chain.map (piece) => @makeSquare 'snake', piece.x, piece.y
         
         @grid.insertBefore $('body script').eq(0)
 
-        @food = @makeSquare 'food'
-        @grid.append @food
+        @maxFood = 4
+        @foodQueue = @makeFoodQueue @maxFood
+        @foodDropRate = 10000
+        @foodIntervalID = null
         @dropFood()
+
+    resetFoodInterval: ->
+        clearInterval @foodIntervalID
+        @foodIntervalID = setInterval @dropFood, @foodDropRate
+
+    makeFoodQueue: (maxFood) ->
+        queue = []
+        queue.push @makeSquare 'food' for [0...maxFood]
+        queue
 
     # TODO: This shouldn't be in grid
     randInt: (min, max) ->
         Math.floor(Math.random() * (max - min + 1)) + min
 
-    makeSquare: (className) ->
-        square = $("<div class='#{className}'></div>")
+    # TODO: This shouldn't be in grid
+    moveToBack: (queue, item) ->
+        queueIndex = queue.indexOf item
+        @foodQueue.splice 1, queueIndex
+        @foodQueue.unshift item
+
+    makeSquare: (type, x = null, y = null) ->
+        square = $("<div class='#{type}'></div>")
+
+        # TODO: Is this an antipattern: adding properties to the jQuery node on
+        # the fly? Should probably create a wrapper object
+        square.type = type
+        square.x = x
+        square.y = y
+
         square.width(@squareWidth).height(@squareHeight)
+        square.appendTo @grid
 
-    dropFood: ->
+    moveSquare: (square, x, y) ->
 
-        return if @foodDropped
+        @gridData[square.x][square.y][square.type] = null if square.x and square.y
+        @gridData[x][y][square.type] = square
+
+        square.css
+            left: x * @squareWidth + @grid.offset().left
+            top: y * @squareHeight + @grid.offset().top
+
+        square.show()
+
+    dropFood: =>
+
+        return unless @foodQueue.length
 
         randX = @randInt 0, @squareWidth - 1
         randY = @randInt 0, @squareHeight - 1
 
-        @food.css
-            left: randX * @squareWidth + @grid.offset().left
-            top: randY * @squareHeight + @grid.offset().top
+        foodItem = @foodQueue.pop()
+        @foodQueue.unshift foodItem
+        @moveSquare foodItem, randX, randY
 
-        @food.show()
+        @resetFoodInterval()
 
-        @foodDropped = true
-        
     update: ->
+
+        @feedSnake()
+
         for piece, index in @snake.chain
-            @activeSquares[index].css
-                left: piece.x * @squareWidth + @grid.offset().left
-                top: piece.y * @squareHeight + @grid.offset().top
+            @moveSquare @snakeSquares[index], piece.x, piece.y
 
+    feedSnake: (food) ->
+
+        head = @snake.chain[0]
+        food = @gridData[head.x][head.y].food
+
+        return unless food
+
+        # Remove the food item from the game
+        food.hide()
+        @moveToBack @foodQueue, food
+        @gridData[head.x][head.y].food = null
+
+        position = @snake.grow()
+        @snakeSquares.push @makeSquare 'snake', position.x, position.y
         @dropFood()
-

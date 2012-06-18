@@ -4,9 +4,10 @@ Game.Snake = class Snake
     
         @x = 4
         @y = 4
-        @length = 6
+        @length = 5
         @boundaryX = null
         @boundaryY = null
+        @lastTailPosition = null
         
         @queuedDirection = @direction
         
@@ -32,11 +33,17 @@ Game.Snake = class Snake
         return true if newDirection is 'down' and @direction is 'up'
         return false
 
+    # TODO: Make this function less retarded. The snake should be able to
+    # wander off the grid if it's not called
     cage: (squaresX, squaresY) ->
         @boundaryX = squaresX
         @boundaryY = squaresY
 
     move: ->
+
+        tail = @chain[@chain.length - 1]
+        @lastTailPosition = x: tail.x, y: tail.y
+
         @direction = @queuedDirection
         switch @direction
             when 'up'
@@ -65,4 +72,10 @@ Game.Snake = class Snake
             
             temp.x = @chain[index + 1]?.x
             temp.y = @chain[index + 1]?.y
+
+    grow: ->
+        @chain.push @lastTailPosition
+        @lastTailPosition
+
+
        

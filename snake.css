@@ -2,11 +2,12 @@ body {
     padding-top: 100px;
 }
 
-.food, .square {
+.food, .snake {
     position: absolute;
+    display: none;
 }
 
-.square {
+.snake {
     background-color: #7b92ee;
 }
 

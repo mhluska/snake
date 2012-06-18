@@ -1,9 +1,7 @@
 (function() {
-  var Snake, _ref;
+  var Snake;
 
-  if ((_ref = window.Game) == null) {
-    window.Game = {};
-  }
+  if (window.Game == null) window.Game = {};
 
   Game.Snake = Snake = (function() {
 
@@ -12,14 +10,15 @@
       this.direction = direction != null ? direction : 'down';
       this.x = 4;
       this.y = 4;
-      this.length = 6;
+      this.length = 5;
       this.boundaryX = null;
       this.boundaryY = null;
+      this.lastTailPosition = null;
       this.queuedDirection = this.direction;
       this.chain = (function() {
-        var _i, _ref1, _results;
+        var _ref, _results;
         _results = [];
-        for (piece = _i = 0, _ref1 = this.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; piece = 0 <= _ref1 ? ++_i : --_i) {
+        for (piece = 0, _ref = this.length - 1; 0 <= _ref ? piece <= _ref : piece >= _ref; 0 <= _ref ? piece++ : piece--) {
           _results.push({
             x: this.x,
             y: this.y - piece
@@ -55,18 +54,10 @@
     };
 
     Snake.prototype.isOpposite = function(newDirection) {
-      if (newDirection === 'left' && this.direction === 'right') {
-        return true;
-      }
-      if (newDirection === 'right' && this.direction === 'left') {
-        return true;
-      }
-      if (newDirection === 'up' && this.direction === 'down') {
-        return true;
-      }
-      if (newDirection === 'down' && this.direction === 'up') {
-        return true;
-      }
+      if (newDirection === 'left' && this.direction === 'right') return true;
+      if (newDirection === 'right' && this.direction === 'left') return true;
+      if (newDirection === 'up' && this.direction === 'down') return true;
+      if (newDirection === 'down' && this.direction === 'up') return true;
       return false;
     };
 
@@ -76,31 +67,28 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, piece, temp, _i, _len, _ref1, _ref2, _ref3, _results;
+      var index, moveTo, piece, tail, temp, _len, _ref, _ref2, _ref3, _results;
+      tail = this.chain[this.chain.length - 1];
+      this.lastTailPosition = {
+        x: tail.x,
+        y: tail.y
+      };
       this.direction = this.queuedDirection;
       switch (this.direction) {
         case 'up':
-          if (this.y <= 0) {
-            return;
-          }
+          if (this.y <= 0) return;
           this.y -= 1;
           break;
         case 'right':
-          if (this.x >= this.boundaryX - 1) {
-            return;
-          }
+          if (this.x >= this.boundaryX - 1) return;
           this.x += 1;
           break;
         case 'down':
-          if (this.y >= this.boundaryY - 1) {
-            return;
-          }
+          if (this.y >= this.boundaryY - 1) return;
           this.y += 1;
           break;
         case 'left':
-          if (this.x <= 0) {
-            return;
-          }
+          if (this.x <= 0) return;
           this.x -= 1;
       }
       moveTo = {
@@ -111,10 +99,10 @@
         x: this.chain[0].x,
         y: this.chain[0].y
       };
-      _ref1 = this.chain;
+      _ref = this.chain;
       _results = [];
-      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-        piece = _ref1[index];
+      for (index = 0, _len = _ref.length; index < _len; index++) {
+        piece = _ref[index];
         piece.x = moveTo.x;
         piece.y = moveTo.y;
         moveTo.x = temp.x;
@@ -123,6 +111,11 @@
         _results.push(temp.y = (_ref3 = this.chain[index + 1]) != null ? _ref3.y : void 0);
       }
       return _results;
+    };
+
+    Snake.prototype.grow = function() {
+      this.chain.push(this.lastTailPosition);
+      return this.lastTailPosition;
     };
 
     return Snake;
