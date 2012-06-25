@@ -1,6 +1,6 @@
 snake = new Game.Snake
-graphics = new Game.Graphics
-grid = new Game.Grid snake, graphics
+grid = new Game.Grid snake
+graphics = new Game.Graphics grid
 
 run = ->
     snake.move()

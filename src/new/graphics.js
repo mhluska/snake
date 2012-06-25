@@ -4,7 +4,9 @@
 
   Game.Graphics = (function() {
 
-    function Graphics() {}
+    function Graphics(grid) {
+      this.grid = grid;
+    }
 
     Graphics.prototype.update = function() {};
 
