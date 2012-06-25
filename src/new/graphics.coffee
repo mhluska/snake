@@ -3,11 +3,39 @@ class Game.Graphics
 
     constructor: (@grid, @graphicsType = 'dom') ->
 
-       @buildDOMElems() if @graphicsType is 'dom'
+       @grid.setup @
+       @buildDOM() if @graphicsType is 'dom'
+
+    setNodePosition: (node, x, y) ->
+
+        return unless node
+
+        offset = @dom.grid.offset()
+        node.css
+            top: offset.top + y * @grid.squareHeight
+            left: offset.left + x * @grid.squareWidth
+
+        node.show()
 
     update: ->
+        for column, x in @grid.world
+            for square, y in column 
+                @setNodePosition square.snake.node, x, y if square.snake
 
-    buildDOMElems: ->
+    buildDOMElem: (x, y, type) ->
+
+        elem =
+            x: x, y: y,
+            node: $("<div class='#{type}'></div>")
+
+        @setNodePosition elem.node, elem.x, elem.y
+        elem.node.css
+            width: @grid.squareWidth
+            height: @grid.squareHeight
+
+        elem
+
+    buildDOM: ->
 
         @dom = {}
         @dom.grid = $('<div id="grid"></div>')
@@ -15,23 +43,23 @@ class Game.Graphics
             width: @grid.squareWidth * @grid.squaresX
             height: @grid.squareHeight * @grid.squaresY
 
-        @dom.squares = []
-        for column, squareX in @grid.world
-            for square, squareY in column
+        $('body').append @dom.grid
 
-                continue if $.isEmptyObject square
+        @dom.squares = []
+        for column, x in @grid.world
+            for square, y in column
+
+                continue if @grid.isEmptySquare square
 
                 type = 'snake' if square.snake
                 type = 'food' if square.food
 
-                elem = x: squareX, y: squareY, type: type
-                elem.node = $("<div class='#{type}'></div>")
-                elem.node.css x: elem.x, y: elem.y
+                # Set a reference to the DOM node in the world data
+                elem = @buildDOMElem x, y, type
+                square[type] = elem
 
                 @dom.squares.push elem
                 @dom.grid.append elem.node
-
-        $('body').append @dom.grid
                 
 
 

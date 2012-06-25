@@ -4,9 +4,8 @@
 
   Game.Grid = (function() {
 
-    function Grid(snake, graphics, squaresX, squaresY) {
+    function Grid(snake, squaresX, squaresY) {
       this.snake = snake;
-      this.graphics = graphics;
       this.squaresX = squaresX != null ? squaresX : 25;
       this.squaresY = squaresY != null ? squaresY : 15;
       this.world = (function() {
@@ -26,8 +25,27 @@
       }).call(this);
       this.squareWidth = 15;
       this.squareHeight = 15;
+      this.squareTypes = ['food', 'snake'];
       this.snake.setup(this);
     }
+
+    Grid.prototype.setup = function(graphics) {
+      return this.graphics = graphics;
+    };
+
+    Grid.prototype.isEmptySquare = function(square) {
+      var type, _i, _len, _ref;
+      _ref = this.squareTypes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        if (square[type]) return false;
+      }
+      return true;
+    };
+
+    Grid.prototype.registerSquare = function(pair, type) {
+      return this.world[pair.x][pair.y][type] = true;
+    };
 
     return Grid;
 
