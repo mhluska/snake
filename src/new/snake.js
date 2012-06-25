@@ -4,12 +4,13 @@
 
   Game.Snake = (function() {
 
-    function Snake(length, position) {
+    function Snake(length, direction, position) {
       var piece, x, y;
       this.length = length != null ? length : 5;
+      this.direction = direction != null ? direction : 'down';
       this.position = position;
-      this.direction = null;
       this.grid = null;
+      this.nextDirection = this.direction;
       if (this.position == null) this.position = new Game.Pair(0, 4);
       x = this.position.x;
       y = this.position.y;
@@ -24,22 +25,6 @@
       this.setupControls();
     }
 
-    Snake.prototype.setupControls = function() {
-      var _this = this;
-      return $(window).keydown(function(event) {
-        switch (event.keyCode) {
-          case 37:
-            return _this.direction = 'left';
-          case 38:
-            return _this.direction = 'up';
-          case 39:
-            return _this.direction = 'right';
-          case 40:
-            return _this.direction = 'down';
-        }
-      });
-    };
-
     Snake.prototype.setup = function(grid) {
       var pair, _i, _len, _ref, _results;
       this.grid = grid;
@@ -52,14 +37,68 @@
       return _results;
     };
 
+    Snake.prototype.setupControls = function() {
+      var _this = this;
+      return $(window).keydown(function(event) {
+        var newDirection;
+        newDirection = _this.direction;
+        switch (event.keyCode) {
+          case 37:
+            newDirection = 'left';
+            break;
+          case 38:
+            newDirection = 'up';
+            break;
+          case 39:
+            newDirection = 'right';
+            break;
+          case 40:
+            newDirection = 'down';
+        }
+        if (!_this.isOpposite(newDirection)) {
+          return _this.nextDirection = newDirection;
+        }
+      });
+    };
+
+    Snake.prototype.isOpposite = function(newDirection) {
+      if (newDirection === 'left' && this.direction === 'right') return true;
+      if (newDirection === 'right' && this.direction === 'left') return true;
+      if (newDirection === 'up' && this.direction === 'down') return true;
+      if (newDirection === 'down' && this.direction === 'up') return true;
+      return false;
+    };
+
+    Snake.prototype.updateHeadPosition = function() {
+      if (!this.direction) return false;
+      this.direction = this.nextDirection;
+      switch (this.direction) {
+        case 'up':
+          if (this.position.y <= 0) return false;
+          this.position.y -= 1;
+          break;
+        case 'right':
+          if (this.position.x >= this.grid.squaresX - 1) return false;
+          this.position.x += 1;
+          break;
+        case 'down':
+          if (this.position.y >= this.grid.squaresY - 1) return false;
+          this.position.y += 1;
+          break;
+        case 'left':
+          if (this.position.x <= 0) return false;
+          this.position.x -= 1;
+      }
+      return true;
+    };
+
     Snake.prototype.move = function() {
       var head, index, moveTo, piece, tail, temp, _len, _ref;
+      if (!this.updateHeadPosition()) return;
       head = this.chain[0];
       tail = this.chain[this.chain.length - 1].clone();
-      if (this.position.y >= this.grid.squaresY - 1) return;
-      this.position.y += 1;
-      moveTo = this.position.clone();
       temp = head.clone();
+      moveTo = this.position.clone();
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];

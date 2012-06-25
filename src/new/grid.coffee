@@ -23,7 +23,6 @@ class Game.Grid
         squareTypes = ['food', 'snake']
         for type in squareTypes
             return false if square[type]
-
-        return true
+        true
 
     registerSquare: (pair, type) -> @world[pair.x][pair.y][type] = true
