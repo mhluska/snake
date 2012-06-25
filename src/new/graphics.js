@@ -34,8 +34,9 @@
           for (y = 0, _len2 = column.length; y < _len2; y++) {
             square = column[y];
             pos = new Game.Pair(x, y);
-            if (square.snake) {
-              _results2.push(this.setNodePosition(square.snake, pos));
+            if (square.snake) this.setNodePosition(square.snake, pos);
+            if (square.food) {
+              _results2.push(this.setNodePosition(square.food, pos));
             } else {
               _results2.push(void 0);
             }

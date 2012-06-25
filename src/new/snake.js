@@ -93,21 +93,22 @@
     };
 
     Snake.prototype.move = function() {
-      var head, index, moveTo, piece, tail, temp, _len, _ref;
+      var head, index, moveTo, piece, tail, temp, _len, _ref, _results;
       if (!this.updateHeadPosition()) return;
       head = this.chain[0];
       tail = this.chain[this.chain.length - 1].clone();
       temp = head.clone();
       moveTo = this.position.clone();
       _ref = this.chain;
+      _results = [];
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
         this.grid.moveSquare(piece, moveTo, 'snake');
         piece.copy(moveTo);
         moveTo.copy(temp);
-        temp.copy(this.chain[index + 1]);
+        _results.push(temp.copy(this.chain[index + 1]));
       }
-      return this.grid.world[tail.x][tail.y].snake = null;
+      return _results;
     };
 
     return Snake;

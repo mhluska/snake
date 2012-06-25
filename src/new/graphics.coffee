@@ -9,7 +9,7 @@ class Game.Graphics
     setNodePosition: (node, pos) ->
 
         return unless node
-
+        
         offset = @dom.grid.offset()
         node.css
             top: offset.top + pos.y * @grid.squareHeight
@@ -22,6 +22,7 @@ class Game.Graphics
             for square, y in column 
                 pos = new Game.Pair x, y
                 @setNodePosition square.snake, pos if square.snake
+                @setNodePosition square.food, pos if square.food
 
     buildDOMNode: (pos, type) ->
 

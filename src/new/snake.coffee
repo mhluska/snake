@@ -75,5 +75,3 @@ class Game.Snake
             piece.copy moveTo
             moveTo.copy temp
             temp.copy @chain[index + 1]
-
-        @grid.world[tail.x][tail.y].snake = null
