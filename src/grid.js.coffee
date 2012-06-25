@@ -89,6 +89,10 @@ Game.Grid = class Grid
     feedSnake: (food) ->
 
         head = @snake.chain[0]
+
+        # TODO: Fix this
+        @restart() if @gridData[head.x][head.y].snake
+
         food = @gridData[head.x][head.y].food
 
         return unless food
@@ -101,3 +105,6 @@ Game.Grid = class Grid
         position = @snake.grow()
         @snakeSquares.push @makeSquare 'snake', position.x, position.y
         @dropFood()
+
+    restart: ->
+        console.log 'restarting'
