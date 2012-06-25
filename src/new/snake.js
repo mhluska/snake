@@ -8,6 +8,8 @@
       var piece, x, y;
       this.length = length != null ? length : 5;
       this.position = position;
+      this.direction = null;
+      this.grid = null;
       if (this.position == null) this.position = new Game.Pair(0, 4);
       x = this.position.x;
       y = this.position.y;
@@ -19,7 +21,24 @@
         }
         return _results;
       }).call(this);
+      this.setupControls();
     }
+
+    Snake.prototype.setupControls = function() {
+      var _this = this;
+      return $(window).keydown(function(event) {
+        switch (event.keyCode) {
+          case 37:
+            return _this.direction = 'left';
+          case 38:
+            return _this.direction = 'up';
+          case 39:
+            return _this.direction = 'right';
+          case 40:
+            return _this.direction = 'down';
+        }
+      });
+    };
 
     Snake.prototype.setup = function(grid) {
       var pair, _i, _len, _ref, _results;
@@ -34,23 +53,20 @@
     };
 
     Snake.prototype.move = function() {
-      var head, index, moveTo, piece, tail, temp, _len, _ref, _ref2, _ref3;
+      var head, index, moveTo, piece, tail, temp, _len, _ref;
       head = this.chain[0];
-      tail = this.chain[this.chain.length - 1].copy();
+      tail = this.chain[this.chain.length - 1].clone();
       if (this.position.y >= this.grid.squaresY - 1) return;
       this.position.y += 1;
-      moveTo = this.position.copy();
-      temp = head.copy();
+      moveTo = this.position.clone();
+      temp = head.clone();
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
         this.grid.moveSquare(piece, moveTo, 'snake');
-        piece.x = moveTo.x;
-        piece.y = moveTo.y;
-        moveTo.x = temp.x;
-        moveTo.y = temp.y;
-        temp.x = (_ref2 = this.chain[index + 1]) != null ? _ref2.x : void 0;
-        temp.y = (_ref3 = this.chain[index + 1]) != null ? _ref3.y : void 0;
+        piece.copy(moveTo);
+        moveTo.copy(temp);
+        temp.copy(this.chain[index + 1]);
       }
       return this.grid.world[tail.x][tail.y].snake = null;
     };

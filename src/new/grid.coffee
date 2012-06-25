@@ -3,6 +3,8 @@ class Game.Grid
 
     constructor: (@snake, @squaresX = 25, @squaresY = 15) ->
 
+        @graphics = null
+
         @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
         @squareWidth = 15

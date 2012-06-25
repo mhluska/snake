@@ -8,6 +8,7 @@
       this.snake = snake;
       this.squaresX = squaresX != null ? squaresX : 25;
       this.squaresY = squaresY != null ? squaresY : 15;
+      this.graphics = null;
       this.world = (function() {
         var _i, _ref, _results;
         _results = [];

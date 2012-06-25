@@ -4,12 +4,25 @@ class Game.Snake
     # x and y mark the position of the head of the snake
     constructor: (@length = 5, @position) ->
 
+        @direction = null
+        @grid = null
+
         @position ?= new Game.Pair 0, 4
         x = @position.x
         y = @position.y
 
         # The coordinates of the snake chain
         @chain = ( new Game.Pair x, y - piece for piece in [0..@length - 1] )
+
+        @setupControls()
+
+    setupControls: ->
+        $(window).keydown (event) =>
+            switch event.keyCode
+                when 37 then @direction = 'left'
+                when 38 then @direction = 'up'
+                when 39 then @direction = 'right'
+                when 40 then @direction = 'down'
 
     setup: (grid) ->
 
@@ -21,26 +34,21 @@ class Game.Snake
     move: ->
 
         head = @chain[0]
-        tail = @chain[@chain.length - 1].copy()
+        tail = @chain[@chain.length - 1].clone()
 
         # TODO: Temporary code to force the snake to move downwards
         return if @position.y >= @grid.squaresY - 1
         @position.y += 1
 
-        moveTo = @position.copy()
-        temp = head.copy()
+        moveTo = @position.clone()
+        temp = head.clone()
 
         for piece, index in @chain
         
             @grid.moveSquare piece, moveTo, 'snake'
         
-            piece.x = moveTo.x
-            piece.y = moveTo.y
-            
-            moveTo.x = temp.x
-            moveTo.y = temp.y
-            
-            temp.x = @chain[index + 1]?.x
-            temp.y = @chain[index + 1]?.y
+            piece.copy moveTo
+            moveTo.copy temp
+            temp.copy @chain[index + 1]
 
         @grid.world[tail.x][tail.y].snake = null

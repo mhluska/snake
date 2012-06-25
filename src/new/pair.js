@@ -9,8 +9,14 @@
       this.y = y != null ? y : 0;
     }
 
-    Pair.prototype.copy = function() {
+    Pair.prototype.clone = function() {
       return new Game.Pair(this.x, this.y);
+    };
+
+    Pair.prototype.copy = function(pair) {
+      if (!pair) return;
+      this.x = pair.x;
+      return this.y = pair.y;
     };
 
     return Pair;
