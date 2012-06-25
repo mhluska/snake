@@ -7,16 +7,19 @@ class Game.Grid
 
         @squareWidth = 15
         @squareHeight = 15
-        @squareTypes = ['food', 'snake']
 
         @snake.setup @
 
     setup: (graphics) ->
         @graphics = graphics
 
+    moveSquare: (start, end, type) ->
+        @world[end.x][end.y][type] = @world[start.x][start.y][type]
+
     isEmptySquare: (square) ->
 
-        for type in @squareTypes
+        squareTypes = ['food', 'snake']
+        for type in squareTypes
             return false if square[type]
 
         return true

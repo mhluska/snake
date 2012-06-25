@@ -4,16 +4,18 @@
 
   Game.Snake = (function() {
 
-    function Snake(length, x, y) {
-      var piece;
+    function Snake(length, position) {
+      var piece, x, y;
       this.length = length != null ? length : 5;
-      this.x = x != null ? x : 0;
-      this.y = y != null ? y : 4;
+      this.position = position;
+      if (this.position == null) this.position = new Game.Pair(0, 4);
+      x = this.position.x;
+      y = this.position.y;
       this.chain = (function() {
         var _ref, _results;
         _results = [];
         for (piece = 0, _ref = this.length - 1; 0 <= _ref ? piece <= _ref : piece >= _ref; 0 <= _ref ? piece++ : piece--) {
-          _results.push(new Game.Pair(this.x, this.y - piece));
+          _results.push(new Game.Pair(x, y - piece));
         }
         return _results;
       }).call(this);
@@ -32,27 +34,17 @@
     };
 
     Snake.prototype.move = function() {
-      var head, headNode, index, moveTo, piece, tail, temp, _len, _ref, _ref2, _ref3;
+      var head, index, moveTo, piece, tail, temp, _len, _ref, _ref2, _ref3;
       head = this.chain[0];
-      tail = {
-        x: this.chain[this.chain.length - 1].x,
-        y: this.chain[this.chain.length - 1].y
-      };
-      if (this.y >= this.grid.squaresY - 1) return;
-      this.y += 1;
-      moveTo = {
-        x: this.x,
-        y: this.y
-      };
-      temp = {
-        x: head.x,
-        y: head.y
-      };
+      tail = this.chain[this.chain.length - 1].copy();
+      if (this.position.y >= this.grid.squaresY - 1) return;
+      this.position.y += 1;
+      moveTo = this.position.copy();
+      temp = head.copy();
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
-        headNode = this.grid.world[piece.x][piece.y].snake;
-        this.grid.world[moveTo.x][moveTo.y].snake = headNode;
+        this.grid.moveSquare(piece, moveTo, 'snake');
         piece.x = moveTo.x;
         piece.y = moveTo.y;
         moveTo.x = temp.x;

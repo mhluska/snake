@@ -10,10 +10,7 @@
     }
 
     Pair.prototype.copy = function() {
-      return {
-        x: this.x,
-        y: this.y
-      };
+      return new Game.Pair(this.x, this.y);
     };
 
     return Pair;

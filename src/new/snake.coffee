@@ -2,10 +2,14 @@ window.Game ?= {}
 class Game.Snake
 
     # x and y mark the position of the head of the snake
-    constructor: (@length = 5, @x = 0, @y = 4) ->
+    constructor: (@length = 5, @position) ->
+
+        @position ?= new Game.Pair 0, 4
+        x = @position.x
+        y = @position.y
 
         # The coordinates of the snake chain
-        @chain = ( new Game.Pair @x, @y - piece for piece in [0..@length - 1] )
+        @chain = ( new Game.Pair x, y - piece for piece in [0..@length - 1] )
 
     setup: (grid) ->
 
@@ -17,21 +21,18 @@ class Game.Snake
     move: ->
 
         head = @chain[0]
-        tail =
-            x: @chain[@chain.length - 1].x
-            y: @chain[@chain.length - 1].y
+        tail = @chain[@chain.length - 1].copy()
 
         # TODO: Temporary code to force the snake to move downwards
-        return if @y >= @grid.squaresY - 1
-        @y += 1
+        return if @position.y >= @grid.squaresY - 1
+        @position.y += 1
 
-        moveTo  =   x: @x,     y: @y
-        temp    =   x: head.x, y: head.y
+        moveTo = @position.copy()
+        temp = head.copy()
 
         for piece, index in @chain
         
-            headNode = @grid.world[piece.x][piece.y].snake
-            @grid.world[moveTo.x][moveTo.y].snake = headNode
+            @grid.moveSquare piece, moveTo, 'snake'
         
             piece.x = moveTo.x
             piece.y = moveTo.y

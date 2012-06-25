@@ -25,7 +25,6 @@
       }).call(this);
       this.squareWidth = 15;
       this.squareHeight = 15;
-      this.squareTypes = ['food', 'snake'];
       this.snake.setup(this);
     }
 
@@ -33,11 +32,15 @@
       return this.graphics = graphics;
     };
 
+    Grid.prototype.moveSquare = function(start, end, type) {
+      return this.world[end.x][end.y][type] = this.world[start.x][start.y][type];
+    };
+
     Grid.prototype.isEmptySquare = function(square) {
-      var type, _i, _len, _ref;
-      _ref = this.squareTypes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        type = _ref[_i];
+      var squareTypes, type, _i, _len;
+      squareTypes = ['food', 'snake'];
+      for (_i = 0, _len = squareTypes.length; _i < _len; _i++) {
+        type = squareTypes[_i];
         if (square[type]) return false;
       }
       return true;
