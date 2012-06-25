@@ -6,34 +6,33 @@ class Game.Graphics
        @grid.setup @
        @buildDOM() if @graphicsType is 'dom'
 
-    setNodePosition: (node, x, y) ->
+    setNodePosition: (node, pos) ->
 
         return unless node
 
         offset = @dom.grid.offset()
         node.css
-            top: offset.top + y * @grid.squareHeight
-            left: offset.left + x * @grid.squareWidth
+            top: offset.top + pos.y * @grid.squareHeight
+            left: offset.left + pos.x * @grid.squareWidth
 
         node.show()
 
     update: ->
         for column, x in @grid.world
             for square, y in column 
-                @setNodePosition square.snake.node, x, y if square.snake
+                pos = new Game.Pair x, y
+                @setNodePosition square.snake, pos if square.snake
 
-    buildDOMElem: (x, y, type) ->
+    buildDOMNode: (pos, type) ->
 
-        elem =
-            x: x, y: y,
-            node: $("<div class='#{type}'></div>")
-
-        @setNodePosition elem.node, elem.x, elem.y
-        elem.node.css
+        node = $("<div class='#{type}'></div>")
+        node.css
             width: @grid.squareWidth
             height: @grid.squareHeight
 
-        elem
+        @setNodePosition node, pos
+
+        node
 
     buildDOM: ->
 
@@ -55,11 +54,12 @@ class Game.Graphics
                 type = 'food' if square.food
 
                 # Set a reference to the DOM node in the world data
-                elem = @buildDOMElem x, y, type
-                square[type] = elem
+                pos = new Game.Pair x, y
+                node = @buildDOMNode pos, type
+                square[type] = node
 
-                @dom.squares.push elem
-                @dom.grid.append elem.node
+                @dom.squares.push node
+                @dom.grid.append node
                 
 
 

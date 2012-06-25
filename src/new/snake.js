@@ -51,12 +51,8 @@
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
-        headNode = this.grid.world[piece.x][piece.y].snake.node;
-        this.grid.world[moveTo.x][moveTo.y].snake = {
-          x: moveTo.x,
-          y: moveTo.y,
-          node: headNode
-        };
+        headNode = this.grid.world[piece.x][piece.y].snake;
+        this.grid.world[moveTo.x][moveTo.y].snake = headNode;
         piece.x = moveTo.x;
         piece.y = moveTo.y;
         moveTo.x = temp.x;

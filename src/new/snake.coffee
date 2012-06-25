@@ -30,10 +30,8 @@ class Game.Snake
 
         for piece, index in @chain
         
-            headNode = @grid.world[piece.x][piece.y].snake.node
-            @grid.world[moveTo.x][moveTo.y].snake =
-                x: moveTo.x, y: moveTo.y,
-                node: headNode
+            headNode = @grid.world[piece.x][piece.y].snake
+            @grid.world[moveTo.x][moveTo.y].snake = headNode
         
             piece.x = moveTo.x
             piece.y = moveTo.y
