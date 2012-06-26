@@ -4,7 +4,13 @@ class Game.Snake
     constructor: (@length = 5, @direction = 'down', @position) ->
 
         @grid = null
+        @lastTailPos = null
         @nextDirection = @direction
+
+        # The number of times the snake will grow when it eats
+        @growLength = 3
+        @grown = 0
+        @eating = false
 
         @position ?= new Game.Pair 0, 4
         x = @position.x
@@ -63,7 +69,7 @@ class Game.Snake
         return unless @updateHeadPosition()
 
         head = @chain[0]
-        tail = @chain[@chain.length - 1].clone()
+        @lastTailPos = @chain[@chain.length - 1].clone()
 
         temp = head.clone()
         moveTo = @position.clone()
@@ -75,3 +81,20 @@ class Game.Snake
             piece.copy moveTo
             moveTo.copy temp
             temp.copy @chain[index + 1]
+
+        @eat() if @eating or @grid.hasType 'food', head
+
+    eat: ->
+        
+        return unless @lastTailPos
+
+        @chain.push @lastTailPos
+        @grid.registerSquare @lastTailPos, 'snake'
+        @grid.unregisterSquare @chain[0], 'food'
+
+        @eating = true
+        @grown += 1
+
+        if @grown is @growLength
+            @eating = false
+            @grown = 0

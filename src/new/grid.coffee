@@ -36,7 +36,13 @@ class Game.Grid
 
     registerSquare: (pair, type) -> @world[pair.x][pair.y][type] = true
 
-    isRegistered: (type) -> type is true
+    unregisterSquare: (pair, type) ->
+
+:SessionSave snake
+        return unless @world[pair.x][pair.y][type]
+        @graphics.nodeRemoveQueue.unshift @world[pair.x][pair.y][type]
+
+    hasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
     # TODO: This shouldn't be in grid
     randInt: (min, max) ->

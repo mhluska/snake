@@ -4,7 +4,11 @@ class Game.Graphics
     constructor: (@grid, @graphicsType = 'dom') ->
 
        @grid.setup @
+
+       # TODO: Make a DOMGraphics class that extends graphics which has these
+       # properties.
        @buildDOM() if @graphicsType is 'dom'
+       @nodeRemoveQueue = []
 
     setNodePosition: (node, pos) ->
 
@@ -18,17 +22,24 @@ class Game.Graphics
         node.show()
 
     update: ->
+
+        @deleteZombieSquares()
+
         for column, x in @grid.world
             for square, y in column
                 pos = new Game.Pair x, y
                 for type in @grid.squareTypes
 
                     # Create a new node for any nodes marked for creation
-                    if @grid.isRegistered square[type]
-                        square[type] = @appendDOMNode pos, type
-                        return
-
+                    square[type] = @appendDOMNode pos, type if square[type] is true
                     @setNodePosition square[type], pos if square[type]
+
+    deleteZombieSquares: ->
+        @deleteSquare @nodeRemoveQueue.pop() while @nodeRemoveQueue.length
+
+    deleteSquare: (square) ->
+        square.remove()
+        square = null
 
     buildDOMNode: (pos, type) ->
 
@@ -44,7 +55,6 @@ class Game.Graphics
     appendDOMNode: (pos, type) ->
 
         node = @buildDOMNode pos, type
-        @dom.squares.push node
         node.appendTo @dom.grid
 
     buildDOM: ->
@@ -57,7 +67,6 @@ class Game.Graphics
 
         $('body').append @dom.grid
 
-        @dom.squares = []
         for column, x in @grid.world
             for square, y in column
 

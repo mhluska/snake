@@ -61,8 +61,13 @@
       return this.world[pair.x][pair.y][type] = true;
     };
 
-    Grid.prototype.isRegistered = function(type) {
-      return type === true;
+    Grid.prototype.unregisterSquare = function(pair, type) {
+      if (!this.world[pair.x][pair.y][type]) return;
+      return this.graphics.nodeRemoveQueue.unshift(this.world[pair.x][pair.y][type]);
+    };
+
+    Grid.prototype.hasType = function(type, pos) {
+      return this.world[pos.x][pos.y][type] != null;
     };
 
     Grid.prototype.randInt = function(min, max) {
