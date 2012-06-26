@@ -38,7 +38,6 @@ class Game.Grid
 
     unregisterSquare: (pair, type) ->
 
-:SessionSave snake
         return unless @world[pair.x][pair.y][type]
         @graphics.nodeRemoveQueue.unshift @world[pair.x][pair.y][type]
 
