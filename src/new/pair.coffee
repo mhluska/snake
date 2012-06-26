@@ -5,7 +5,7 @@ class Game.Pair
 
     clone: -> new Game.Pair @x, @y
 
-    copy: (pair) -> 
+    copy: (pair) ->
 
         return unless pair
 

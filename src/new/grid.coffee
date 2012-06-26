@@ -9,12 +9,13 @@ class Game.Grid
 
         @squareWidth = 15
         @squareHeight = 15
+        @squareTypes = ['food', 'snake']
 
         @snake.setup @
 
         @maxFood = 4
         @foodIndex = 0
-        @foodItems = @makeFoodItems @maxFood
+        @foodItems = []
         @foodDropRate = 10000
         @foodIntervalID = null
         @dropFood()
@@ -29,12 +30,13 @@ class Game.Grid
 
     isEmptySquare: (square) ->
 
-        squareTypes = ['food', 'snake']
-        for type in squareTypes
+        for type in @squareTypes
             return false if square[type]
         true
 
     registerSquare: (pair, type) -> @world[pair.x][pair.y][type] = true
+
+    isRegistered: (type) -> type is true
 
     # TODO: This shouldn't be in grid
     randInt: (min, max) ->
@@ -52,28 +54,23 @@ class Game.Grid
 
         new Game.Pair randX, randY
 
-    makeFoodItems: (maxFood) ->
-        foodItems = []
-
-        for [0...maxFood]
-            item = @randPair @squaresX - 1, @squaresY - 1
-            @registerSquare item, 'food'
-            foodItems.push item
-
-        foodItems
-
     resetFoodInterval: ->
         clearInterval @foodIntervalID
         @foodIntervalID = setInterval @dropFood, @foodDropRate
 
     dropFood: =>
 
-        return unless @foodItems.length
+        @resetFoodInterval()
+
+        # Keep adding food items to the game world until we reach the maximum
+        unless @foodItems.length is @maxFood
+            item = @randPair @squaresX - 1, @squaresY - 1
+            @foodItems.push item
+            @registerSquare item, 'food'
+            return
 
         food = @foodItems[@foodIndex]
         newFood = @randPair @squaresX - 1, @squaresY - 1
         @moveSquare food, newFood, 'food'
         @foodItems[@foodIndex].copy newFood
         @foodIndex = (@foodIndex + 1) % @maxFood
-
-        @resetFoodInterval()

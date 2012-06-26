@@ -28,10 +28,11 @@
       }).call(this);
       this.squareWidth = 15;
       this.squareHeight = 15;
+      this.squareTypes = ['food', 'snake'];
       this.snake.setup(this);
       this.maxFood = 4;
       this.foodIndex = 0;
-      this.foodItems = this.makeFoodItems(this.maxFood);
+      this.foodItems = [];
       this.foodDropRate = 10000;
       this.foodIntervalID = null;
       this.dropFood();
@@ -47,10 +48,10 @@
     };
 
     Grid.prototype.isEmptySquare = function(square) {
-      var squareTypes, type, _i, _len;
-      squareTypes = ['food', 'snake'];
-      for (_i = 0, _len = squareTypes.length; _i < _len; _i++) {
-        type = squareTypes[_i];
+      var type, _i, _len, _ref;
+      _ref = this.squareTypes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
         if (square[type]) return false;
       }
       return true;
@@ -58,6 +59,10 @@
 
     Grid.prototype.registerSquare = function(pair, type) {
       return this.world[pair.x][pair.y][type] = true;
+    };
+
+    Grid.prototype.isRegistered = function(type) {
+      return type === true;
     };
 
     Grid.prototype.randInt = function(min, max) {
@@ -76,31 +81,25 @@
       return new Game.Pair(randX, randY);
     };
 
-    Grid.prototype.makeFoodItems = function(maxFood) {
-      var foodItems, item, _i;
-      foodItems = [];
-      for (_i = 0; 0 <= maxFood ? _i < maxFood : _i > maxFood; 0 <= maxFood ? _i++ : _i--) {
-        item = this.randPair(this.squaresX - 1, this.squaresY - 1);
-        this.registerSquare(item, 'food');
-        foodItems.push(item);
-      }
-      return foodItems;
-    };
-
     Grid.prototype.resetFoodInterval = function() {
       clearInterval(this.foodIntervalID);
       return this.foodIntervalID = setInterval(this.dropFood, this.foodDropRate);
     };
 
     Grid.prototype.dropFood = function() {
-      var food, newFood;
-      if (!this.foodItems.length) return;
+      var food, item, newFood;
+      this.resetFoodInterval();
+      if (this.foodItems.length !== this.maxFood) {
+        item = this.randPair(this.squaresX - 1, this.squaresY - 1);
+        this.foodItems.push(item);
+        this.registerSquare(item, 'food');
+        return;
+      }
       food = this.foodItems[this.foodIndex];
       newFood = this.randPair(this.squaresX - 1, this.squaresY - 1);
       this.moveSquare(food, newFood, 'food');
       this.foodItems[this.foodIndex].copy(newFood);
-      this.foodIndex = (this.foodIndex + 1) % this.maxFood;
-      return this.resetFoodInterval();
+      return this.foodIndex = (this.foodIndex + 1) % this.maxFood;
     };
 
     return Grid;

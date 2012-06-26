@@ -23,28 +23,24 @@
     };
 
     Graphics.prototype.update = function() {
-      var column, pos, square, x, y, _len, _ref, _results;
+      var column, pos, square, type, x, y, _i, _len, _len2, _len3, _ref, _ref2;
       _ref = this.grid.world;
-      _results = [];
       for (x = 0, _len = _ref.length; x < _len; x++) {
         column = _ref[x];
-        _results.push((function() {
-          var _len2, _results2;
-          _results2 = [];
-          for (y = 0, _len2 = column.length; y < _len2; y++) {
-            square = column[y];
-            pos = new Game.Pair(x, y);
-            if (square.snake) this.setNodePosition(square.snake, pos);
-            if (square.food) {
-              _results2.push(this.setNodePosition(square.food, pos));
-            } else {
-              _results2.push(void 0);
+        for (y = 0, _len2 = column.length; y < _len2; y++) {
+          square = column[y];
+          pos = new Game.Pair(x, y);
+          _ref2 = this.grid.squareTypes;
+          for (_i = 0, _len3 = _ref2.length; _i < _len3; _i++) {
+            type = _ref2[_i];
+            if (this.grid.isRegistered(square[type])) {
+              square[type] = this.appendDOMNode(pos, type);
+              return;
             }
+            if (square[type]) this.setNodePosition(square[type], pos);
           }
-          return _results2;
-        }).call(this));
+        }
       }
-      return _results;
     };
 
     Graphics.prototype.buildDOMNode = function(pos, type) {
@@ -58,8 +54,15 @@
       return node;
     };
 
+    Graphics.prototype.appendDOMNode = function(pos, type) {
+      var node;
+      node = this.buildDOMNode(pos, type);
+      this.dom.squares.push(node);
+      return node.appendTo(this.dom.grid);
+    };
+
     Graphics.prototype.buildDOM = function() {
-      var column, node, pos, square, type, x, y, _len, _ref, _results;
+      var column, pos, square, type, x, y, _len, _ref, _results;
       this.dom = {};
       this.dom.grid = $('<div id="grid"></div>');
       this.dom.grid.css({
@@ -81,10 +84,7 @@
             if (square.snake) type = 'snake';
             if (square.food) type = 'food';
             pos = new Game.Pair(x, y);
-            node = this.buildDOMNode(pos, type);
-            square[type] = node;
-            this.dom.squares.push(node);
-            _results2.push(this.dom.grid.append(node));
+            _results2.push(square[type] = this.appendDOMNode(pos, type));
           }
           return _results2;
         }).call(this));

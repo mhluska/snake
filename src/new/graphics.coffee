@@ -19,10 +19,16 @@ class Game.Graphics
 
     update: ->
         for column, x in @grid.world
-            for square, y in column 
+            for square, y in column
                 pos = new Game.Pair x, y
-                @setNodePosition square.snake, pos if square.snake
-                @setNodePosition square.food, pos if square.food
+                for type in @grid.squareTypes
+
+                    # Create a new node for any nodes marked for creation
+                    if @grid.isRegistered square[type]
+                        square[type] = @appendDOMNode pos, type
+                        return
+
+                    @setNodePosition square[type], pos if square[type]
 
     buildDOMNode: (pos, type) ->
 
@@ -34,6 +40,12 @@ class Game.Graphics
         @setNodePosition node, pos
 
         node
+
+    appendDOMNode: (pos, type) ->
+
+        node = @buildDOMNode pos, type
+        @dom.squares.push node
+        node.appendTo @dom.grid
 
     buildDOM: ->
 
@@ -56,13 +68,5 @@ class Game.Graphics
 
                 # Set a reference to the DOM node in the world data
                 pos = new Game.Pair x, y
-                node = @buildDOMNode pos, type
-                square[type] = node
-
-                @dom.squares.push node
-                @dom.grid.append node
-                
-
-
-                
+                square[type] = @appendDOMNode pos, type
 
