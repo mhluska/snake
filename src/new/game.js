@@ -1,5 +1,5 @@
 (function() {
-  var graphics, grid, run, snake;
+  var graphics, grid, snake;
 
   snake = new Game.Snake;
 
@@ -7,13 +7,6 @@
 
   graphics = new Game.Graphics(grid);
 
-  run = function() {
-    snake.move();
-    return graphics.update();
-  };
-
-  setInterval(run, 150);
-
-  run();
+  grid.startGame();
 
 }).call(this);

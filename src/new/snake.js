@@ -103,6 +103,7 @@
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
       temp = head.clone();
       moveTo = this.position.clone();
+      if (this.grid.hasType('snake', moveTo)) this.grid.restart();
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
@@ -118,7 +119,7 @@
       if (!this.lastTailPos) return;
       this.chain.push(this.lastTailPos);
       this.grid.registerSquare(this.lastTailPos, 'snake');
-      this.grid.unregisterSquare(this.chain[0], 'food');
+      this.grid.unregisterSquareAt(this.chain[0], 'food');
       this.eating = true;
       this.grown += 1;
       if (this.grown === this.growLength) {

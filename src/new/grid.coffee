@@ -4,24 +4,45 @@ class Game.Grid
     constructor: (@snake, @squaresX = 25, @squaresY = 15) ->
 
         @graphics = null
-
-        @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
+        @gameIntervalID = null
 
         @squareWidth = 15
         @squareHeight = 15
         @squareTypes = ['food', 'snake']
 
-        @snake.setup @
-
         @maxFood = 4
         @foodIndex = 0
         @foodItems = []
-        @foodDropRate = 10000
+        @foodDropRate = 7000
         @foodIntervalID = null
-        @dropFood()
+
+    eachSquare: (callback) ->
+
+        return unless @world
+
+        for column, x in @world
+            for square, y in column
+                pos = new Game.Pair x, y
+                callback pos, square
+
+    makeWorld: ->
+        @eachSquare (pos) => @unregisterSquareAt pos
+        @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
     setup: (graphics) ->
         @graphics = graphics
+
+    startGame: () ->
+        @snake.setup @
+        @dropFood()
+
+        clearInterval @gameIntervalID
+        gameLoop = =>
+            @snake.move()
+            @graphics.update()
+
+        @gameIntervalID = setInterval gameLoop, 150
+        gameLoop()
 
     moveSquare: (start, end, type) ->
 
@@ -36,10 +57,17 @@ class Game.Grid
 
     registerSquare: (pair, type) -> @world[pair.x][pair.y][type] = true
 
-    unregisterSquare: (pair, type) ->
+    unregisterSquareAt: (pos, types) ->
 
-        return unless @world[pair.x][pair.y][type]
-        @graphics.nodeRemoveQueue.unshift @world[pair.x][pair.y][type]
+        types = if types then [types] else @squareTypes
+
+        # The square will float around invisible until the graphics module
+        # decides to clean it up
+        # TODO: Make a queue to keep track of these hidden nodes and garbage 
+        # collect them after a while or after game over
+        for type in types
+            @world[pos.x][pos.y][type]?.hide()
+            @world[pos.x][pos.y][type] = null
 
     hasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
@@ -79,3 +107,9 @@ class Game.Grid
         @moveSquare food, newFood, 'food'
         @foodItems[@foodIndex].copy newFood
         @foodIndex = (@foodIndex + 1) % @maxFood
+
+    restart: ->
+        @snake = new Game.Snake
+        @makeWorld()
+        @startGame()
+

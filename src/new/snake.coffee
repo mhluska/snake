@@ -74,6 +74,8 @@ class Game.Snake
         temp = head.clone()
         moveTo = @position.clone()
 
+        @grid.restart() if @grid.hasType 'snake', moveTo
+
         for piece, index in @chain
         
             @grid.moveSquare piece, moveTo, 'snake'
@@ -90,7 +92,7 @@ class Game.Snake
 
         @chain.push @lastTailPos
         @grid.registerSquare @lastTailPos, 'snake'
-        @grid.unregisterSquare @chain[0], 'food'
+        @grid.unregisterSquareAt @chain[0], 'food'
 
         @eating = true
         @grown += 1

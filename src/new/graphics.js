@@ -8,6 +8,7 @@
       this.grid = grid;
       this.graphicsType = graphicsType != null ? graphicsType : 'dom';
       this.grid.setup(this);
+      this.grid.makeWorld();
       if (this.graphicsType === 'dom') this.buildDOM();
       this.nodeRemoveQueue = [];
     }
@@ -24,54 +25,22 @@
     };
 
     Graphics.prototype.update = function() {
-      var column, pos, square, type, x, y, _len, _ref, _results;
-      this.deleteZombieSquares();
-      _ref = this.grid.world;
-      _results = [];
-      for (x = 0, _len = _ref.length; x < _len; x++) {
-        column = _ref[x];
-        _results.push((function() {
-          var _len2, _results2;
-          _results2 = [];
-          for (y = 0, _len2 = column.length; y < _len2; y++) {
-            square = column[y];
-            pos = new Game.Pair(x, y);
-            _results2.push((function() {
-              var _i, _len3, _ref2, _results3;
-              _ref2 = this.grid.squareTypes;
-              _results3 = [];
-              for (_i = 0, _len3 = _ref2.length; _i < _len3; _i++) {
-                type = _ref2[_i];
-                if (square[type] === true) {
-                  square[type] = this.appendDOMNode(pos, type);
-                }
-                if (square[type]) {
-                  _results3.push(this.setNodePosition(square[type], pos));
-                } else {
-                  _results3.push(void 0);
-                }
-              }
-              return _results3;
-            }).call(this));
+      var _this = this;
+      return this.grid.eachSquare(function(pos, square) {
+        var type, _i, _len, _ref, _results;
+        _ref = _this.grid.squareTypes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          type = _ref[_i];
+          if (square[type] === true) square[type] = _this.appendDOMNode(pos, type);
+          if (square[type]) {
+            _results.push(_this.setNodePosition(square[type], pos));
+          } else {
+            _results.push(void 0);
           }
-          return _results2;
-        }).call(this));
-      }
-      return _results;
-    };
-
-    Graphics.prototype.deleteZombieSquares = function() {
-      var _results;
-      _results = [];
-      while (this.nodeRemoveQueue.length) {
-        _results.push(this.deleteSquare(this.nodeRemoveQueue.pop()));
-      }
-      return _results;
-    };
-
-    Graphics.prototype.deleteSquare = function(square) {
-      square.remove();
-      return square = null;
+        }
+        return _results;
+      });
     };
 
     Graphics.prototype.buildDOMNode = function(pos, type) {
@@ -92,7 +61,7 @@
     };
 
     Graphics.prototype.buildDOM = function() {
-      var column, pos, square, type, x, y, _len, _ref, _results;
+      var _this = this;
       this.dom = {};
       this.dom.grid = $('<div id="grid"></div>');
       this.dom.grid.css({
@@ -100,25 +69,13 @@
         height: this.grid.squareHeight * this.grid.squaresY
       });
       $('body').append(this.dom.grid);
-      _ref = this.grid.world;
-      _results = [];
-      for (x = 0, _len = _ref.length; x < _len; x++) {
-        column = _ref[x];
-        _results.push((function() {
-          var _len2, _results2;
-          _results2 = [];
-          for (y = 0, _len2 = column.length; y < _len2; y++) {
-            square = column[y];
-            if (this.grid.isEmptySquare(square)) continue;
-            if (square.snake) type = 'snake';
-            if (square.food) type = 'food';
-            pos = new Game.Pair(x, y);
-            _results2.push(square[type] = this.appendDOMNode(pos, type));
-          }
-          return _results2;
-        }).call(this));
-      }
-      return _results;
+      return this.grid.eachSquare(function(pos, square) {
+        var type;
+        if (_this.grid.isEmptySquare(square)) return;
+        if (square.snake) type = 'snake';
+        if (square.food) type = 'food';
+        return square[type] = _this.appendDOMNode(pos, type);
+      });
     };
 
     return Graphics;

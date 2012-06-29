@@ -11,7 +11,44 @@
       this.squaresY = squaresY != null ? squaresY : 15;
       this.dropFood = __bind(this.dropFood, this);
       this.graphics = null;
-      this.world = (function() {
+      this.gameIntervalID = null;
+      this.squareWidth = 15;
+      this.squareHeight = 15;
+      this.squareTypes = ['food', 'snake'];
+      this.maxFood = 4;
+      this.foodIndex = 0;
+      this.foodItems = [];
+      this.foodDropRate = 7000;
+      this.foodIntervalID = null;
+    }
+
+    Grid.prototype.eachSquare = function(callback) {
+      var column, pos, square, x, y, _len, _ref, _results;
+      if (!this.world) return;
+      _ref = this.world;
+      _results = [];
+      for (x = 0, _len = _ref.length; x < _len; x++) {
+        column = _ref[x];
+        _results.push((function() {
+          var _len2, _results2;
+          _results2 = [];
+          for (y = 0, _len2 = column.length; y < _len2; y++) {
+            square = column[y];
+            pos = new Game.Pair(x, y);
+            _results2.push(callback(pos, square));
+          }
+          return _results2;
+        })());
+      }
+      return _results;
+    };
+
+    Grid.prototype.makeWorld = function() {
+      var _this = this;
+      this.eachSquare(function(pos) {
+        return _this.unregisterSquareAt(pos);
+      });
+      return this.world = (function() {
         var _i, _ref, _results;
         _results = [];
         for (_i = 0, _ref = this.squaresX; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--) {
@@ -26,20 +63,24 @@
         }
         return _results;
       }).call(this);
-      this.squareWidth = 15;
-      this.squareHeight = 15;
-      this.squareTypes = ['food', 'snake'];
-      this.snake.setup(this);
-      this.maxFood = 4;
-      this.foodIndex = 0;
-      this.foodItems = [];
-      this.foodDropRate = 10000;
-      this.foodIntervalID = null;
-      this.dropFood();
-    }
+    };
 
     Grid.prototype.setup = function(graphics) {
       return this.graphics = graphics;
+    };
+
+    Grid.prototype.startGame = function() {
+      var gameLoop,
+        _this = this;
+      this.snake.setup(this);
+      this.dropFood();
+      clearInterval(this.gameIntervalID);
+      gameLoop = function() {
+        _this.snake.move();
+        return _this.graphics.update();
+      };
+      this.gameIntervalID = setInterval(gameLoop, 150);
+      return gameLoop();
     };
 
     Grid.prototype.moveSquare = function(start, end, type) {
@@ -61,9 +102,16 @@
       return this.world[pair.x][pair.y][type] = true;
     };
 
-    Grid.prototype.unregisterSquare = function(pair, type) {
-      if (!this.world[pair.x][pair.y][type]) return;
-      return this.graphics.nodeRemoveQueue.unshift(this.world[pair.x][pair.y][type]);
+    Grid.prototype.unregisterSquareAt = function(pos, types) {
+      var type, _i, _len, _ref, _results;
+      types = types ? [types] : this.squareTypes;
+      _results = [];
+      for (_i = 0, _len = types.length; _i < _len; _i++) {
+        type = types[_i];
+        if ((_ref = this.world[pos.x][pos.y][type]) != null) _ref.hide();
+        _results.push(this.world[pos.x][pos.y][type] = null);
+      }
+      return _results;
     };
 
     Grid.prototype.hasType = function(type, pos) {
@@ -105,6 +153,12 @@
       this.moveSquare(food, newFood, 'food');
       this.foodItems[this.foodIndex].copy(newFood);
       return this.foodIndex = (this.foodIndex + 1) % this.maxFood;
+    };
+
+    Grid.prototype.restart = function() {
+      this.snake = new Game.Snake;
+      this.makeWorld();
+      return this.startGame();
     };
 
     return Grid;

@@ -7,6 +7,7 @@ class Game.Graphics
 
        # TODO: Make a DOMGraphics class that extends graphics which has these
        # properties.
+       @grid.makeWorld()
        @buildDOM() if @graphicsType is 'dom'
        @nodeRemoveQueue = []
 
@@ -23,23 +24,12 @@ class Game.Graphics
 
     update: ->
 
-        @deleteZombieSquares()
+        @grid.eachSquare (pos, square) =>
+            for type in @grid.squareTypes
 
-        for column, x in @grid.world
-            for square, y in column
-                pos = new Game.Pair x, y
-                for type in @grid.squareTypes
-
-                    # Create a new node for any nodes marked for creation
-                    square[type] = @appendDOMNode pos, type if square[type] is true
-                    @setNodePosition square[type], pos if square[type]
-
-    deleteZombieSquares: ->
-        @deleteSquare @nodeRemoveQueue.pop() while @nodeRemoveQueue.length
-
-    deleteSquare: (square) ->
-        square.remove()
-        square = null
+                # Create a new node for any nodes marked for creation
+                square[type] = @appendDOMNode pos, type if square[type] is true
+                @setNodePosition square[type], pos if square[type]
 
     buildDOMNode: (pos, type) ->
 
@@ -67,15 +57,13 @@ class Game.Graphics
 
         $('body').append @dom.grid
 
-        for column, x in @grid.world
-            for square, y in column
+        @grid.eachSquare (pos, square) =>
 
-                continue if @grid.isEmptySquare square
+            return if @grid.isEmptySquare square
 
-                type = 'snake' if square.snake
-                type = 'food' if square.food
+            type = 'snake' if square.snake
+            type = 'food' if square.food
 
-                # Set a reference to the DOM node in the world data
-                pos = new Game.Pair x, y
-                square[type] = @appendDOMNode pos, type
+            # Set a reference to the DOM node in the world data
+            square[type] = @appendDOMNode pos, type
 
