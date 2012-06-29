@@ -47,26 +47,26 @@ class Game.Snake
         false
 
     updateHeadPosition: ->
-        return false unless @direction
+
         @direction = @nextDirection
+
         switch @direction
-            when 'up'
-                return false if @position.y <= 0
-                @position.y -= 1
-            when 'right'
-                return false if @position.x >= @grid.squaresX - 1
-                @position.x += 1
-            when 'down'
-                return false if @position.y >= @grid.squaresY - 1
-                @position.y += 1
-            when 'left'
-                return false if @position.x <= 0
-                @position.x -= 1
-        true
+            when 'up'    then @position.y -= 1
+            when 'right' then @position.x += 1
+            when 'down'  then @position.y += 1
+            when 'left'  then @position.x -= 1
+
+        @position.x += @grid.squaresX if @position.x < 0
+        @position.x %= @grid.squaresX
+
+        @position.y += @grid.squaresY if @position.y < 0
+        @position.y %= @grid.squaresY
 
     move: ->
 
-        return unless @updateHeadPosition()
+        return unless @direction
+
+        @updateHeadPosition()
 
         head = @chain[0]
         @lastTailPos = @chain[@chain.length - 1].clone()
@@ -76,6 +76,7 @@ class Game.Snake
 
         @grid.restart() if @grid.hasType 'snake', moveTo
 
+        # TODO: Make this constant time instead of linear
         for piece, index in @chain
         
             @grid.moveSquare piece, moveTo, 'snake'

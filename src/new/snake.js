@@ -74,31 +74,30 @@
     };
 
     Snake.prototype.updateHeadPosition = function() {
-      if (!this.direction) return false;
       this.direction = this.nextDirection;
       switch (this.direction) {
         case 'up':
-          if (this.position.y <= 0) return false;
           this.position.y -= 1;
           break;
         case 'right':
-          if (this.position.x >= this.grid.squaresX - 1) return false;
           this.position.x += 1;
           break;
         case 'down':
-          if (this.position.y >= this.grid.squaresY - 1) return false;
           this.position.y += 1;
           break;
         case 'left':
-          if (this.position.x <= 0) return false;
           this.position.x -= 1;
       }
-      return true;
+      if (this.position.x < 0) this.position.x += this.grid.squaresX;
+      this.position.x %= this.grid.squaresX;
+      if (this.position.y < 0) this.position.y += this.grid.squaresY;
+      return this.position.y %= this.grid.squaresY;
     };
 
     Snake.prototype.move = function() {
       var head, index, moveTo, piece, temp, _len, _ref;
-      if (!this.updateHeadPosition()) return;
+      if (!this.direction) return;
+      this.updateHeadPosition();
       head = this.chain[0];
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
       temp = head.clone();

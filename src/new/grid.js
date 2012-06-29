@@ -18,7 +18,7 @@
       this.maxFood = 4;
       this.foodIndex = 0;
       this.foodItems = [];
-      this.foodDropRate = 7000;
+      this.foodDropRate = 4000;
       this.foodIntervalID = null;
     }
 

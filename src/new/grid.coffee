@@ -13,7 +13,7 @@ class Game.Grid
         @maxFood = 4
         @foodIndex = 0
         @foodItems = []
-        @foodDropRate = 7000
+        @foodDropRate = 4000
         @foodIntervalID = null
 
     eachSquare: (callback) ->
