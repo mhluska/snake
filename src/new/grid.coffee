@@ -5,6 +5,7 @@ class Game.Grid
 
         @graphics = null
         @gameIntervalID = null
+        @timeStepRate = 100
 
         @squareWidth = 15
         @squareHeight = 15
@@ -13,7 +14,7 @@ class Game.Grid
         @maxFood = 4
         @foodIndex = 0
         @foodItems = []
-        @foodDropRate = 4000
+        @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
 
     eachSquare: (callback) ->
@@ -41,7 +42,7 @@ class Game.Grid
             @snake.move()
             @graphics.update()
 
-        @gameIntervalID = setInterval gameLoop, 150
+        @gameIntervalID = setInterval gameLoop, @timeStepRate
         gameLoop()
 
     moveSquare: (start, end, type) ->
@@ -68,6 +69,9 @@ class Game.Grid
         for type in types
             @world[pos.x][pos.y][type]?.hide()
             @world[pos.x][pos.y][type] = null
+
+            # TODO: Use a linked list for stuff like this
+            @foodItems.splice @foodItems.indexOf(pos), 1 if type is 'food'
 
     hasType: (type, pos) -> @world[pos.x][pos.y][type]?
 

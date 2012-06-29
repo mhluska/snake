@@ -12,13 +12,14 @@
       this.dropFood = __bind(this.dropFood, this);
       this.graphics = null;
       this.gameIntervalID = null;
+      this.timeStepRate = 100;
       this.squareWidth = 15;
       this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
       this.maxFood = 4;
       this.foodIndex = 0;
       this.foodItems = [];
-      this.foodDropRate = 4000;
+      this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
 
@@ -79,7 +80,7 @@
         _this.snake.move();
         return _this.graphics.update();
       };
-      this.gameIntervalID = setInterval(gameLoop, 150);
+      this.gameIntervalID = setInterval(gameLoop, this.timeStepRate);
       return gameLoop();
     };
 
@@ -109,7 +110,12 @@
       for (_i = 0, _len = types.length; _i < _len; _i++) {
         type = types[_i];
         if ((_ref = this.world[pos.x][pos.y][type]) != null) _ref.hide();
-        _results.push(this.world[pos.x][pos.y][type] = null);
+        this.world[pos.x][pos.y][type] = null;
+        if (type === 'food') {
+          _results.push(this.foodItems.splice(this.foodItems.indexOf(pos), 1));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };
