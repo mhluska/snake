@@ -12,7 +12,8 @@ class Game.Grid
         @squareTypes = ['food', 'snake']
 
         @maxFood = 4
-        @foodQueue = []
+        @foodCount = 0
+        @foodQueue = new Game.Queue
         @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
 
@@ -26,7 +27,7 @@ class Game.Grid
                 callback pos, square
 
     makeWorld: ->
-        @eachSquare (pos) => @unregisterSquareAt pos
+        @eachSquare (pos) => @unregisterAllSquaresAt pos
         @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
     setup: (graphics) ->
@@ -49,44 +50,48 @@ class Game.Grid
         @world[end.x][end.y][type] = @world[start.x][start.y][type]
         @world[start.x][start.y][type] = null
 
-    moveFood: ->
-
-        foodPos = @foodQueue.shift()
-        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
-        @foodQueue.push newFoodPos
-
-        @moveSquare foodPos, newFoodPos, 'food'
-
     isEmptySquare: (square) ->
 
         for type in @squareTypes
             return false if square[type]
         true
 
-    registerSquare: (pos, type) -> @world[pos.x][pos.y][type] = true
+    registerSquareAt: (pos, type) -> 
+        return false if @world[pos.x][pos.y][type]
+        @world[pos.x][pos.y][type] = true
+        true
 
-    unregisterSquareAt: (pos, types) ->
+    registerFoodAt: (pos) ->
+        return false unless @registerSquareAt pos, 'food'
+        @foodCount += 1
+        true
 
-        # If no types are provided unregister them all
-        types = if types then [types] else @squareTypes
+    unregisterSquareAt: (pos, type) ->
+
+        return false unless @world[pos.x][pos.y][type]
 
         # The square will float around invisible until the graphics module
         # decides to clean it up
         # TODO: Make a queue to keep track of these hidden nodes and garbage 
         # collect them after a while or after game over
-        for type in types
-            @world[pos.x][pos.y][type]?.hide()
-            @world[pos.x][pos.y][type] = null
+        @world[pos.x][pos.y][type].hide()
+        @world[pos.x][pos.y][type] = null
+        true
 
-            @removeFoodAt pos if type is 'food'
+    unregisterFoodAt: (pos) ->
+        return false unless @unregisterSquareAt pos, 'food'
 
-    removeFoodAt: (pos) ->
-        for foodPos, index in @foodQueue
-            @foodQueue.splice index, 1 if pos.equals foodPos
+        # TODO: Do some error checking here so that a negative value isn't set
+        @foodCount -= 1
+        true
 
-        console.log @foodQueue
+    unregisterAllSquaresAt: (pos) ->
+        @unregisterSquareAt pos for type in @squareTypes
 
-    hasType: (type, pos) -> @world[pos.x][pos.y][type]?
+    squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
+
+    squareHasFood: (pos) -> 
+        @squareHasType 'food', pos
 
     resetFoodInterval: ->
         clearInterval @foodIntervalID
@@ -97,13 +102,16 @@ class Game.Grid
         @resetFoodInterval()
 
         # Keep adding food items to the game world until we reach the maximum
-        unless @foodQueue.length is @maxFood
-            item = Game.Utils.randPair @squaresX - 1, @squaresY - 1
-            @foodQueue.push item
-            @registerSquare item, 'food'
-            return
+        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
+        @foodQueue.enqueue newFoodPos
+        @registerFoodAt newFoodPos
 
-        @moveFood()
+        # Remove any food positions that the snake has already eaten
+        @foodQueue.dequeue() until @squareHasFood @foodQueue.peek()
+
+        if @foodCount > @maxFood
+            foodPos = @foodQueue.dequeue()
+            @unregisterFoodAt foodPos
 
     restart: ->
         @snake = new Game.Snake

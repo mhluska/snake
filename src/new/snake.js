@@ -37,7 +37,7 @@
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         pair = _ref[_i];
-        _results.push(this.grid.registerSquare(pair, 'snake'));
+        _results.push(this.grid.registerSquareAt(pair, 'snake'));
       }
       return _results;
     };
@@ -103,7 +103,7 @@
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
       temp = head.clone();
       moveTo = this.position.clone();
-      if (this.grid.hasType('snake', moveTo)) this.grid.restart();
+      if (this.grid.squareHasType('snake', moveTo)) this.grid.restart();
       _ref = this.chain;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         piece = _ref[index];
@@ -112,7 +112,7 @@
         moveTo.copy(temp);
         temp.copy(this.chain[index + 1]);
       }
-      if (this.grid.hasType('food', head)) {
+      if (this.grid.squareHasType('food', head)) {
         this.toGrow += this.growthPerFood;
         this.eating = true;
       }
@@ -122,8 +122,8 @@
     Snake.prototype.eat = function() {
       if (!this.lastTailPos) return;
       this.chain.push(this.lastTailPos);
-      this.grid.registerSquare(this.lastTailPos, 'snake');
-      this.grid.unregisterSquareAt(this.chain[0], 'food');
+      this.grid.registerSquareAt(this.lastTailPos, 'snake');
+      this.grid.unregisterFoodAt(this.chain[0]);
       this.grown += 1;
       if (this.grown === this.toGrow) {
         this.eating = false;

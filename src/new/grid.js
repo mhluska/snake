@@ -17,7 +17,8 @@
       this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
       this.maxFood = 4;
-      this.foodQueue = [];
+      this.foodCount = 0;
+      this.foodQueue = new Game.Queue;
       this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
@@ -46,7 +47,7 @@
     Grid.prototype.makeWorld = function() {
       var _this = this;
       this.eachSquare(function(pos) {
-        return _this.unregisterSquareAt(pos);
+        return _this.unregisterAllSquaresAt(pos);
       });
       return this.world = (function() {
         var _i, _ref, _results;
@@ -88,14 +89,6 @@
       return this.world[start.x][start.y][type] = null;
     };
 
-    Grid.prototype.moveFood = function() {
-      var foodPos, newFoodPos;
-      foodPos = this.foodQueue.shift();
-      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-      this.foodQueue.push(newFoodPos);
-      return this.moveSquare(foodPos, newFoodPos, 'food');
-    };
-
     Grid.prototype.isEmptySquare = function(square) {
       var type, _i, _len, _ref;
       _ref = this.squareTypes;
@@ -106,39 +99,48 @@
       return true;
     };
 
-    Grid.prototype.registerSquare = function(pos, type) {
-      return this.world[pos.x][pos.y][type] = true;
+    Grid.prototype.registerSquareAt = function(pos, type) {
+      if (this.world[pos.x][pos.y][type]) return false;
+      this.world[pos.x][pos.y][type] = true;
+      return true;
     };
 
-    Grid.prototype.unregisterSquareAt = function(pos, types) {
+    Grid.prototype.registerFoodAt = function(pos) {
+      if (!this.registerSquareAt(pos, 'food')) return false;
+      this.foodCount += 1;
+      return true;
+    };
+
+    Grid.prototype.unregisterSquareAt = function(pos, type) {
+      if (!this.world[pos.x][pos.y][type]) return false;
+      this.world[pos.x][pos.y][type].hide();
+      this.world[pos.x][pos.y][type] = null;
+      return true;
+    };
+
+    Grid.prototype.unregisterFoodAt = function(pos) {
+      if (!this.unregisterSquareAt(pos, 'food')) return false;
+      this.foodCount -= 1;
+      return true;
+    };
+
+    Grid.prototype.unregisterAllSquaresAt = function(pos) {
       var type, _i, _len, _ref, _results;
-      types = types ? [types] : this.squareTypes;
+      _ref = this.squareTypes;
       _results = [];
-      for (_i = 0, _len = types.length; _i < _len; _i++) {
-        type = types[_i];
-        if ((_ref = this.world[pos.x][pos.y][type]) != null) _ref.hide();
-        this.world[pos.x][pos.y][type] = null;
-        if (type === 'food') {
-          _results.push(this.removeFoodAt(pos));
-        } else {
-          _results.push(void 0);
-        }
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        _results.push(this.unregisterSquareAt(pos));
       }
       return _results;
     };
 
-    Grid.prototype.removeFoodAt = function(pos) {
-      var foodPos, index, _len, _ref;
-      _ref = this.foodQueue;
-      for (index = 0, _len = _ref.length; index < _len; index++) {
-        foodPos = _ref[index];
-        if (pos.equals(foodPos)) this.foodQueue.splice(index, 1);
-      }
-      return console.log(this.foodQueue);
+    Grid.prototype.squareHasType = function(type, pos) {
+      return this.world[pos.x][pos.y][type] != null;
     };
 
-    Grid.prototype.hasType = function(type, pos) {
-      return this.world[pos.x][pos.y][type] != null;
+    Grid.prototype.squareHasFood = function(pos) {
+      return this.squareHasType('food', pos);
     };
 
     Grid.prototype.resetFoodInterval = function() {
@@ -147,15 +149,18 @@
     };
 
     Grid.prototype.dropFood = function() {
-      var item;
+      var foodPos, newFoodPos;
       this.resetFoodInterval();
-      if (this.foodQueue.length !== this.maxFood) {
-        item = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-        this.foodQueue.push(item);
-        this.registerSquare(item, 'food');
-        return;
+      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
+      this.foodQueue.enqueue(newFoodPos);
+      this.registerFoodAt(newFoodPos);
+      while (!this.squareHasFood(this.foodQueue.peek())) {
+        this.foodQueue.dequeue();
       }
-      return this.moveFood();
+      if (this.foodCount > this.maxFood) {
+        foodPos = this.foodQueue.dequeue();
+        return this.unregisterFoodAt(foodPos);
+      }
     };
 
     Grid.prototype.restart = function() {

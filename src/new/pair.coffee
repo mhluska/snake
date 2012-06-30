@@ -16,3 +16,5 @@ class Game.Pair
 
         return false unless pair
         return @x is pair.x and @y is pair.y
+
+    toString: -> "(#{@x}, #{@y})"

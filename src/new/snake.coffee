@@ -27,7 +27,7 @@ class Game.Snake
         @grid = grid
 
         # Snake registers itself on the grid
-        @grid.registerSquare pair, 'snake' for pair in @chain
+        @grid.registerSquareAt pair, 'snake' for pair in @chain
 
     setupControls: ->
         $(window).keydown (event) =>
@@ -75,7 +75,7 @@ class Game.Snake
         temp = head.clone()
         moveTo = @position.clone()
 
-        @grid.restart() if @grid.hasType 'snake', moveTo
+        @grid.restart() if @grid.squareHasType 'snake', moveTo
 
         # TODO: Make this constant time instead of linear
         for piece, index in @chain
@@ -86,7 +86,7 @@ class Game.Snake
             moveTo.copy temp
             temp.copy @chain[index + 1]
 
-        if @grid.hasType 'food', head
+        if @grid.squareHasType 'food', head
             @toGrow += @growthPerFood
             @eating = true
 
@@ -97,8 +97,8 @@ class Game.Snake
         return unless @lastTailPos
 
         @chain.push @lastTailPos
-        @grid.registerSquare @lastTailPos, 'snake'
-        @grid.unregisterSquareAt @chain[0], 'food'
+        @grid.registerSquareAt @lastTailPos, 'snake'
+        @grid.unregisterFoodAt @chain[0]
 
         @grown += 1
 

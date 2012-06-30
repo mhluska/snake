@@ -24,6 +24,10 @@
       return this.x === pair.x && this.y === pair.y;
     };
 
+    Pair.prototype.toString = function() {
+      return "(" + this.x + ", " + this.y + ")";
+    };
+
     return Pair;
 
   })();
