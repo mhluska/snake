@@ -18,7 +18,7 @@
       this.squareTypes = ['food', 'snake'];
       this.maxFood = 4;
       this.foodCount = 0;
-      this.foodQueue = new Game.FoodQueue(this);
+      this.foodQueue = null;
       this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
@@ -73,6 +73,8 @@
     Grid.prototype.startGame = function() {
       var gameLoop,
         _this = this;
+      this.foodCount = 0;
+      this.foodQueue = new Game.FoodQueue(this);
       this.snake.setup(this);
       this.dropFood();
       clearInterval(this.gameIntervalID);
@@ -112,8 +114,9 @@
     };
 
     Grid.prototype.unregisterSquareAt = function(pos, type) {
+      var _ref;
       if (!this.world[pos.x][pos.y][type]) return false;
-      this.world[pos.x][pos.y][type].hide();
+      if ((_ref = this.world[pos.x][pos.y][type]) != null) _ref.hide();
       this.world[pos.x][pos.y][type] = null;
       return true;
     };

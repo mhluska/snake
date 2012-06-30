@@ -12,10 +12,8 @@ class Game.Grid
         @squareTypes = ['food', 'snake']
 
         @maxFood = 4
-        # Don't modify foodCount manually. This is handled by unregisterFoodAt 
-        # and registerFoodAt
         @foodCount = 0
-        @foodQueue = new Game.FoodQueue @
+        @foodQueue = null
 
         @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
@@ -37,6 +35,11 @@ class Game.Grid
         @graphics = graphics
 
     startGame: () ->
+        # Don't modify foodCount manually. This is handled by unregisterFoodAt 
+        # and registerFoodAt
+        @foodCount = 0
+        @foodQueue = new Game.FoodQueue @
+
         @snake.setup @
         @dropFood()
 
@@ -77,7 +80,7 @@ class Game.Grid
         # decides to clean it up
         # TODO: Make a queue to keep track of these hidden nodes and garbage 
         # collect them after a while or after game over
-        @world[pos.x][pos.y][type].hide()
+        @world[pos.x][pos.y][type]?.hide()
         @world[pos.x][pos.y][type] = null
         true
 
@@ -104,9 +107,7 @@ class Game.Grid
 
         @resetFoodInterval()
 
-        # Keep adding food items to the game world until we reach the maximum
         @foodQueue.enqueue Game.Utils.randPair @squaresX - 1, @squaresY - 1
-
         @foodQueue.dequeue() if @foodCount > @maxFood
 
     restart: ->
