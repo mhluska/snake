@@ -99,8 +99,8 @@
       return true;
     };
 
-    Grid.prototype.registerSquare = function(pair, type) {
-      return this.world[pair.x][pair.y][type] = true;
+    Grid.prototype.registerSquare = function(pos, type) {
+      return this.world[pos.x][pos.y][type] = true;
     };
 
     Grid.prototype.unregisterSquareAt = function(pos, types) {
@@ -121,38 +121,17 @@
     };
 
     Grid.prototype.removeFoodAt = function(pos) {
-      var foodPos, index, _len, _ref, _results;
+      var foodPos, index, _len, _ref;
       _ref = this.foodItems;
-      _results = [];
       for (index = 0, _len = _ref.length; index < _len; index++) {
         foodPos = _ref[index];
-        if (pos.equals(foodPos)) {
-          _results.push(this.foodItems.splice(index, 1));
-        } else {
-          _results.push(void 0);
-        }
+        if (pos.equals(foodPos)) this.foodItems.splice(index, 1);
       }
-      return _results;
+      return console.log(this.foodItems);
     };
 
     Grid.prototype.hasType = function(type, pos) {
       return this.world[pos.x][pos.y][type] != null;
-    };
-
-    Grid.prototype.randInt = function(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
-    Grid.prototype.randPair = function(min1, max1, min2, max2) {
-      var randX, randY;
-      if (arguments.length === 2) {
-        randX = this.randInt(0, min1);
-        randY = this.randInt(0, max1);
-      } else {
-        randX = this.randInt(min1, max1);
-        randY = this.randInt(min2, max2);
-      }
-      return new Game.Pair(randX, randY);
     };
 
     Grid.prototype.resetFoodInterval = function() {
@@ -164,13 +143,13 @@
       var foodPos, item, newFoodPos;
       this.resetFoodInterval();
       if (this.foodItems.length !== this.maxFood) {
-        item = this.randPair(this.squaresX - 1, this.squaresY - 1);
+        item = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
         this.foodItems.push(item);
         this.registerSquare(item, 'food');
         return;
       }
       foodPos = this.foodItems[this.foodIndex];
-      newFoodPos = this.randPair(this.squaresX - 1, this.squaresY - 1);
+      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
       this.moveSquare(foodPos, newFoodPos, 'food');
       this.foodItems[this.foodIndex].copy(newFoodPos);
       return this.foodIndex = (this.foodIndex + 1) % this.maxFood;

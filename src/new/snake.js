@@ -12,7 +12,8 @@
       this.grid = null;
       this.lastTailPos = null;
       this.nextDirection = this.direction;
-      this.growLength = 3;
+      this.growthPerFood = 3;
+      this.toGrow = 0;
       this.grown = 0;
       this.eating = false;
       if (this.position == null) this.position = new Game.Pair(0, 4);
@@ -111,7 +112,11 @@
         moveTo.copy(temp);
         temp.copy(this.chain[index + 1]);
       }
-      if (this.eating || this.grid.hasType('food', head)) return this.eat();
+      if (this.grid.hasType('food', head)) {
+        this.toGrow += this.growthPerFood;
+        this.eating = true;
+      }
+      if (this.eating) return this.eat();
     };
 
     Snake.prototype.eat = function() {
@@ -119,10 +124,10 @@
       this.chain.push(this.lastTailPos);
       this.grid.registerSquare(this.lastTailPos, 'snake');
       this.grid.unregisterSquareAt(this.chain[0], 'food');
-      this.eating = true;
       this.grown += 1;
-      if (this.grown === this.growLength) {
+      if (this.grown === this.toGrow) {
         this.eating = false;
+        this.toGrow = 0;
         return this.grown = 0;
       }
     };

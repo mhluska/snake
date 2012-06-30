@@ -56,7 +56,7 @@ class Game.Grid
             return false if square[type]
         true
 
-    registerSquare: (pair, type) -> @world[pair.x][pair.y][type] = true
+    registerSquare: (pos, type) -> @world[pos.x][pos.y][type] = true
 
     unregisterSquareAt: (pos, types) ->
 
@@ -77,23 +77,9 @@ class Game.Grid
         for foodPos, index in @foodItems
             @foodItems.splice index, 1 if pos.equals foodPos
 
+        console.log @foodItems
+
     hasType: (type, pos) -> @world[pos.x][pos.y][type]?
-
-    # TODO: This shouldn't be in grid
-    randInt: (min, max) ->
-        Math.floor(Math.random() * (max - min + 1)) + min
-
-    randPair: (min1, max1, min2, max2) ->
-
-        # Support for randPair(max1, max2)
-        if arguments.length is 2
-            randX = @randInt 0, min1
-            randY = @randInt 0, max1
-        else
-            randX = @randInt min1, max1
-            randY = @randInt min2, max2
-
-        new Game.Pair randX, randY
 
     resetFoodInterval: ->
         clearInterval @foodIntervalID
@@ -105,13 +91,13 @@ class Game.Grid
 
         # Keep adding food items to the game world until we reach the maximum
         unless @foodItems.length is @maxFood
-            item = @randPair @squaresX - 1, @squaresY - 1
+            item = Game.Utils.randPair @squaresX - 1, @squaresY - 1
             @foodItems.push item
             @registerSquare item, 'food'
             return
 
         foodPos = @foodItems[@foodIndex]
-        newFoodPos = @randPair @squaresX - 1, @squaresY - 1
+        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
         @moveSquare foodPos, newFoodPos, 'food'
         @foodItems[@foodIndex].copy newFoodPos
         @foodIndex = (@foodIndex + 1) % @maxFood

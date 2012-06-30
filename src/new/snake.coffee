@@ -8,7 +8,8 @@ class Game.Snake
         @nextDirection = @direction
 
         # The number of times the snake will grow when it eats
-        @growLength = 3
+        @growthPerFood = 3
+        @toGrow = 0
         @grown = 0
         @eating = false
 
@@ -85,7 +86,11 @@ class Game.Snake
             moveTo.copy temp
             temp.copy @chain[index + 1]
 
-        @eat() if @eating or @grid.hasType 'food', head
+        if @grid.hasType 'food', head
+            @toGrow += @growthPerFood
+            @eating = true
+
+        @eat() if @eating
 
     eat: ->
         
@@ -95,9 +100,9 @@ class Game.Snake
         @grid.registerSquare @lastTailPos, 'snake'
         @grid.unregisterSquareAt @chain[0], 'food'
 
-        @eating = true
         @grown += 1
 
-        if @grown is @growLength
+        if @grown is @toGrow
             @eating = false
+            @toGrow = 0
             @grown = 0
