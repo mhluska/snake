@@ -86,7 +86,7 @@ class Game.Grid
         true
 
     unregisterAllSquaresAt: (pos) ->
-        @unregisterSquareAt pos for type in @squareTypes
+        @unregisterSquareAt pos, type for type in @squareTypes
 
     squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
