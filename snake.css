@@ -9,11 +9,13 @@ body {
 
 .snake {
     background-color: #7b92ee;
+    z-index: 1;
 }
 
 .food {
     background-color: #9afc77;
     display: none;
+    z-index: 0;
 }
 
 #grid {

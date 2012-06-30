@@ -1,17 +1,12 @@
 (function() {
-  var grid, run, snake;
+  var graphics, grid, snake;
 
   snake = new Game.Snake;
 
   grid = new Game.Grid(snake);
 
-  run = function() {
-    snake.move();
-    return grid.update();
-  };
+  graphics = new Game.Graphics(grid);
 
-  setInterval(run, 150);
-
-  run();
+  grid.startGame();
 
 }).call(this);

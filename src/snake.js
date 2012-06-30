@@ -1,41 +1,52 @@
 (function() {
-  var Snake, _ref;
 
-  if ((_ref = window.Game) == null) {
-    window.Game = {};
-  }
+  if (window.Game == null) window.Game = {};
 
-  Game.Snake = Snake = (function() {
+  Game.Snake = (function() {
 
-    function Snake(direction) {
-      var piece;
+    function Snake(length, direction, position) {
+      var piece, x, y;
+      this.length = length != null ? length : 5;
       this.direction = direction != null ? direction : 'down';
-      this.x = 4;
-      this.y = 4;
-      this.length = 5;
-      this.boundaryX = null;
-      this.boundaryY = null;
-      this.lastTailPosition = null;
-      this.queuedDirection = this.direction;
+      this.position = position;
+      this.grid = null;
+      this.lastTailPos = null;
+      this.nextDirection = this.direction;
+      this.growthPerFood = 3;
+      this.toGrow = 0;
+      this.grown = 0;
+      this.eating = false;
+      if (this.position == null) this.position = new Game.Pair(0, 4);
+      x = this.position.x;
+      y = this.position.y;
       this.chain = (function() {
-        var _i, _ref1, _results;
+        var _ref, _results;
         _results = [];
-        for (piece = _i = 0, _ref1 = this.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; piece = 0 <= _ref1 ? ++_i : --_i) {
-          _results.push({
-            x: this.x,
-            y: this.y - piece
-          });
+        for (piece = 0, _ref = this.length - 1; 0 <= _ref ? piece <= _ref : piece >= _ref; 0 <= _ref ? piece++ : piece--) {
+          _results.push(new Game.Pair(x, y - piece));
         }
         return _results;
       }).call(this);
       this.setupControls();
     }
 
+    Snake.prototype.setup = function(grid) {
+      var pair, _i, _len, _ref, _results;
+      this.grid = grid;
+      _ref = this.chain;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pair = _ref[_i];
+        _results.push(this.grid.registerSquareAt(pair, 'snake'));
+      }
+      return _results;
+    };
+
     Snake.prototype.setupControls = function() {
       var _this = this;
       return $(window).keydown(function(event) {
         var newDirection;
-        newDirection = _this.queuedDirection;
+        newDirection = _this.direction;
         switch (event.keyCode) {
           case 37:
             newDirection = 'left';
@@ -50,90 +61,75 @@
             newDirection = 'down';
         }
         if (!_this.isOpposite(newDirection)) {
-          return _this.queuedDirection = newDirection;
+          return _this.nextDirection = newDirection;
         }
       });
     };
 
     Snake.prototype.isOpposite = function(newDirection) {
-      if (newDirection === 'left' && this.direction === 'right') {
-        return true;
-      }
-      if (newDirection === 'right' && this.direction === 'left') {
-        return true;
-      }
-      if (newDirection === 'up' && this.direction === 'down') {
-        return true;
-      }
-      if (newDirection === 'down' && this.direction === 'up') {
-        return true;
-      }
+      if (newDirection === 'left' && this.direction === 'right') return true;
+      if (newDirection === 'right' && this.direction === 'left') return true;
+      if (newDirection === 'up' && this.direction === 'down') return true;
+      if (newDirection === 'down' && this.direction === 'up') return true;
       return false;
     };
 
-    Snake.prototype.cage = function(squaresX, squaresY) {
-      this.boundaryX = squaresX;
-      return this.boundaryY = squaresY;
+    Snake.prototype.updateHeadPosition = function() {
+      this.direction = this.nextDirection;
+      switch (this.direction) {
+        case 'up':
+          this.position.y -= 1;
+          break;
+        case 'right':
+          this.position.x += 1;
+          break;
+        case 'down':
+          this.position.y += 1;
+          break;
+        case 'left':
+          this.position.x -= 1;
+      }
+      if (this.position.x < 0) this.position.x += this.grid.squaresX;
+      this.position.x %= this.grid.squaresX;
+      if (this.position.y < 0) this.position.y += this.grid.squaresY;
+      return this.position.y %= this.grid.squaresY;
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, piece, tail, temp, _i, _len, _ref1, _ref2, _ref3, _results;
-      tail = this.chain[this.chain.length - 1];
-      this.lastTailPosition = {
-        x: tail.x,
-        y: tail.y
-      };
-      this.direction = this.queuedDirection;
-      switch (this.direction) {
-        case 'up':
-          if (this.y <= 0) {
-            return;
-          }
-          this.y -= 1;
-          break;
-        case 'right':
-          if (this.x >= this.boundaryX - 1) {
-            return;
-          }
-          this.x += 1;
-          break;
-        case 'down':
-          if (this.y >= this.boundaryY - 1) {
-            return;
-          }
-          this.y += 1;
-          break;
-        case 'left':
-          if (this.x <= 0) {
-            return;
-          }
-          this.x -= 1;
+      var head, index, moveTo, piece, temp, _len, _ref;
+      if (!this.direction) return;
+      this.updateHeadPosition();
+      head = this.chain[0];
+      this.lastTailPos = this.chain[this.chain.length - 1].clone();
+      temp = head.clone();
+      moveTo = this.position.clone();
+      if (this.grid.squareHasType('snake', moveTo)) this.grid.restart();
+      _ref = this.chain;
+      for (index = 0, _len = _ref.length; index < _len; index++) {
+        piece = _ref[index];
+        this.grid.moveSquare(piece, moveTo, 'snake');
+        piece.copy(moveTo);
+        moveTo.copy(temp);
+        temp.copy(this.chain[index + 1]);
       }
-      moveTo = {
-        x: this.x,
-        y: this.y
-      };
-      temp = {
-        x: this.chain[0].x,
-        y: this.chain[0].y
-      };
-      _ref1 = this.chain;
-      _results = [];
-      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-        piece = _ref1[index];
-        piece.x = moveTo.x;
-        piece.y = moveTo.y;
-        moveTo.x = temp.x;
-        moveTo.y = temp.y;
-        temp.x = (_ref2 = this.chain[index + 1]) != null ? _ref2.x : void 0;
-        _results.push(temp.y = (_ref3 = this.chain[index + 1]) != null ? _ref3.y : void 0);
+      if (this.grid.squareHasType('food', head)) {
+        this.toGrow += this.growthPerFood;
+        this.eating = true;
       }
-      return _results;
+      if (this.eating) return this.eat();
     };
 
-    Snake.prototype.grow = function() {
-      this.chain.push(this.lastTailPosition);
-      return this.lastTailPosition;
+    Snake.prototype.eat = function() {
+      if (!this.lastTailPos) return;
+      this.chain.push(this.lastTailPos);
+      this.grid.registerSquareAt(this.lastTailPos, 'snake');
+      this.grid.unregisterFoodAt(this.chain[0]);
+      this.grown += 1;
+      if (this.grown === this.toGrow) {
+        this.eating = false;
+        this.toGrow = 0;
+        return this.grown = 0;
+      }
     };
 
     return Snake;
