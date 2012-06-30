@@ -60,6 +60,7 @@ class Game.Grid
 
     unregisterSquareAt: (pos, types) ->
 
+        # If no types are provided unregister them all
         types = if types then [types] else @squareTypes
 
         # The square will float around invisible until the graphics module
@@ -70,8 +71,11 @@ class Game.Grid
             @world[pos.x][pos.y][type]?.hide()
             @world[pos.x][pos.y][type] = null
 
-            # TODO: Use a linked list for stuff like this
-            @foodItems.splice @foodItems.indexOf(pos), 1 if type is 'food'
+            @removeFoodAt pos if type is 'food'
+
+    removeFoodAt: (pos) ->
+        for foodPos, index in @foodItems
+            @foodItems.splice index, 1 if pos.equals foodPos
 
     hasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
@@ -106,10 +110,10 @@ class Game.Grid
             @registerSquare item, 'food'
             return
 
-        food = @foodItems[@foodIndex]
-        newFood = @randPair @squaresX - 1, @squaresY - 1
-        @moveSquare food, newFood, 'food'
-        @foodItems[@foodIndex].copy newFood
+        foodPos = @foodItems[@foodIndex]
+        newFoodPos = @randPair @squaresX - 1, @squaresY - 1
+        @moveSquare foodPos, newFoodPos, 'food'
+        @foodItems[@foodIndex].copy newFoodPos
         @foodIndex = (@foodIndex + 1) % @maxFood
 
     restart: ->

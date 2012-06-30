@@ -19,6 +19,11 @@
       return this.y = pair.y;
     };
 
+    Pair.prototype.equals = function(pair) {
+      if (!pair) return false;
+      return this.x === pair.x && this.y === pair.y;
+    };
+
     return Pair;
 
   })();

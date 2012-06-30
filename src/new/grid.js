@@ -112,7 +112,22 @@
         if ((_ref = this.world[pos.x][pos.y][type]) != null) _ref.hide();
         this.world[pos.x][pos.y][type] = null;
         if (type === 'food') {
-          _results.push(this.foodItems.splice(this.foodItems.indexOf(pos), 1));
+          _results.push(this.removeFoodAt(pos));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Grid.prototype.removeFoodAt = function(pos) {
+      var foodPos, index, _len, _ref, _results;
+      _ref = this.foodItems;
+      _results = [];
+      for (index = 0, _len = _ref.length; index < _len; index++) {
+        foodPos = _ref[index];
+        if (pos.equals(foodPos)) {
+          _results.push(this.foodItems.splice(index, 1));
         } else {
           _results.push(void 0);
         }
@@ -146,7 +161,7 @@
     };
 
     Grid.prototype.dropFood = function() {
-      var food, item, newFood;
+      var foodPos, item, newFoodPos;
       this.resetFoodInterval();
       if (this.foodItems.length !== this.maxFood) {
         item = this.randPair(this.squaresX - 1, this.squaresY - 1);
@@ -154,10 +169,10 @@
         this.registerSquare(item, 'food');
         return;
       }
-      food = this.foodItems[this.foodIndex];
-      newFood = this.randPair(this.squaresX - 1, this.squaresY - 1);
-      this.moveSquare(food, newFood, 'food');
-      this.foodItems[this.foodIndex].copy(newFood);
+      foodPos = this.foodItems[this.foodIndex];
+      newFoodPos = this.randPair(this.squaresX - 1, this.squaresY - 1);
+      this.moveSquare(foodPos, newFoodPos, 'food');
+      this.foodItems[this.foodIndex].copy(newFoodPos);
       return this.foodIndex = (this.foodIndex + 1) % this.maxFood;
     };
 

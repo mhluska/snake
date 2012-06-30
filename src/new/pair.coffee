@@ -11,3 +11,8 @@ class Game.Pair
 
         @x = pair.x
         @y = pair.y
+
+    equals: (pair) ->
+
+        return false unless pair
+        return @x is pair.x and @y is pair.y
