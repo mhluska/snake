@@ -17,8 +17,7 @@
       this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
       this.maxFood = 4;
-      this.foodIndex = 0;
-      this.foodItems = [];
+      this.foodQueue = [];
       this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
@@ -89,6 +88,14 @@
       return this.world[start.x][start.y][type] = null;
     };
 
+    Grid.prototype.moveFood = function() {
+      var foodPos, newFoodPos;
+      foodPos = this.foodQueue.shift();
+      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
+      this.foodQueue.push(newFoodPos);
+      return this.moveSquare(foodPos, newFoodPos, 'food');
+    };
+
     Grid.prototype.isEmptySquare = function(square) {
       var type, _i, _len, _ref;
       _ref = this.squareTypes;
@@ -122,12 +129,12 @@
 
     Grid.prototype.removeFoodAt = function(pos) {
       var foodPos, index, _len, _ref;
-      _ref = this.foodItems;
+      _ref = this.foodQueue;
       for (index = 0, _len = _ref.length; index < _len; index++) {
         foodPos = _ref[index];
-        if (pos.equals(foodPos)) this.foodItems.splice(index, 1);
+        if (pos.equals(foodPos)) this.foodQueue.splice(index, 1);
       }
-      return console.log(this.foodItems);
+      return console.log(this.foodQueue);
     };
 
     Grid.prototype.hasType = function(type, pos) {
@@ -140,19 +147,15 @@
     };
 
     Grid.prototype.dropFood = function() {
-      var foodPos, item, newFoodPos;
+      var item;
       this.resetFoodInterval();
-      if (this.foodItems.length !== this.maxFood) {
+      if (this.foodQueue.length !== this.maxFood) {
         item = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-        this.foodItems.push(item);
+        this.foodQueue.push(item);
         this.registerSquare(item, 'food');
         return;
       }
-      foodPos = this.foodItems[this.foodIndex];
-      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-      this.moveSquare(foodPos, newFoodPos, 'food');
-      this.foodItems[this.foodIndex].copy(newFoodPos);
-      return this.foodIndex = (this.foodIndex + 1) % this.maxFood;
+      return this.moveFood();
     };
 
     Grid.prototype.restart = function() {

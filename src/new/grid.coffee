@@ -12,8 +12,7 @@ class Game.Grid
         @squareTypes = ['food', 'snake']
 
         @maxFood = 4
-        @foodIndex = 0
-        @foodItems = []
+        @foodQueue = []
         @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
 
@@ -50,6 +49,14 @@ class Game.Grid
         @world[end.x][end.y][type] = @world[start.x][start.y][type]
         @world[start.x][start.y][type] = null
 
+    moveFood: ->
+
+        foodPos = @foodQueue.shift()
+        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
+        @foodQueue.push newFoodPos
+
+        @moveSquare foodPos, newFoodPos, 'food'
+
     isEmptySquare: (square) ->
 
         for type in @squareTypes
@@ -74,10 +81,10 @@ class Game.Grid
             @removeFoodAt pos if type is 'food'
 
     removeFoodAt: (pos) ->
-        for foodPos, index in @foodItems
-            @foodItems.splice index, 1 if pos.equals foodPos
+        for foodPos, index in @foodQueue
+            @foodQueue.splice index, 1 if pos.equals foodPos
 
-        console.log @foodItems
+        console.log @foodQueue
 
     hasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
@@ -90,17 +97,13 @@ class Game.Grid
         @resetFoodInterval()
 
         # Keep adding food items to the game world until we reach the maximum
-        unless @foodItems.length is @maxFood
+        unless @foodQueue.length is @maxFood
             item = Game.Utils.randPair @squaresX - 1, @squaresY - 1
-            @foodItems.push item
+            @foodQueue.push item
             @registerSquare item, 'food'
             return
 
-        foodPos = @foodItems[@foodIndex]
-        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
-        @moveSquare foodPos, newFoodPos, 'food'
-        @foodItems[@foodIndex].copy newFoodPos
-        @foodIndex = (@foodIndex + 1) % @maxFood
+        @moveFood()
 
     restart: ->
         @snake = new Game.Snake
