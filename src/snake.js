@@ -11,7 +11,7 @@
       this.position = position;
       this.grid = null;
       this.lastTailPos = null;
-      this.nextDirection = this.direction;
+      this.moves = new Game.Queue([this.direction]);
       this.growthPerFood = 3;
       this.toGrow = 0;
       this.grown = 0;
@@ -61,21 +61,23 @@
             newDirection = 'down';
         }
         if (!_this.isOpposite(newDirection)) {
-          return _this.nextDirection = newDirection;
+          return _this.moves.enqueue(newDirection);
         }
       });
     };
 
     Snake.prototype.isOpposite = function(newDirection) {
-      if (newDirection === 'left' && this.direction === 'right') return true;
-      if (newDirection === 'right' && this.direction === 'left') return true;
-      if (newDirection === 'up' && this.direction === 'down') return true;
-      if (newDirection === 'down' && this.direction === 'up') return true;
+      var currentDirection;
+      currentDirection = this.moves.peek() || this.direction;
+      if (newDirection === 'left' && currentDirection === 'right') return true;
+      if (newDirection === 'right' && currentDirection === 'left') return true;
+      if (newDirection === 'up' && currentDirection === 'down') return true;
+      if (newDirection === 'down' && currentDirection === 'up') return true;
       return false;
     };
 
     Snake.prototype.updateHeadPosition = function() {
-      this.direction = this.nextDirection;
+      if (!this.moves.isEmpty()) this.direction = this.moves.dequeue();
       switch (this.direction) {
         case 'up':
           this.position.y -= 1;
