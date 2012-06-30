@@ -18,7 +18,7 @@
       this.squareTypes = ['food', 'snake'];
       this.maxFood = 4;
       this.foodCount = 0;
-      this.foodQueue = new Game.Queue;
+      this.foodQueue = new Game.FoodQueue(this);
       this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
@@ -149,18 +149,9 @@
     };
 
     Grid.prototype.dropFood = function() {
-      var foodPos, newFoodPos;
       this.resetFoodInterval();
-      newFoodPos = Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-      this.foodQueue.enqueue(newFoodPos);
-      this.registerFoodAt(newFoodPos);
-      while (!this.squareHasFood(this.foodQueue.peek())) {
-        this.foodQueue.dequeue();
-      }
-      if (this.foodCount > this.maxFood) {
-        foodPos = this.foodQueue.dequeue();
-        return this.unregisterFoodAt(foodPos);
-      }
+      this.foodQueue.enqueue(Game.Utils.randPair(this.squaresX - 1, this.squaresY - 1));
+      if (this.foodCount > this.maxFood) return this.foodQueue.dequeue();
     };
 
     Grid.prototype.restart = function() {

@@ -12,8 +12,11 @@ class Game.Grid
         @squareTypes = ['food', 'snake']
 
         @maxFood = 4
+        # Don't modify foodCount manually. This is handled by unregisterFoodAt 
+        # and registerFoodAt
         @foodCount = 0
-        @foodQueue = new Game.Queue
+        @foodQueue = new Game.FoodQueue @
+
         @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
 
@@ -102,16 +105,9 @@ class Game.Grid
         @resetFoodInterval()
 
         # Keep adding food items to the game world until we reach the maximum
-        newFoodPos = Game.Utils.randPair @squaresX - 1, @squaresY - 1
-        @foodQueue.enqueue newFoodPos
-        @registerFoodAt newFoodPos
+        @foodQueue.enqueue Game.Utils.randPair @squaresX - 1, @squaresY - 1
 
-        # Remove any food positions that the snake has already eaten
-        @foodQueue.dequeue() until @squareHasFood @foodQueue.peek()
-
-        if @foodCount > @maxFood
-            foodPos = @foodQueue.dequeue()
-            @unregisterFoodAt foodPos
+        @foodQueue.dequeue() if @foodCount > @maxFood
 
     restart: ->
         @snake = new Game.Snake
