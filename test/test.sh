@@ -39,8 +39,8 @@ if [ ${#modules} -gt ${#unique_modules} ]; then
     exit 1
 fi
 
-# Build up script tag HTML
-scripts=
+# Build up script tag HTML, starting with the testing library
+scripts="<script src='test.js'></script>"
 for module in ${unique_modules}; do
     file="${MODULE_PATH}/${module}.js"
     if [ ! -e ${file} ]; then
