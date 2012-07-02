@@ -24,7 +24,7 @@ if [ ${?} -ne 0 ]; then
     exit 1
 fi
 
-# Read dependencies from test file and build up script tags html
+# Read dependencies from test script
 # TODO: Make regex find only quotes for string delimeters
 modules=$(perl -n -e '/$\.import (\w+).;?\s*$/ && print "$1 "' ${1})
 
