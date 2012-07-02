@@ -1,16 +1,32 @@
 'import graph'
 
-adjacency =
-    a: ['b', 'c']
-    c: ['a']
+neighbours =
+    a: ['b', 'c', 'd']
+    b: ['a']
+    c: ['a', 'd']
+    d: ['a', 'c']
+    e: []
 
-console.log "Adjacency:"
-console.log adjacency
+edgeWeights = [
+    ['a', 'b', 2]
+    ['a', 'c', 8]
+    ['a', 'd', 1]
+    ['d', 'c', 9]
+]
 
-graph = new Game.Graph adjacency
+show neighbours, "Neighbours:"
+assert neighbours['a'].length isnt 3, 'Vertex a has 3 neighbours'
 
-console.log 'Testing vertices function:'
-graph.vertices()
+show edgeWeights, "Edge weights:"
 
-console.log "Testing dijkstra's algorithm:"
-graph.dijkstras()
+graph = new Game.Graph neighbours, edgeWeights
+
+show graph.vertices(), 'Testing vertices:'
+
+show graph._distanceBetween, 'Internal distanceBetween object:'
+
+distance = graph.distanceBetween graph.vertices()[0], graph.vertices()[1]
+show distance, 'Distance between vertices a and b:'
+
+show graph.dijkstras(), "Result of Dijkstra's algorithm:"
+

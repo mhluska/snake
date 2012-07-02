@@ -8,37 +8,55 @@
 
   Game.Graph = (function() {
 
-    function Graph(graph) {
-      this.graph = graph != null ? graph : {};
+    function Graph(neighbours, edgeWeights) {
+      var triple, vertex1, vertex2, weight, _base, _base1, _i, _len, _ref1, _ref2, _ref3;
+      this.neighbours = neighbours != null ? neighbours : {};
+      this.edgeWeights = edgeWeights != null ? edgeWeights : [];
+      this._distanceBetween = {};
+      _ref1 = this.edgeWeights;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        triple = _ref1[_i];
+        vertex1 = triple[0], vertex2 = triple[1], weight = triple[2];
+        if ((_ref2 = (_base = this._distanceBetween)[vertex1]) == null) {
+          _base[vertex1] = {};
+        }
+        if ((_ref3 = (_base1 = this._distanceBetween)[vertex2]) == null) {
+          _base1[vertex2] = {};
+        }
+        this._distanceBetween[vertex1][vertex2] = weight;
+        this._distanceBetween[vertex2][vertex1] = weight;
+      }
     }
+
+    Graph.prototype.distanceBetween = function(vertex1, vertex2) {
+      return this._distanceBetween[vertex1][vertex2] || Infinity;
+    };
 
     Graph.prototype.vertices = function() {
       var vertex, _results;
       _results = [];
-      for (vertex in this.graph) {
+      for (vertex in this.neighbours) {
         _results.push(vertex);
       }
       return _results;
     };
 
     Graph.prototype.dijkstras = function(source) {
-      var closest, distance, neighbour, previous, vertex, vertices, _i, _len, _ref1, _results;
+      var alt, closest, distance, neighbour, previous, vertex, vertices, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+      vertices = this.vertices();
       distance = {};
       previous = {};
-      for (vertex in graph) {
+      for (_i = 0, _len = vertices.length; _i < _len; _i++) {
+        vertex = vertices[_i];
         distance[vertex] = Infinity;
         previous[vertex] = null;
       }
       distance[source] = 0;
-      vertices = this.vertices();
-      console.log(vertices);
-      return;
-      _results = [];
       while (vertices.length) {
         closest = vertices[0];
         _ref1 = vertices.slice(1);
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          neighbour = _ref1[_i];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          neighbour = _ref1[_j];
           if (distance[neighbour] < distance[closest]) {
             closest = neighbour;
           }
@@ -47,22 +65,20 @@
           break;
         }
         vertices.splice(vertices.indexOf(closest), 1);
-        _results.push((function() {
-          var _j, _len1, _ref2, _results1;
-          _ref2 = this.graph[closest];
-          _results1 = [];
-          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-            neighbour = _ref2[_j];
-            if (vertices.indexOf(neighbour === -1)) {
-              continue;
-            } else {
-              _results1.push(void 0);
-            }
+        _ref2 = this.neighbours[closest];
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          neighbour = _ref2[_k];
+          if (vertices.indexOf(neighbour === -1)) {
+            continue;
           }
-          return _results1;
-        }).call(this));
+          alt = distance[closest] + this.distanceBetween(closest, neighbour);
+          if (alt < distance[neighbour]) {
+            distance[neighbour] = alt;
+            previous[neighbour] = closest;
+          }
+        }
       }
-      return _results;
+      return distance;
     };
 
     return Graph;
