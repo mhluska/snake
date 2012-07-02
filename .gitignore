@@ -1,3 +1,4 @@
 src/compile.sh
+test/test.html
 .*.swp
 .*.swo
