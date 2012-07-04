@@ -1,29 +1,33 @@
 'import graph'
 
-edgeWeights = [
-    ['a', 'b', 2]
-    ['a', 'c', 8]
-    ['a', 'd', 20]
-    ['d', 'c', 9]
-    ['c', 'f', 1]
-    ['d', 'f', 1]
-    ['e', 'e', 0]
-]
+class TestGraph extends Test
 
-show edgeWeights, "Edge weights:"
+    run: do (@) =>
 
-graph = new Game.Graph edgeWeights
+        edgeWeights = [
+            ['a', 'b', 2]
+            ['a', 'c', 8]
+            ['a', 'd', 20]
+            ['d', 'c', 9]
+            ['c', 'f', 1]
+            ['d', 'f', 1]
+            ['e', 'e', 0]
+        ]
 
-show graph._neighbours, "Internal neighbours object:"
-assert graph._neighbours['a'].length is 3, "Vertex a has 3 neighbours"
+        @show edgeWeights, "Edge weights:"
 
-show graph.vertices(), 'Vertices:'
+        graph = new Game.Graph edgeWeights
 
-show graph._distanceBetween, 'Internal distanceBetween object:'
+        @show graph._neighbours, "Internal neighbours object:"
+        @assert graph._neighbours['a'].length is 3, "Vertex a has 3 neighbours"
 
-distance = graph.distanceBetween graph.vertices()[0], graph.vertices()[1]
-show distance, 'Distance between vertices a and b:'
+        @show graph.vertices(), 'Vertices:'
 
-dijkstras = graph.dijkstras 'a', 'd'
-show dijkstras, "Result of Dijkstra's algorithm:"
-assert equals(dijkstras, ['c', 'f', 'd']), "Shortest path from 'a' to 'd'"
+        @show graph._distanceBetween, 'Internal distanceBetween object:'
+
+        distance = graph.distanceBetween graph.vertices()[0], graph.vertices()[1]
+        @show distance, 'Distance between vertices a and b:'
+
+        dijkstras = graph.dijkstras 'a', 'd'
+        @show dijkstras, "Result of Dijkstra's algorithm:"
+        @assert @equals(dijkstras, ['c', 'f', 'd']), "Shortest path from 'a' to 'd'"

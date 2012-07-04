@@ -1,57 +1,61 @@
-window.show = (variable, message) ->
+class window.Test
 
-    console.log message if message
-    console.log variable
-    console.log ''
+    show: (value, message) ->
 
-window.assert = (exp, message) ->
+        console.log message if message
+        console.log value
+        console.log ''
 
-    return if exp
+    assert: (bool, message) ->
 
-    # TODO: Make getting the error line number more cross-browser friendly
-    getErrorObject = ->
-        try
-            throw Error('')
-        catch err
-            return err
+        return if bool
 
-    err = getErrorObject()
-    callerLine = err.stack.split('\n')[4]
-    index = callerLine.indexOf("at ")
-    clean = callerLine.slice(index + 2, callerLine.length).split(':')[2]
+        # TODO: Make getting the error line number more cross-browser friendly
+        getErrorObject = ->
+            try
+                throw Error('')
+            catch err
+                return err
 
-    errorMessage = "#{clean}: Test failed"
-    errorMessage += ": #{message}" if message
+        err = getErrorObject()
+        callerLine = err.stack.split('\n')[4]
+        index = callerLine.indexOf("at ")
+        clean = callerLine.slice(index + 2, callerLine.length).split(':')[2]
 
-    console.error errorMessage
-    console.log ''
+        errorMessage = "#{clean}: Test failed"
+        errorMessage += ": #{message}" if message
 
-window.equals = (val1, val2) ->
+        console.error errorMessage
+        console.log ''
 
-    type1 = typeOf val1
-    type2 = typeOf val2
+    equals: (value1, value2) ->
 
-    return false if type1 isnt type2
+        type1 = @_typeOf value1
+        type2 = @_typeOf value2
 
-    if type1 is 'object' and type2 is 'object'
-        return console.warn 'Object comparison not implemented yet'
+        return false if type1 isnt type2
 
-    return equalArrays val1, val2 if type1 is 'array' and type2 is 'array'
+        if type1 is 'object' and type2 is 'object'
+            return console.warn 'Object comparison not implemented yet'
 
-    val1 is val2
+        if type1 is 'array' and type2 is 'array'
+            return @_equalArrays value1, value2
 
-typeOf = (value) ->
-    type = typeof value
-    if type is 'object'
-        return 'null' unless value
-        type = 'array' if value instanceof Array
-    type
+        value1 is value2
 
-equalArrays = (array1, array2) ->
+    _typeOf: (value) ->
 
-    return unless array1.length is array2.length
+        type = typeof value
+        if type is 'object'
+            return 'null' unless value
+            type = 'array' if value instanceof Array
+        type
 
-    for elem, index in array1
-        return false unless equals elem, array2[index]
+    _equalArrays: (array1, array2) ->
 
-    true
+        return unless array1.length is array2.length
+
+        for elem, index in array1
+            return false unless @equals elem, array2[index]
+
+        true
