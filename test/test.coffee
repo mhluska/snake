@@ -26,3 +26,32 @@ window.assert = (exp, message) ->
     console.error errorMessage
     console.log ''
 
+window.equals = (val1, val2) ->
+
+    type1 = typeOf val1
+    type2 = typeOf val2
+
+    return false if type1 isnt type2
+
+    if type1 is 'object' and type2 is 'object'
+        return console.warn 'Object comparison not implemented yet'
+
+    return equalArrays val1, val2 if type1 is 'array' and type2 is 'array'
+
+    val1 is val2
+
+typeOf = (value) ->
+    type = typeof value
+    if type is 'object'
+        return 'null' unless value
+        type = 'array' if value instanceof Array
+    type
+
+equalArrays = (array1, array2) ->
+
+    return unless array1.length is array2.length
+
+    for elem, index in array1
+        return false unless equals elem, array2[index]
+
+    true

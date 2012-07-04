@@ -12,7 +12,7 @@
 
   assert(graph._neighbours['a'].length === 3, "Vertex a has 3 neighbours");
 
-  show(graph.vertices(), 'Testing vertices:');
+  show(graph.vertices(), 'Vertices:');
 
   show(graph._distanceBetween, 'Internal distanceBetween object:');
 
@@ -23,5 +23,7 @@
   dijkstras = graph.dijkstras('a', 'd');
 
   show(dijkstras, "Result of Dijkstra's algorithm:");
+
+  assert(equals(dijkstras, ['c', 'f', 'd']), "Shortest path from 'a' to 'd'");
 
 }).call(this);
