@@ -5,14 +5,16 @@
   Game.Graph = (function() {
 
     function Graph(edgeWeights) {
-      var triple, vertex1, vertex2, weight, _base, _base2, _base3, _base4, _i, _len, _ref;
+      var triple, vertex1, vertex2, weight, weightless, _base, _base2, _base3, _base4, _i, _len, _ref;
       this.edgeWeights = edgeWeights != null ? edgeWeights : [];
+      weightless = this._weightlessGraph();
       this._distanceBetween = {};
       this._neighbours = {};
       _ref = this.edgeWeights;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         triple = _ref[_i];
         vertex1 = triple[0], vertex2 = triple[1], weight = triple[2];
+        if (weightless) weight = 1;
         if ((_base = this._distanceBetween)[vertex1] == null) _base[vertex1] = {};
         if ((_base2 = this._distanceBetween)[vertex2] == null) {
           _base2[vertex2] = {};
@@ -85,6 +87,16 @@
       }
       if (target) return this.shortestPath(previous, source, target);
       return distance;
+    };
+
+    Graph.prototype._weightlessGraph = function() {
+      var pair, _i, _len, _ref;
+      _ref = this.edgeWeights;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pair = _ref[_i];
+        if (pair.length !== 2) return false;
+      }
+      return true;
     };
 
     return Graph;

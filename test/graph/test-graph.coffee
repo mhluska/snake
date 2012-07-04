@@ -31,3 +31,19 @@ class TestGraph extends Test
         dijkstras = graph.dijkstras 'a', 'd'
         @show dijkstras, "Result of Dijkstra's algorithm:"
         @assert @equals(dijkstras, ['c', 'f', 'd']), "Shortest path from 'a' to 'd'"
+
+        edges = [
+            ['a', 'b']
+            ['a', 'c']
+            ['a', 'd']
+            ['d', 'c']
+            ['c', 'f']
+            ['d', 'f']
+            ['e', 'e']
+        ]
+
+        weightlessGraph = new Game.Graph edges
+        weightlessDijkstras = graph.dijkstras 'a', 'd'
+        @show weightlessDijkstras, "Result of weightless Dijkstra's algorithm:"
+        equal = @equals weightlessDijkstras, ['c', 'f', 'd']
+        @assert equal, "Shortest path from 'a' to 'd' in a weightless graph."
