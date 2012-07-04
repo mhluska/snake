@@ -1,27 +1,29 @@
 # Allows the snake AI to find shortest paths between food items
 
+# The constructor takes edge weights encoded as 3-arrays. Since we are working 
+# with undirected graphs, the ordering of the first two values does not matter.
+# The third value must be the edge weight. A disconnected vertex 'v' gets a 
+# triplet of ['v', 'v', 0].
+# edgeWeights = [
+#   ['a', 'b', 2]
+#   ['a', 'c', 8]
+#   ['a', 'd', 20]
+#   ['d', 'c', 9]
+#   ['c', 'f', 1]
+#   ['d', 'f', 1]
+#   ['e', 'e', 0]
+# ]
+#
+# If the graph has no edge weights (or all equal weights), just pass pairs.
+# edgeWeights = [
+#   ['a', 'b']
+#   ['a', 'c']
+#   ...
+# ]
+
 window.Game ?= {}
 class Game.Graph
-    # The constructor takes edge weights encoded as 3-arrays. Since we are 
-    # working with undirected graphs, the ordering of the first two values does
-    # not matter. The third value must be the edge weight. A disconnected
-    # vertex 'v' gets a triplet of ['v', 'v', 0].
-    # edgeWeights = [
-    #   ['a', 'b', 2]
-    #   ['a', 'c', 8]
-    #   ['a', 'd', 20]
-    #   ['d', 'c', 9]
-    #   ['c', 'f', 1]
-    #   ['d', 'f', 1]
-    #   ['e', 'e', 0]
-    # ]
-    #
-    # If the graph has no edge weights (or all equal weights), just pass pairs.
-    # edgeWeights = [
-    #   ['a', 'b']
-    #   ['a', 'c']
-    #   ...
-    # ]
+
     constructor: (@edgeWeights = []) ->
 
         weightless = @_weightlessGraph()

@@ -113,3 +113,38 @@ class Game.Grid
         @makeWorld()
         @startGame()
 
+    toGraph: ->
+
+        graphEdges = []
+
+        # TODO: Our graphEdges data structure has duplicate edges but it 
+        # doesn't matter for now.
+        @eachSquare (pos) -> @graphEdges.concat @_squareToGraphEdges @, pos
+        graphEdges
+            
+
+    _squareToGraphEdges: (grid, pos) ->
+
+        return if grid.squareHasType 'snake', pos
+        
+        # Static variable to uniquely name vertices
+        @.vertexCount ?= 0
+
+        # Used to make positions wrap around the board
+        squareBottomY = if pos.y is 0 then @squaresY - 1 else pos.x - 1
+        squareLeftX = if pos.x is 0 then @squaresX - 1  else pos.x - 1
+
+        squares = [
+            Game.Pair pos.x, (pos.y + 1 % @squaresY)
+            Game.Pair (pos.x + 1 % @squaresX), pos.y
+            Game.Pair pos.x, squaresBottomY
+            Game.Pair squareLeftX, pos.y
+        ]
+
+        edges = []
+        for square in squares
+            continue if grid.squareHasType 'snake', square
+            edges.push [@.vertexCount, @.vertexCount + 1]
+            @.vertexCount += 2
+
+        edges
