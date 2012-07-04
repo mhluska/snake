@@ -25,11 +25,26 @@ class Game.Graph
 
     distanceBetween: (vertex1, vertex2) ->
 
-        @_distanceBetween[vertex1][vertex2] or Infinity
+        ret = @_distanceBetween[vertex1][vertex2] or Infinity
+        console.log "distanceBetween returning #{ret}"
+        ret
 
     vertices: -> vertex for vertex of @neighbours
 
-    dijkstras: (source) ->
+    # Follows the parent pointers returned by Dijkstra's algorithm to create
+    # a path between source and target
+    shortestPath: (previous, source, target) ->
+
+        path = []
+        while previous[target]
+            path.unshift target
+            target = previous[target]
+
+        path
+
+    dijkstras: (source, target) ->
+
+        return unless source
 
         vertices = @vertices()
 
@@ -57,9 +72,9 @@ class Game.Graph
             vertices.splice vertices.indexOf(closest), 1
 
             for neighbour in @neighbours[closest]
-                # TODO: Avoid this linear time by working with a copy of 
-                # @neighbours
-                continue if vertices.indexOf neighbour is -1
+                # TODO: Avoid this linear time operation by working with a copy 
+                # of @neighbours
+                continue if vertices.indexOf(neighbour) is -1
 
                 # The length of the path from source to neighbour if it goes
                 # through closest
@@ -69,4 +84,5 @@ class Game.Graph
                     distance[neighbour] = alt
                     previous[neighbour] = closest
                     
-        distance
+        return @shortestPath previous, source, target if target
+        previous

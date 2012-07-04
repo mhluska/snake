@@ -16,12 +16,13 @@ window.assert = (exp, message) ->
             return err
 
     err = getErrorObject()
-    window.err = err
-    callerLine = err.stack.split("\n")[4]
+    callerLine = err.stack.split('\n')[4]
     index = callerLine.indexOf("at ")
     clean = callerLine.slice(index+2, callerLine.length).split(':')[2]
 
-    console.error "Testing: #{message}" if message
-    console.error "Assertion failed at line #{clean}"
+    errorMessage = "#{clean}: Test failed"
+    errorMessage += ": #{message}" if message
+
+    console.error errorMessage
     console.log ''
 
