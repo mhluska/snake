@@ -1,13 +1,5 @@
 'import graph'
 
-neighbours =
-    a: ['b', 'c', 'd']
-    b: ['a']
-    c: ['a', 'd', 'f']
-    d: ['a', 'c', 'f']
-    f: ['c', 'd']
-    e: []
-
 edgeWeights = [
     ['a', 'b', 2]
     ['a', 'c', 8]
@@ -15,14 +7,15 @@ edgeWeights = [
     ['d', 'c', 9]
     ['c', 'f', 1]
     ['d', 'f', 1]
+    ['e', 'e', 0]
 ]
-
-show neighbours, "Neighbours:"
-assert neighbours['a'].length is 3, "Vertex a has 3 neighbours"
 
 show edgeWeights, "Edge weights:"
 
-graph = new Game.Graph neighbours, edgeWeights
+graph = new Game.Graph edgeWeights
+
+show graph._neighbours, "Internal neighbours object:"
+assert graph._neighbours['a'].length is 3, "Vertex a has 3 neighbours"
 
 show graph.vertices(), 'Testing vertices:'
 

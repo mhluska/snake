@@ -18,7 +18,7 @@ window.assert = (exp, message) ->
     err = getErrorObject()
     callerLine = err.stack.split('\n')[4]
     index = callerLine.indexOf("at ")
-    clean = callerLine.slice(index+2, callerLine.length).split(':')[2]
+    clean = callerLine.slice(index + 2, callerLine.length).split(':')[2]
 
     errorMessage = "#{clean}: Test failed"
     errorMessage += ": #{message}" if message

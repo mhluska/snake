@@ -4,11 +4,11 @@
 
   Game.Graph = (function() {
 
-    function Graph(neighbours, edgeWeights) {
-      var triple, vertex1, vertex2, weight, _base, _base2, _i, _len, _ref;
-      this.neighbours = neighbours != null ? neighbours : {};
+    function Graph(edgeWeights) {
+      var triple, vertex1, vertex2, weight, _base, _base2, _base3, _base4, _i, _len, _ref;
       this.edgeWeights = edgeWeights != null ? edgeWeights : [];
       this._distanceBetween = {};
+      this._neighbours = {};
       _ref = this.edgeWeights;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         triple = _ref[_i];
@@ -19,20 +19,23 @@
         }
         this._distanceBetween[vertex1][vertex2] = weight;
         this._distanceBetween[vertex2][vertex1] = weight;
+        if ((_base3 = this._neighbours)[vertex1] == null) _base3[vertex1] = [];
+        if ((_base4 = this._neighbours)[vertex2] == null) _base4[vertex2] = [];
+        if (vertex1 !== vertex2) {
+          this._neighbours[vertex1].push(vertex2);
+          this._neighbours[vertex2].push(vertex1);
+        }
       }
     }
 
     Graph.prototype.distanceBetween = function(vertex1, vertex2) {
-      var ret;
-      ret = this._distanceBetween[vertex1][vertex2] || Infinity;
-      console.log("distanceBetween returning " + ret);
-      return ret;
+      return this._distanceBetween[vertex1][vertex2] || Infinity;
     };
 
     Graph.prototype.vertices = function() {
       var vertex, _results;
       _results = [];
-      for (vertex in this.neighbours) {
+      for (vertex in this._neighbours) {
         _results.push(vertex);
       }
       return _results;
@@ -69,7 +72,7 @@
         }
         if (distance[closest] === Infinity) break;
         vertices.splice(vertices.indexOf(closest), 1);
-        _ref2 = this.neighbours[closest];
+        _ref2 = this._neighbours[closest];
         for (_k = 0, _len3 = _ref2.length; _k < _len3; _k++) {
           neighbour = _ref2[_k];
           if (vertices.indexOf(neighbour) === -1) continue;
@@ -81,7 +84,7 @@
         }
       }
       if (target) return this.shortestPath(previous, source, target);
-      return previous;
+      return distance;
     };
 
     return Graph;

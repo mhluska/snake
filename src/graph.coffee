@@ -2,20 +2,24 @@
 
 window.Game ?= {}
 class Game.Graph
-    # The constructor takes two parameters which describe the graph:
-    #
-    # An object where a key describes vertex u and associations describe 
-    # neighbours of u
-    # { a: ['b', 'c', 'd'], b: ['a'], c: ['a', 'd'], d: ['a', 'c'], e: []}
-    #
-    # Edge weights encoded as 3-arrays. Since we are working with undirected 
-    # graphs, the ordering of the first two values does not matter. The third 
-    # value must be the edge weight.
-    # [ ['a', 'b', 2], ['a', 'c', 8], ['a', 'd', 1], ['d', 'c', 9] ]
-    constructor: (@neighbours = {}, @edgeWeights = []) ->
+    # The constructor takes edge weights encoded as 3-arrays. Since we are 
+    # working with undirected graphs, the ordering of the first two values does
+    # not matter. The third value must be the edge weight. A disconnected
+    # vertex 'v' gets a triplet of ['v', 'v', 0]
+    # edgeWeights = [
+    #   ['a', 'b', 2]
+    #   ['a', 'c', 8]
+    #   ['a', 'd', 20]
+    #   ['d', 'c', 9]
+    #   ['c', 'f', 1]
+    #   ['d', 'f', 1]
+    #   ['e', 'e', 0]
+    # ]
+    constructor: (@edgeWeights = []) ->
 
-        # Setup bi-directional distances between vertices
+        # Setup bi-directional distances between vertices and neighbour arrays
         @_distanceBetween = {}
+        @_neighbours = {}
         for triple in @edgeWeights
             [vertex1, vertex2, weight] = triple
             @_distanceBetween[vertex1] ?= {}
@@ -23,13 +27,17 @@ class Game.Graph
             @_distanceBetween[vertex1][vertex2] = weight
             @_distanceBetween[vertex2][vertex1] = weight
 
+            @_neighbours[vertex1] ?= []
+            @_neighbours[vertex2] ?= []
+            unless vertex1 is vertex2
+                @_neighbours[vertex1].push vertex2
+                @_neighbours[vertex2].push vertex1
+
     distanceBetween: (vertex1, vertex2) ->
 
-        ret = @_distanceBetween[vertex1][vertex2] or Infinity
-        console.log "distanceBetween returning #{ret}"
-        ret
+        @_distanceBetween[vertex1][vertex2] or Infinity
 
-    vertices: -> vertex for vertex of @neighbours
+    vertices: -> vertex for vertex of @_neighbours
 
     # Follows the parent pointers returned by Dijkstra's algorithm to create
     # a path between source and target
@@ -71,7 +79,7 @@ class Game.Graph
             # TODO: Use a set data structure
             vertices.splice vertices.indexOf(closest), 1
 
-            for neighbour in @neighbours[closest]
+            for neighbour in @_neighbours[closest]
                 # TODO: Avoid this linear time operation by working with a copy 
                 # of @neighbours
                 continue if vertices.indexOf(neighbour) is -1
@@ -85,4 +93,4 @@ class Game.Graph
                     previous[neighbour] = closest
                     
         return @shortestPath previous, source, target if target
-        previous
+        distance
