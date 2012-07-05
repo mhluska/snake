@@ -51,6 +51,15 @@ for module in ${unique_modules}; do
 done
 scripts="${scripts}<script src='${1}'></script>"
 
+# Build a script file to run all the tests
+jsCode=
+for coffeeFile in `find . -type f -name '*.coffee' | grep -v 'test\.coffee'`; do
+    className=$(perl -n -e '/class ([\w.]+)/ && print $1' ${coffeeFile})
+    jsCode="${jsCode}new ${className}; "
+done
+jsCode=${jsCode%?}
+scripts="${scripts}<script>${jsCode}</script>"
+
 html="<!DOCTYPE html><html><head></head><body>${scripts}</body></html>"
 echo ${html} > ${TEST_FILE}
 ${BROWSER_NAME} ${TEST_FILE} &

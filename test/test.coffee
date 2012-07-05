@@ -1,10 +1,13 @@
 class window.Test
 
+    constructor: ->
+
+        @_runTests()
+
     show: (value, message) ->
 
         console.log message if message
         console.log value
-        console.log ''
 
     assert: (bool, message) ->
 
@@ -26,7 +29,6 @@ class window.Test
         errorMessage += ": #{message}" if message
 
         console.error errorMessage
-        console.log ''
 
     equals: (value1, value2) ->
 
@@ -42,6 +44,14 @@ class window.Test
             return @_equalArrays value1, value2
 
         value1 is value2
+
+
+    # Changes string like 'testCamelCase' to 'Camel Case'
+    _formatTestName: (name) ->
+
+        name = name.substring 4 if name.substring(0, 4) is 'test'
+        name = name.replace /([A-Z])/g, (match, group1) -> " #{group1}"
+        name.substring 1
 
     _typeOf: (value) ->
 
@@ -59,3 +69,13 @@ class window.Test
             return false unless @equals elem, array2[index]
 
         true
+
+    _runTests: =>
+
+        for prop of @
+            if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
+                console.warn "Running test: #{@_formatTestName prop}"
+                @.before?()
+                @[prop]()
+                @.after?()
+                console.log ''
