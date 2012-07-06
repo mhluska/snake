@@ -26,13 +26,14 @@ class Game.Graph
 
     constructor: (@edgeWeights = []) ->
 
+        # @edgeWeights = @_edgesToString edgeWeights
         weightless = @_weightlessGraph()
 
         # Setup neighbour arrays and bi-directional distances between vertices
         @_distanceBetween = {}
         @_neighbours = {}
-        for triple in @edgeWeights
-            [vertex1, vertex2, weight] = triple
+        for tuple in @edgeWeights
+            [vertex1, vertex2, weight] = tuple
             
             weight = 1 if weightless
 
@@ -47,15 +48,15 @@ class Game.Graph
                 @_neighbours[vertex1].push vertex2
                 @_neighbours[vertex2].push vertex1
 
-    distanceBetween: (vertex1, vertex2) ->
+    _weightlessGraph: ->
 
-        @_distanceBetween[vertex1][vertex2] or Infinity
-
-    vertices: -> vertex for vertex of @_neighbours
+        for pair in @edgeWeights
+            return false if pair.length isnt 2
+        true
 
     # Follows the parent pointers returned by Dijkstra's algorithm to create
     # a path between source and target
-    shortestPath: (previous, source, target) ->
+    _shortestPath: (previous, source, target) ->
 
         path = []
         while previous[target]
@@ -64,7 +65,18 @@ class Game.Graph
 
         path
 
-    dijkstras: (source, target) ->
+    distanceBetween: (vertex1, vertex2) ->
+
+        @_distanceBetween[vertex1][vertex2] or Infinity
+
+    vertices: -> vertex for vertex of @_neighbours
+
+    # dijkstras(source, [targets, ...])
+    # Accepts a source and any number of target vertices. If target vertices
+    # are provided, returns a shortest path from each source to target path.
+    # If no targets are provided, returns distances from source to every other
+    # vertex.
+    dijkstras: (source) ->
 
         return unless source
 
@@ -105,12 +117,12 @@ class Game.Graph
                     distance[neighbour] = alt
                     previous[neighbour] = closest
                     
-        return @shortestPath previous, source, target if target
-        distance
+        targets = Game.Utils.argsToArray(arguments).slice 1
 
-    _weightlessGraph: ->
+        return distance unless targets.length
 
-        for pair in @edgeWeights
-            return false if pair.length isnt 2
-        true
+        pathDistances = targets.map (target) -> distance[target]
+        minDistance = Math.min.apply null, pathDistances
+        targetIndex = pathDistances.indexOf minDistance
 
+        @_shortestPath previous, source, targets[targetIndex]
