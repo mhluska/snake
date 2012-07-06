@@ -4,6 +4,40 @@ class window.Test
 
         @_runTests()
 
+    # Changes string like 'testCamelCase' to 'Camel Case'
+    _formatTestName: (name) ->
+
+        name = name.substring 4 if name.substring(0, 4) is 'test'
+        name = name.replace /([A-Z])/g, (match, group1) -> " #{group1}"
+        name.substring 1
+
+    _typeOf: (value) ->
+
+        type = typeof value
+        if type is 'object'
+            return 'null' unless value
+            type = 'array' if value instanceof Array
+        type
+
+    _equalArrays: (array1, array2) ->
+
+        return unless array1.length is array2.length
+
+        for elem, index in array1
+            return false unless @equals elem, array2[index]
+
+        true
+
+    _runTests: =>
+
+        for prop of @
+            if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
+                console.warn "Running test: #{@_formatTestName prop}"
+                @.before?()
+                @[prop]()
+                @.after?()
+                console.log ''
+
     show: (value, message) ->
 
         console.log message if message
@@ -45,37 +79,3 @@ class window.Test
 
         value1 is value2
 
-
-    # Changes string like 'testCamelCase' to 'Camel Case'
-    _formatTestName: (name) ->
-
-        name = name.substring 4 if name.substring(0, 4) is 'test'
-        name = name.replace /([A-Z])/g, (match, group1) -> " #{group1}"
-        name.substring 1
-
-    _typeOf: (value) ->
-
-        type = typeof value
-        if type is 'object'
-            return 'null' unless value
-            type = 'array' if value instanceof Array
-        type
-
-    _equalArrays: (array1, array2) ->
-
-        return unless array1.length is array2.length
-
-        for elem, index in array1
-            return false unless @equals elem, array2[index]
-
-        true
-
-    _runTests: =>
-
-        for prop of @
-            if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
-                console.warn "Running test: #{@_formatTestName prop}"
-                @.before?()
-                @[prop]()
-                @.after?()
-                console.log ''

@@ -9,52 +9,6 @@
       this._runTests();
     }
 
-    Test.prototype.show = function(value, message) {
-      if (message) {
-        console.log(message);
-      }
-      return console.log(value);
-    };
-
-    Test.prototype.assert = function(bool, message) {
-      var callerLine, clean, err, errorMessage, getErrorObject, index;
-      if (bool) {
-        return;
-      }
-      getErrorObject = function() {
-        try {
-          throw Error('');
-        } catch (err) {
-          return err;
-        }
-      };
-      err = getErrorObject();
-      callerLine = err.stack.split('\n')[4];
-      index = callerLine.indexOf("at ");
-      clean = callerLine.slice(index + 2, callerLine.length).split(':')[2];
-      errorMessage = "" + clean + ": Test failed";
-      if (message) {
-        errorMessage += ": " + message;
-      }
-      return console.error(errorMessage);
-    };
-
-    Test.prototype.equals = function(value1, value2) {
-      var type1, type2;
-      type1 = this._typeOf(value1);
-      type2 = this._typeOf(value2);
-      if (type1 !== type2) {
-        return false;
-      }
-      if (type1 === 'object' && type2 === 'object') {
-        return console.warn('Object comparison not implemented yet');
-      }
-      if (type1 === 'array' && type2 === 'array') {
-        return this._equalArrays(value1, value2);
-      }
-      return value1 === value2;
-    };
-
     Test.prototype._formatTestName = function(name) {
       if (name.substring(0, 4) === 'test') {
         name = name.substring(4);
@@ -112,6 +66,52 @@
         }
       }
       return _results;
+    };
+
+    Test.prototype.show = function(value, message) {
+      if (message) {
+        console.log(message);
+      }
+      return console.log(value);
+    };
+
+    Test.prototype.assert = function(bool, message) {
+      var callerLine, clean, err, errorMessage, getErrorObject, index;
+      if (bool) {
+        return;
+      }
+      getErrorObject = function() {
+        try {
+          throw Error('');
+        } catch (err) {
+          return err;
+        }
+      };
+      err = getErrorObject();
+      callerLine = err.stack.split('\n')[4];
+      index = callerLine.indexOf("at ");
+      clean = callerLine.slice(index + 2, callerLine.length).split(':')[2];
+      errorMessage = "" + clean + ": Test failed";
+      if (message) {
+        errorMessage += ": " + message;
+      }
+      return console.error(errorMessage);
+    };
+
+    Test.prototype.equals = function(value1, value2) {
+      var type1, type2;
+      type1 = this._typeOf(value1);
+      type2 = this._typeOf(value2);
+      if (type1 !== type2) {
+        return false;
+      }
+      if (type1 === 'object' && type2 === 'object') {
+        return console.warn('Object comparison not implemented yet');
+      }
+      if (type1 === 'array' && type2 === 'array') {
+        return this._equalArrays(value1, value2);
+      }
+      return value1 === value2;
     };
 
     return Test;
