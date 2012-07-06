@@ -1,10 +1,19 @@
+'import utils'
 'import graph'
 
 class window.TestGraph extends Test
 
-    before: ->
-        
-        @edgeWeights = [
+    runDijkstras: (edges, start, ends, expected, message = null) ->
+
+        graph = new Game.Graph edges
+
+        dijkstras = graph.dijkstras.apply graph, [start].concat ends
+        @show dijkstras, "Result of Dijkstra's algorithm:"
+        @assert @equals(dijkstras, expected), message
+
+    testGraphDetails: ->
+
+        edgeWeights = [
             ['a', 'b', 2]
             ['a', 'c', 8]
             ['a', 'd', 20]
@@ -14,21 +23,9 @@ class window.TestGraph extends Test
             ['e', 'e', 0]
         ]
 
-        @edges = [
-            ['a', 'b']
-            ['a', 'c']
-            ['a', 'd']
-            ['d', 'c']
-            ['c', 'f']
-            ['d', 'f']
-            ['e', 'e']
-        ]
+        @show edgeWeights, "Edge weights:"
 
-    testGraphDetails: ->
-
-        @show @edgeWeights, "Edge weights:"
-
-        graph = new Game.Graph @edgeWeights
+        graph = new Game.Graph edgeWeights
 
         @show graph._neighbours, "Internal neighbours object:"
         @show graph.vertices(), 'Vertices:'
@@ -39,18 +36,70 @@ class window.TestGraph extends Test
 
     testDijkstrasWithWeights: ->
 
-        graph = new Game.Graph @edgeWeights
+        edgeWeights = [
+            ['a', 'b', 2]
+            ['a', 'c', 8]
+            ['a', 'd', 20]
+            ['d', 'c', 9]
+            ['c', 'f', 1]
+            ['d', 'f', 1]
+            ['e', 'e', 0]
+        ]
 
-        dijkstras = graph.dijkstras 'a', 'd'
-        @show dijkstras, "Result of Dijkstra's algorithm:"
-        @assert @equals(dijkstras, ['c', 'f', 'd']), "Shortest path from 'a' to 'd'"
+        message = "Shortest path from 'a' to 'd'"
+        @runDijkstras edgeWeights, 'a', 'd', ['c', 'f', 'd'], message
 
     testDijkstrasWithoutWeights: ->
 
-        weightlessGraph = new Game.Graph @edges
+        edges = [
+            ['a', 'b']
+            ['a', 'c']
+            ['a', 'd']
+            ['d', 'c']
+            ['c', 'f']
+            ['d', 'f']
+            ['e', 'e']
+        ]
 
-        weightlessDijkstras = weightlessGraph.dijkstras 'a', 'd'
-        @show weightlessDijkstras, "Result of weightless Dijkstra's algorithm:"
-        equal = @equals weightlessDijkstras, ['c', 'f', 'd']
-        @assert equal, "Shortest path from 'a' to 'd' in a weightless graph."
+        message = "Shortest path from 'a' to 'd' in a weightless graph."
+        @runDijkstras edges, 'a', 'd', ['d'], message
 
+    testDijkstrasWithDuplicateEdges: ->
+
+        edgeWeights = [
+            ['a', 'b', 2]
+            ['a', 'b', 2]
+            ['a', 'b', 2]
+            ['a', 'b', 2]
+            ['a', 'b', 2]
+            ['a', 'c', 8]
+            ['a', 'd', 20]
+            ['a', 'd', 20]
+            ['a', 'd', 20]
+            ['d', 'c', 9]
+            ['c', 'f', 1]
+            ['c', 'f', 1]
+            ['d', 'f', 1]
+            ['d', 'f', 1]
+            ['d', 'f', 1]
+            ['e', 'e', 0]
+            ['e', 'e', 0]
+        ]
+
+        message = "Shortest path from 'a' to 'd' with duplicate edges."
+        @runDijkstras edgeWeights, 'a', 'd', ['c', 'f', 'd'], message
+
+    testDijkstrasWithMultipleTargets: ->
+
+        edgeWeights = [
+            ['a', 'b', 2]
+            ['a', 'c', 8]
+            ['a', 'd', 20]
+            ['d', 'c', 9]
+            ['c', 'f', 1]
+            ['d', 'f', 1]
+            ['e', 'e', 0]
+        ]
+
+        message = "Shortest path from 'a' to 'c', 'd', or 'f'."
+        @runDijkstras edgeWeights, 'a', ['c', 'd', 'f', 'b'], ['b'], message
