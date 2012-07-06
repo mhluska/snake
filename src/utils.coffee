@@ -15,3 +15,20 @@ class Game.Utils
             randY = @randInt min2, max2
 
         new Game.Pair randX, randY
+
+    # Concat in place
+    @concat: (array1, array2) -> array1.push.apply array1, array2
+
+    @argsToArray: (args) -> Array.prototype.slice.call args
+
+    # minArray([array1, ...])
+    # Find the first occurring smallest array of arrays
+    @minArray: =>
+
+        return Infinity unless arguments.length
+
+        args = @argsToArray arguments
+
+        lengths = args.map (array) -> array.length
+        minLength = Math.min.apply null, lengths
+        args[lengths.indexOf minLength]
