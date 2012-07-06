@@ -119,32 +119,29 @@ class Game.Grid
 
         # TODO: Our graphEdges data structure has duplicate edges but it 
         # doesn't matter for now.
-        @eachSquare (pos) -> @graphEdges.concat @_squareToGraphEdges @, pos
+        @eachSquare (pos) => Game.Utils.concat graphEdges, @_squareToEdges pos
         graphEdges
-            
 
-    _squareToGraphEdges: (grid, pos) ->
+    _squareToEdges: (pos) =>
 
-        return if grid.squareHasType 'snake', pos
-        
-        # Static variable to uniquely name vertices
-        @.vertexCount ?= 0
+        return if @squareHasType 'snake', pos
 
         # Used to make positions wrap around the board
-        squareBottomY = if pos.y is 0 then @squaresY - 1 else pos.x - 1
-        squareLeftX = if pos.x is 0 then @squaresX - 1  else pos.x - 1
+        posDownY = ((pos.y + 1) % (@squaresY - 1))
+        posRightX = ((pos.x + 1) % (@squaresX - 1))
+        posUpY = if pos.y is 0 then @squaresY - 1 else pos.y - 1
+        posLeftX = if pos.x is 0 then @squaresX - 1 else pos.x - 1
 
-        squares = [
-            Game.Pair pos.x, (pos.y + 1 % @squaresY)
-            Game.Pair (pos.x + 1 % @squaresX), pos.y
-            Game.Pair pos.x, squaresBottomY
-            Game.Pair squareLeftX, pos.y
+        positions = [
+            new Game.Pair pos.x, posUpY     # Up
+            new Game.Pair posRightX, pos.y  # Right
+            new Game.Pair pos.x, posDownY   # Down
+            new Game.Pair posLeftX, pos.y   # Left
         ]
 
         edges = []
-        for square in squares
-            continue if grid.squareHasType 'snake', square
-            edges.push [@.vertexCount, @.vertexCount + 1]
-            @.vertexCount += 2
+        for adjacentPos in positions
+            continue if @squareHasType 'snake', adjacentPos
+            edges.push [pos.toString(), adjacentPos.toString()]
 
         edges
