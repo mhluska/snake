@@ -76,7 +76,7 @@ class Game.Graph
     # are provided, returns a shortest path from each source to target path.
     # If no targets are provided, returns distances from source to every other
     # vertex.
-    dijkstras: (source) ->
+    dijkstras: (source, targets...) ->
 
         return unless source
 
@@ -117,8 +117,6 @@ class Game.Graph
                     distance[neighbour] = alt
                     previous[neighbour] = closest
                     
-        targets = Game.Utils.argsToArray(arguments).slice 1
-
         return distance unless targets.length
 
         pathDistances = targets.map (target) -> distance[target]

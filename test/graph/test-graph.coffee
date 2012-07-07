@@ -7,7 +7,7 @@ class window.TestGraph extends Test
 
         graph = new Game.Graph edges
 
-        dijkstras = graph.dijkstras.apply graph, [start].concat ends
+        dijkstras = graph.dijkstras start, ends...
         @show dijkstras, "Result of Dijkstra's algorithm:"
         @assert @equals(dijkstras, expected), message
 

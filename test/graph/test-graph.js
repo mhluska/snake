@@ -5,7 +5,8 @@
   'import graph';
 
   var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __slice = [].slice;
 
   window.TestGraph = (function(_super) {
 
@@ -21,7 +22,7 @@
         message = null;
       }
       graph = new Game.Graph(edges);
-      dijkstras = graph.dijkstras.apply(graph, [start].concat(ends));
+      dijkstras = graph.dijkstras.apply(graph, [start].concat(__slice.call(ends)));
       this.show(dijkstras, "Result of Dijkstra's algorithm:");
       return this.assert(this.equals(dijkstras, expected), message);
     };
