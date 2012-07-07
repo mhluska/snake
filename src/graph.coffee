@@ -98,6 +98,7 @@ class Game.Graph
             closest = vertices[0]
             for neighbour in vertices.slice(1)
                 closest = neighbour if distance[neighbour] < distance[closest]
+
             break if distance[closest] is Infinity
 
             # Remove closest from vertex set

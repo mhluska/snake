@@ -18,6 +18,27 @@ class Game.Grid
         @foodDropRate = @timeStepRate * 20
         @foodIntervalID = null
 
+    _squareToEdges: (pos) =>
+
+        return if @squareHasType('snake', pos) and not pos.equals @snake.head
+
+        edges = []
+        @eachAdjacentPosition pos, (adjacentPos) =>
+            return if @squareHasType 'snake', adjacentPos
+            edges.push [ pos.toString(), adjacentPos.toString() ]
+
+        edges
+
+    # Handles wrap around of pair coordinates on the game world
+    _moduloBoundaries: (pair) ->
+
+        pair.x %= @squaresX - 1
+        pair.y %= @squaresY - 1
+        pair.x = @squaresX - 1 if pair.x < 0
+        pair.y = @squaresY - 1 if pair.y < 0
+
+        pair
+
     eachSquare: (callback) ->
 
         return unless @world
@@ -26,6 +47,24 @@ class Game.Grid
             for square, y in column
                 pos = new Game.Pair x, y
                 callback pos, square
+
+    # Iterate over adjacent positions, taking into account wrap around
+    eachAdjacentPosition: (pos, callback) ->
+
+        positions = [
+            new Game.Pair pos.x, pos.y + 1  # Up
+            new Game.Pair pos.x + 1, pos.y  # Right
+            new Game.Pair pos.x, pos.y - 1  # Down
+            new Game.Pair pos.x - 1, pos.y  # Left
+        ]
+
+        for adjacentPos in positions
+            normalizedPos = @_moduloBoundaries adjacentPos
+            callback normalizedPos
+
+    pairOrientation: (pair1, pair2) ->
+        @eachAdjacentPosition pair1, =>
+            # TODO: Implement this
 
     makeWorld: ->
         @eachSquare (pos) => @unregisterAllSquaresAt pos
@@ -109,6 +148,7 @@ class Game.Grid
         @foodItems.dequeue() if @foodCount > @maxFood
 
     restart: ->
+        console.log 'restarting'
         @snake = new Game.Snake
         @makeWorld()
         @startGame()
@@ -121,27 +161,3 @@ class Game.Grid
         # doesn't matter for now.
         @eachSquare (pos) => Game.Utils.concat graphEdges, @_squareToEdges pos
         graphEdges
-
-    _squareToEdges: (pos) =>
-
-        return if @squareHasType 'snake', pos
-
-        # Used to make positions wrap around the board
-        posDownY = ((pos.y + 1) % (@squaresY - 1))
-        posRightX = ((pos.x + 1) % (@squaresX - 1))
-        posUpY = if pos.y is 0 then @squaresY - 1 else pos.y - 1
-        posLeftX = if pos.x is 0 then @squaresX - 1 else pos.x - 1
-
-        positions = [
-            new Game.Pair pos.x, posUpY     # Up
-            new Game.Pair posRightX, pos.y  # Right
-            new Game.Pair pos.x, posDownY   # Down
-            new Game.Pair posLeftX, pos.y   # Left
-        ]
-
-        edges = []
-        for adjacentPos in positions
-            continue if @squareHasType 'snake', adjacentPos
-            edges.push [pos.toString(), adjacentPos.toString()]
-
-        edges

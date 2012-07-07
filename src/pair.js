@@ -9,9 +9,26 @@
   Game.Pair = (function() {
 
     function Pair(x, y) {
-      this.x = x != null ? x : 0;
-      this.y = y != null ? y : 0;
+      var _ref1;
+      if (x == null) {
+        x = 0;
+      }
+      if (y == null) {
+        y = 0;
+      }
+      if (arguments.length === 2) {
+        _ref1 = [x, y], this.x = _ref1[0], this.y = _ref1[1];
+        return;
+      }
+      this._parsePairString(x);
     }
+
+    Pair.prototype._parsePairString = function(string) {
+      var matches, regex, _ref1;
+      regex = /\((\d+), ?(\d+)\)/g;
+      matches = regex.exec(string);
+      return _ref1 = [parseInt(matches[1]), parseInt(matches[2])], this.x = _ref1[0], this.y = _ref1[1], _ref1;
+    };
 
     Pair.prototype.clone = function() {
       return new Game.Pair(this.x, this.y);

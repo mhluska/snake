@@ -13,9 +13,9 @@
       this.snake = snake;
       this.squaresX = squaresX != null ? squaresX : 25;
       this.squaresY = squaresY != null ? squaresY : 15;
-      this._squareToEdges = __bind(this._squareToEdges, this);
-
       this.dropFood = __bind(this.dropFood, this);
+
+      this._squareToEdges = __bind(this._squareToEdges, this);
 
       this.graphics = null;
       this.gameIntervalID = null;
@@ -29,6 +29,34 @@
       this.foodDropRate = this.timeStepRate * 20;
       this.foodIntervalID = null;
     }
+
+    Grid.prototype._squareToEdges = function(pos) {
+      var edges,
+        _this = this;
+      if (this.squareHasType('snake', pos) && !pos.equals(this.snake.head)) {
+        return;
+      }
+      edges = [];
+      this.eachAdjacentPosition(pos, function(adjacentPos) {
+        if (_this.squareHasType('snake', adjacentPos)) {
+          return;
+        }
+        return edges.push([pos.toString(), adjacentPos.toString()]);
+      });
+      return edges;
+    };
+
+    Grid.prototype._moduloBoundaries = function(pair) {
+      pair.x %= this.squaresX - 1;
+      pair.y %= this.squaresY - 1;
+      if (pair.x < 0) {
+        pair.x = this.squaresX - 1;
+      }
+      if (pair.y < 0) {
+        pair.y = this.squaresY - 1;
+      }
+      return pair;
+    };
 
     Grid.prototype.eachSquare = function(callback) {
       var column, pos, square, x, y, _i, _len, _ref1, _results;
@@ -51,6 +79,23 @@
         })());
       }
       return _results;
+    };
+
+    Grid.prototype.eachAdjacentPosition = function(pos, callback) {
+      var adjacentPos, normalizedPos, positions, _i, _len, _results;
+      positions = [new Game.Pair(pos.x, pos.y + 1), new Game.Pair(pos.x + 1, pos.y), new Game.Pair(pos.x, pos.y - 1), new Game.Pair(pos.x - 1, pos.y)];
+      _results = [];
+      for (_i = 0, _len = positions.length; _i < _len; _i++) {
+        adjacentPos = positions[_i];
+        normalizedPos = this._moduloBoundaries(adjacentPos);
+        _results.push(callback(normalizedPos));
+      }
+      return _results;
+    };
+
+    Grid.prototype.pairOrientation = function(pair1, pair2) {
+      var _this = this;
+      return this.eachAdjacentPosition(pair1, function() {});
     };
 
     Grid.prototype.makeWorld = function() {
@@ -181,6 +226,7 @@
     };
 
     Grid.prototype.restart = function() {
+      console.log('restarting');
       this.snake = new Game.Snake;
       this.makeWorld();
       return this.startGame();
@@ -194,27 +240,6 @@
         return Game.Utils.concat(graphEdges, _this._squareToEdges(pos));
       });
       return graphEdges;
-    };
-
-    Grid.prototype._squareToEdges = function(pos) {
-      var adjacentPos, edges, posDownY, posLeftX, posRightX, posUpY, positions, _i, _len;
-      if (this.squareHasType('snake', pos)) {
-        return;
-      }
-      posDownY = (pos.y + 1) % (this.squaresY - 1);
-      posRightX = (pos.x + 1) % (this.squaresX - 1);
-      posUpY = pos.y === 0 ? this.squaresY - 1 : pos.y - 1;
-      posLeftX = pos.x === 0 ? this.squaresX - 1 : pos.x - 1;
-      positions = [new Game.Pair(pos.x, posUpY), new Game.Pair(posRightX, pos.y), new Game.Pair(pos.x, posDownY), new Game.Pair(posLeftX, pos.y)];
-      edges = [];
-      for (_i = 0, _len = positions.length; _i < _len; _i++) {
-        adjacentPos = positions[_i];
-        if (this.squareHasType('snake', adjacentPos)) {
-          continue;
-        }
-        edges.push([pos.toString(), adjacentPos.toString()]);
-      }
-      return edges;
     };
 
     return Grid;
