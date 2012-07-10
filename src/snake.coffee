@@ -5,7 +5,7 @@ class Game.Snake
 
         @grid = null
         @lastTailPos = null
-        @moves = new Game.Queue [@direction]
+        @moves = new Game.Queue
 
         # The number of times the snake will grow when it eats
         @growthPerFood = 3
@@ -25,21 +25,27 @@ class Game.Snake
 
         @_setupControls()
 
-    _updateHeadPosition: ->
-
-        @direction = @moves.dequeue() unless @moves.isEmpty()
-
+    _nextPosition: (position = @head) ->
+        position = position.clone()
         switch @direction
-            when 'up'    then @head.y -= 1
-            when 'right' then @head.x += 1
-            when 'down'  then @head.y += 1
-            when 'left'  then @head.x -= 1
+            when 'up'    then position.y -= 1
+            when 'right' then position.x += 1
+            when 'down'  then position.y += 1
+            when 'left'  then position.x -= 1
 
-        @head.x += @grid.squaresX if @head.x < 0
-        @head.x %= @grid.squaresX
+        @grid.moduloBoundaries position
 
-        @head.y += @grid.squaresY if @head.y < 0
-        @head.y %= @grid.squaresY
+    _nextDirection: (position) ->
+
+        return unless position
+
+        nextDirection = @direction
+        @grid.eachAdjacentPosition @head, (adjPosition, direction) ->
+            if position.equals adjPosition
+                nextDirection = direction
+                return false
+
+        nextDirection
 
     _setupControls: ->
         $(window).keydown (event) =>
@@ -50,14 +56,15 @@ class Game.Snake
                 when 39 then newDirection = 'right'
                 when 40 then newDirection = 'down'
 
-            @moves.enqueue newDirection unless @_isOpposite newDirection
+            unless @_isOpposite newDirection
+                @direction = newDirection
+                @moves.enqueue @_nextPosition @moves.back()
 
     _isOpposite: (newDirection) ->
-        currentDirection = @moves.peek() or @direction
-        return true if newDirection is 'left' and currentDirection is 'right'
-        return true if newDirection is 'right' and currentDirection is 'left'
-        return true if newDirection is 'up' and currentDirection is 'down'
-        return true if newDirection is 'down' and currentDirection is 'up'
+        return true if newDirection is 'left' and @direction is 'right'
+        return true if newDirection is 'right' and @direction is 'left'
+        return true if newDirection is 'up' and @direction is 'down'
+        return true if newDirection is 'down' and @direction is 'up'
         false
 
     _eat: ->
@@ -87,16 +94,7 @@ class Game.Snake
         pairs = graph.dijkstras @head.toString(), foodStrings...
         pairs = pairs.map (pair) -> new Game.Pair pair
         pairs.unshift @head
-        @_pairsToDirections pairs
-
-    _pairsToDirections: (pairs) ->
-
-        directions = []
-        for pair, index in pairs
-            if index > 0
-                directions.push @grid.pairOrientation pairs[index - 1], pair
-
-        directions
+        pairs
 
     setup: (grid) ->
 
@@ -105,21 +103,29 @@ class Game.Snake
         # Snake registers itself on the grid
         @grid.registerSquareAt pair, 'snake' for pair in @chain
 
+        @moves.enqueue @_nextPosition()
+
     move: ->
 
         return unless @direction
 
-        head = @head.clone()
+        if @grid.squareHasType 'food', @head
+            @toGrow += @growthPerFood
+            @eating = true
+
+        @_eat() if @eating
 
         # unless @seekingFood
         #     @moves.enqueue pair for pair in @_findFoodPath()
         #     @seekingFood = true
 
-        @_updateHeadPosition()
+        temp = @head.clone()
+
+        @head = if @moves.isEmpty() then @_nextPosition() else @moves.dequeue()
+
+        moveTo = @head.clone()
 
         @lastTailPos = @chain[@chain.length - 1].clone()
-        temp = head.clone()
-        moveTo = @head.clone()
 
         @grid.restart() if @grid.squareHasType 'snake', moveTo
 
@@ -133,8 +139,3 @@ class Game.Snake
             moveTo.copy temp
             temp.copy @chain[index + 1]
 
-        if @grid.squareHasType 'food', head
-            @toGrow += @growthPerFood
-            @eating = true
-
-        @_eat() if @eating

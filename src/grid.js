@@ -37,7 +37,7 @@
         return;
       }
       edges = [];
-      this.eachAdjacentPosition(pos, function(adjacentPos) {
+      this.eachAdjacentPosition(pos, function(adjacentPos, direction) {
         if (_this.squareHasType('snake', adjacentPos)) {
           return;
         }
@@ -46,9 +46,9 @@
       return edges;
     };
 
-    Grid.prototype._moduloBoundaries = function(pair) {
-      pair.x %= this.squaresX - 1;
-      pair.y %= this.squaresY - 1;
+    Grid.prototype.moduloBoundaries = function(pair) {
+      pair.x %= this.squaresX;
+      pair.y %= this.squaresY;
       if (pair.x < 0) {
         pair.x = this.squaresX - 1;
       }
@@ -82,20 +82,20 @@
     };
 
     Grid.prototype.eachAdjacentPosition = function(pos, callback) {
-      var adjacentPos, normalizedPos, positions, _i, _len, _results;
-      positions = [new Game.Pair(pos.x, pos.y + 1), new Game.Pair(pos.x + 1, pos.y), new Game.Pair(pos.x, pos.y - 1), new Game.Pair(pos.x - 1, pos.y)];
-      _results = [];
-      for (_i = 0, _len = positions.length; _i < _len; _i++) {
-        adjacentPos = positions[_i];
-        normalizedPos = this._moduloBoundaries(adjacentPos);
-        _results.push(callback(normalizedPos));
+      var adjacentPos, direction, normalizedPos, positions, _i, _len;
+      positions = {
+        up: new Game.Pair(pos.x, pos.y + 1),
+        right: new Game.Pair(pos.x + 1, pos.y),
+        down: new Game.Pair(pos.x, pos.y - 1),
+        left: new Game.Pair(pos.x - 1, pos.y)
+      };
+      for (adjacentPos = _i = 0, _len = positions.length; _i < _len; adjacentPos = ++_i) {
+        direction = positions[adjacentPos];
+        normalizedPos = this.moduloBoundaries(adjacentPos);
+        if (false === callback(normalizedPos, direction)) {
+          return;
+        }
       }
-      return _results;
-    };
-
-    Grid.prototype.pairOrientation = function(pair1, pair2) {
-      var _this = this;
-      return this.eachAdjacentPosition(pair1, function() {});
     };
 
     Grid.prototype.makeWorld = function() {

@@ -16,6 +16,9 @@ class Game.Queue
     peek: ->
         @_queue[0]
 
+    back: ->
+        @_queue[@size() - 1]
+
     isEmpty: ->
         @_queue.length is 0
 

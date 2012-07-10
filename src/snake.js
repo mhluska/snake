@@ -16,7 +16,7 @@
       this.head = head;
       this.grid = null;
       this.lastTailPos = null;
-      this.moves = new Game.Queue([this.direction]);
+      this.moves = new Game.Queue;
       this.growthPerFood = 3;
       this.toGrow = 0;
       this.grown = 0;
@@ -38,31 +38,40 @@
       this._setupControls();
     }
 
-    Snake.prototype._updateHeadPosition = function() {
-      if (!this.moves.isEmpty()) {
-        this.direction = this.moves.dequeue();
+    Snake.prototype._nextPosition = function(position) {
+      if (position == null) {
+        position = this.head;
       }
+      position = position.clone();
       switch (this.direction) {
         case 'up':
-          this.head.y -= 1;
+          position.y -= 1;
           break;
         case 'right':
-          this.head.x += 1;
+          position.x += 1;
           break;
         case 'down':
-          this.head.y += 1;
+          position.y += 1;
           break;
         case 'left':
-          this.head.x -= 1;
+          position.x -= 1;
       }
-      if (this.head.x < 0) {
-        this.head.x += this.grid.squaresX;
+      return this.grid.moduloBoundaries(position);
+    };
+
+    Snake.prototype._nextDirection = function(position) {
+      var nextDirection;
+      if (!position) {
+        return;
       }
-      this.head.x %= this.grid.squaresX;
-      if (this.head.y < 0) {
-        this.head.y += this.grid.squaresY;
-      }
-      return this.head.y %= this.grid.squaresY;
+      nextDirection = this.direction;
+      this.grid.eachAdjacentPosition(this.head, function(adjPosition, direction) {
+        if (position.equals(adjPosition)) {
+          nextDirection = direction;
+          return false;
+        }
+      });
+      return nextDirection;
     };
 
     Snake.prototype._setupControls = function() {
@@ -84,24 +93,23 @@
             newDirection = 'down';
         }
         if (!_this._isOpposite(newDirection)) {
-          return _this.moves.enqueue(newDirection);
+          _this.direction = newDirection;
+          return _this.moves.enqueue(_this._nextPosition(_this.moves.back()));
         }
       });
     };
 
     Snake.prototype._isOpposite = function(newDirection) {
-      var currentDirection;
-      currentDirection = this.moves.peek() || this.direction;
-      if (newDirection === 'left' && currentDirection === 'right') {
+      if (newDirection === 'left' && this.direction === 'right') {
         return true;
       }
-      if (newDirection === 'right' && currentDirection === 'left') {
+      if (newDirection === 'right' && this.direction === 'left') {
         return true;
       }
-      if (newDirection === 'up' && currentDirection === 'down') {
+      if (newDirection === 'up' && this.direction === 'down') {
         return true;
       }
-      if (newDirection === 'down' && currentDirection === 'up') {
+      if (newDirection === 'down' && this.direction === 'up') {
         return true;
       }
       return false;
@@ -133,61 +141,49 @@
         return new Game.Pair(pair);
       });
       pairs.unshift(this.head);
-      return this._pairsToDirections(pairs);
-    };
-
-    Snake.prototype._pairsToDirections = function(pairs) {
-      var directions, index, pair, _i, _len;
-      directions = [];
-      for (index = _i = 0, _len = pairs.length; _i < _len; index = ++_i) {
-        pair = pairs[index];
-        if (index > 0) {
-          directions.push(this.grid.pairOrientation(pairs[index - 1], pair));
-        }
-      }
-      return directions;
+      return pairs;
     };
 
     Snake.prototype.setup = function(grid) {
-      var pair, _i, _len, _ref1, _results;
+      var pair, _i, _len, _ref1;
       this.grid = grid;
       _ref1 = this.chain;
-      _results = [];
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         pair = _ref1[_i];
-        _results.push(this.grid.registerSquareAt(pair, 'snake'));
+        this.grid.registerSquareAt(pair, 'snake');
       }
-      return _results;
+      return this.moves.enqueue(this._nextPosition());
     };
 
     Snake.prototype.move = function() {
-      var head, index, moveTo, piece, temp, _i, _len, _ref1;
+      var index, moveTo, piece, temp, _i, _len, _ref1, _results;
       if (!this.direction) {
         return;
       }
-      head = this.head.clone();
-      this._updateHeadPosition();
-      this.lastTailPos = this.chain[this.chain.length - 1].clone();
-      temp = head.clone();
+      if (this.grid.squareHasType('food', this.head)) {
+        this.toGrow += this.growthPerFood;
+        this.eating = true;
+      }
+      if (this.eating) {
+        this._eat();
+      }
+      temp = this.head.clone();
+      this.head = this.moves.isEmpty() ? this._nextPosition() : this.moves.dequeue();
       moveTo = this.head.clone();
+      this.lastTailPos = this.chain[this.chain.length - 1].clone();
       if (this.grid.squareHasType('snake', moveTo)) {
         this.grid.restart();
       }
       _ref1 = this.chain;
+      _results = [];
       for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
         piece = _ref1[index];
         this.grid.moveSquare(piece, moveTo, 'snake');
         piece.copy(moveTo);
         moveTo.copy(temp);
-        temp.copy(this.chain[index + 1]);
+        _results.push(temp.copy(this.chain[index + 1]));
       }
-      if (this.grid.squareHasType('food', head)) {
-        this.toGrow += this.growthPerFood;
-        this.eating = true;
-      }
-      if (this.eating) {
-        return this._eat();
-      }
+      return _results;
     };
 
     return Snake;

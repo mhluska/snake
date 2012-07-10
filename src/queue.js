@@ -36,6 +36,10 @@
       return this._queue[0];
     };
 
+    Queue.prototype.back = function() {
+      return this._queue[this.size() - 1];
+    };
+
     Queue.prototype.isEmpty = function() {
       return this._queue.length === 0;
     };

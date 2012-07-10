@@ -23,17 +23,17 @@ class Game.Grid
         return if @squareHasType('snake', pos) and not pos.equals @snake.head
 
         edges = []
-        @eachAdjacentPosition pos, (adjacentPos) =>
+        @eachAdjacentPosition pos, (adjacentPos, direction) =>
             return if @squareHasType 'snake', adjacentPos
             edges.push [ pos.toString(), adjacentPos.toString() ]
 
         edges
 
     # Handles wrap around of pair coordinates on the game world
-    _moduloBoundaries: (pair) ->
+    moduloBoundaries: (pair) ->
 
-        pair.x %= @squaresX - 1
-        pair.y %= @squaresY - 1
+        pair.x %= @squaresX
+        pair.y %= @squaresY
         pair.x = @squaresX - 1 if pair.x < 0
         pair.y = @squaresY - 1 if pair.y < 0
 
@@ -51,20 +51,15 @@ class Game.Grid
     # Iterate over adjacent positions, taking into account wrap around
     eachAdjacentPosition: (pos, callback) ->
 
-        positions = [
-            new Game.Pair pos.x, pos.y + 1  # Up
-            new Game.Pair pos.x + 1, pos.y  # Right
-            new Game.Pair pos.x, pos.y - 1  # Down
-            new Game.Pair pos.x - 1, pos.y  # Left
-        ]
+        positions =
+            up:     new Game.Pair pos.x, pos.y + 1
+            right:  new Game.Pair pos.x + 1, pos.y
+            down:   new Game.Pair pos.x, pos.y - 1
+            left:   new Game.Pair pos.x - 1, pos.y
 
-        for adjacentPos in positions
-            normalizedPos = @_moduloBoundaries adjacentPos
-            callback normalizedPos
-
-    pairOrientation: (pair1, pair2) ->
-        @eachAdjacentPosition pair1, =>
-            # TODO: Implement this
+        for direction, adjacentPos in positions
+            normalizedPos = @moduloBoundaries adjacentPos
+            return if false is callback normalizedPos, direction
 
     makeWorld: ->
         @eachSquare (pos) => @unregisterAllSquaresAt pos
@@ -101,7 +96,7 @@ class Game.Grid
             return false if square[type]
         true
 
-    registerSquareAt: (pos, type) -> 
+    registerSquareAt: (pos, type) ->
         return false if @world[pos.x][pos.y][type]
         @world[pos.x][pos.y][type] = true
         true
