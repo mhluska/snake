@@ -8,6 +8,11 @@ class SNAKE.Game
 
     constructor: (settings) ->
 
+        @stepCount = 0
+        @stepsPerFood = 20
+
+        @gameIntervalID = null
+
         defaults =
             debugPrint: false
             debugStep: false
@@ -30,18 +35,25 @@ class SNAKE.Game
 
         @snake.setup @grid
 
-        @grid.dropFood()
-
-        clearInterval @grid.gameIntervalID
-
         return @setupGameStep() if @debugStep
 
-        @grid.gameIntervalID = setInterval @_gameLoop, @grid.timeStepRate
+        clearInterval @gameIntervalID
+        @gameIntervalID = setInterval @_gameLoop, @grid.timeStepRate
         @_gameLoop()
 
     _gameLoop: ->
+
+        @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
+
         @snake.move()
         @graphics.update()
+
+        @stepCount += 1
+
+    restart: ->
+        @snake = @grid.snake = new SNAKE.Snake
+        @grid.makeWorld()
+        @_startGame()
 
     setupGameStep: ->
         $(window).keydown (event) =>

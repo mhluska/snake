@@ -132,7 +132,7 @@ class SNAKE.Snake
 
         @lastTailPos = @chain[@chain.length - 1].clone()
 
-        @grid.restart() if @grid.squareHasType 'snake', moveTo
+        @game.restart() if @grid.squareHasType 'snake', moveTo
 
         # TODO: Make this constant time instead of linear by updating just the
         # head and tail piece

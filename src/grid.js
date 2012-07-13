@@ -14,7 +14,6 @@
       this._squareToEdges = __bind(this._squareToEdges, this);
 
       this.graphics = null;
-      this.gameIntervalID = null;
       this.timeStepRate = 100;
       this.squareWidth = 15;
       this.squareHeight = 15;
@@ -22,8 +21,6 @@
       this.maxFood = 4;
       this.foodCount = 0;
       this.foodItems = null;
-      this.foodDropRate = this.timeStepRate * 20;
-      this.foodIntervalID = null;
     }
 
     Grid.prototype._squareToEdges = function(pos) {
@@ -192,23 +189,11 @@
       return this.squareHasType('food', pos);
     };
 
-    Grid.prototype.resetFoodInterval = function() {
-      clearInterval(this.foodIntervalID);
-      return this.foodIntervalID = setInterval(this.dropFood, this.foodDropRate);
-    };
-
     Grid.prototype.dropFood = function() {
-      this.resetFoodInterval();
       this.foodItems.enqueue(SNAKE.Utils.randPair(this.squaresX - 1, this.squaresY - 1));
       if (this.foodCount > this.maxFood) {
         return this.foodItems.dequeue();
       }
-    };
-
-    Grid.prototype.restart = function() {
-      this.snake = new SNAKE.Snake;
-      this.makeWorld();
-      return this.startGame();
     };
 
     Grid.prototype.toGraph = function() {

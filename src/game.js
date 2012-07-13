@@ -10,6 +10,9 @@
 
     function Game(settings) {
       var defaults, option, value;
+      this.stepCount = 0;
+      this.stepsPerFood = 20;
+      this.gameIntervalID = null;
       defaults = {
         debugPrint: false,
         debugStep: false
@@ -31,18 +34,27 @@
       this.grid.foodCount = 0;
       this.grid.foodItems = new SNAKE.FoodQueue(this.grid);
       this.snake.setup(this.grid);
-      this.grid.dropFood();
-      clearInterval(this.grid.gameIntervalID);
       if (this.debugStep) {
         return this.setupGameStep();
       }
-      this.grid.gameIntervalID = setInterval(this._gameLoop, this.grid.timeStepRate);
+      clearInterval(this.gameIntervalID);
+      this.gameIntervalID = setInterval(this._gameLoop, this.grid.timeStepRate);
       return this._gameLoop();
     };
 
     Game.prototype._gameLoop = function() {
+      if ((this.stepCount % this.stepsPerFood) === 0) {
+        this.grid.dropFood();
+      }
       this.snake.move();
-      return this.graphics.update();
+      this.graphics.update();
+      return this.stepCount += 1;
+    };
+
+    Game.prototype.restart = function() {
+      this.snake = this.grid.snake = new SNAKE.Snake;
+      this.grid.makeWorld();
+      return this._startGame();
     };
 
     Game.prototype.setupGameStep = function() {

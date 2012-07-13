@@ -3,7 +3,6 @@ class SNAKE.Grid
     constructor: (@game, @snake, @squaresX = 25, @squaresY = 15) ->
 
         @graphics = null
-        @gameIntervalID = null
         @timeStepRate = 100
 
         @squareWidth = 15
@@ -13,9 +12,6 @@ class SNAKE.Grid
         @maxFood = 4
         @foodCount = 0
         @foodItems = null
-
-        @foodDropRate = @timeStepRate * 20
-        @foodIntervalID = null
 
     _squareToEdges: (pos) =>
 
@@ -113,21 +109,10 @@ class SNAKE.Grid
     squareHasFood: (pos) ->
         @squareHasType 'food', pos
 
-    resetFoodInterval: ->
-        clearInterval @foodIntervalID
-        @foodIntervalID = setInterval @dropFood, @foodDropRate
-
     dropFood: =>
-
-        @resetFoodInterval()
 
         @foodItems.enqueue SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
         @foodItems.dequeue() if @foodCount > @maxFood
-
-    restart: ->
-        @snake = new SNAKE.Snake
-        @makeWorld()
-        @startGame()
 
     toGraph: ->
 

@@ -181,7 +181,7 @@
       moveTo = this.head.clone();
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
       if (this.grid.squareHasType('snake', moveTo)) {
-        this.grid.restart();
+        this.game.restart();
       }
       _ref1 = this.chain;
       _results = [];
