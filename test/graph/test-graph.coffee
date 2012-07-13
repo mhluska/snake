@@ -1,3 +1,4 @@
+'import game'
 'import utils'
 'import graph'
 
@@ -5,7 +6,7 @@ class window.TestGraph extends Test
 
     runDijkstras: (edges, start, ends, expected, message = null) ->
 
-        graph = new Game.Graph edges
+        graph = new SNAKE.Graph edges
 
         dijkstras = graph.dijkstras start, ends...
         @show dijkstras, "Result of Dijkstra's algorithm:"
@@ -25,7 +26,7 @@ class window.TestGraph extends Test
 
         @show edgeWeights, "Edge weights:"
 
-        graph = new Game.Graph edgeWeights
+        graph = new SNAKE.Graph edgeWeights
 
         @show graph._neighbours, "Internal neighbours object:"
         @show graph.vertices(), 'Vertices:'

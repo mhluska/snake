@@ -12,6 +12,7 @@
       var defaults, option, value;
       this.stepCount = 0;
       this.stepsPerFood = 20;
+      this.timeStepRate = 100;
       this.gameIntervalID = null;
       defaults = {
         debugPrint: false,
@@ -38,7 +39,7 @@
         return this.setupGameStep();
       }
       clearInterval(this.gameIntervalID);
-      this.gameIntervalID = setInterval(this._gameLoop, this.grid.timeStepRate);
+      this.gameIntervalID = setInterval(this._gameLoop, this.timeStepRate);
       return this._gameLoop();
     };
 

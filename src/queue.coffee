@@ -21,7 +21,7 @@ class SNAKE.Queue
     isEmpty: ->
         @_queue.length is 0
 
-    toString: -> 
+    toString: ->
         string = @_queue.reverse().toString()
         # We have to do this since reverse modifies in place
         @_queue.reverse()

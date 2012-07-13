@@ -10,6 +10,7 @@ class SNAKE.Game
 
         @stepCount = 0
         @stepsPerFood = 20
+        @timeStepRate = 100
 
         @gameIntervalID = null
 
@@ -38,7 +39,7 @@ class SNAKE.Game
         return @setupGameStep() if @debugStep
 
         clearInterval @gameIntervalID
-        @gameIntervalID = setInterval @_gameLoop, @grid.timeStepRate
+        @gameIntervalID = setInterval @_gameLoop, @timeStepRate
         @_gameLoop()
 
     _gameLoop: ->

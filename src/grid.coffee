@@ -3,7 +3,6 @@ class SNAKE.Grid
     constructor: (@game, @snake, @squaresX = 25, @squaresY = 15) ->
 
         @graphics = null
-        @timeStepRate = 100
 
         @squareWidth = 15
         @squareHeight = 15
