@@ -6,7 +6,7 @@ window.SNAKE ?= {}
 
 class SNAKE.Game
 
-    constructor: (settings) ->
+    constructor: (settings = {}) ->
 
         @stepCount = 0
         @stepsPerFood = 20
@@ -30,7 +30,7 @@ class SNAKE.Game
 
     _startGame: ->
         # Don't modify foodCount manually. This is handled by unregisterFoodAt 
-        # and registerFoodAt
+        # and registerFoodAt in grid
         @grid.foodCount = 0
         @grid.foodItems = new SNAKE.FoodQueue @grid
 
@@ -42,7 +42,7 @@ class SNAKE.Game
         @gameIntervalID = setInterval @_gameLoop, @timeStepRate
         @_gameLoop()
 
-    _gameLoop: ->
+    _gameLoop: =>
 
         @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
 
