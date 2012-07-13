@@ -54,8 +54,10 @@ class SNAKE.Snake
                 when 38 then newDirection = 'up'
                 when 39 then newDirection = 'right'
                 when 40 then newDirection = 'down'
+                else return
 
             unless @_isOpposite newDirection
+                @game.log "enqueueing move #{@_nextPosition @moves.back()}"
                 @direction = newDirection
                 @moves.enqueue @_nextPosition @moves.back()
 
@@ -93,7 +95,8 @@ class SNAKE.Snake
         foodStrings = @grid.foodItems._queue.map (item) -> item.toString()
         pairs = graph.dijkstras @head.toString(), foodStrings...
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
-        @game.log pairs
+        @game.log 'dijkstras calculated:'
+        @game.log pairs.toString()
         pairs
 
     setup: (grid) ->
@@ -112,6 +115,8 @@ class SNAKE.Snake
 
         return unless @direction
 
+        @game.log "start of snake.move: snake has moves: #{@moves._queue.toString()}"
+
         if @grid.squareHasType 'food', @head
             @toGrow += @growthPerFood
             @eating = true
@@ -122,11 +127,20 @@ class SNAKE.Snake
 
         unless @seekingFood
             @moves.enqueue pair for pair in @_findFoodPath()
+            @game.log 'moves after dijkstras'
+            @game.log @moves._queue.toString()
             @seekingFood = true
 
         temp = @head.clone()
 
-        @head = if @moves.isEmpty() then @_nextPosition() else @moves.dequeue()
+        if @moves.isEmpty()
+          @head = @_nextPosition()
+          @game.log "getting next pos according to dir #{@direction}: #{@head}"
+        else
+          @head = @moves.dequeue()
+          @game.log "dequeueing #{@head}"
+
+        @game.log @moves._queue.toString()
 
         moveTo = @head.clone()
 

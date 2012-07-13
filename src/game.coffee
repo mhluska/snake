@@ -8,6 +8,7 @@ class SNAKE.Game
 
     constructor: (settings = {}) ->
 
+        console.log settings
         @stepCount = 0
         @stepsPerFood = 20
         @timeStepRate = 100
@@ -43,6 +44,8 @@ class SNAKE.Game
         @_gameLoop()
 
     _gameLoop: =>
+
+        @log "in _gameLoop: snake has moves: #{@snake.moves._queue.toString()}"
 
         @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
 

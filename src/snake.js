@@ -87,8 +87,12 @@
             break;
           case 40:
             newDirection = 'down';
+            break;
+          default:
+            return;
         }
         if (!_this._isOpposite(newDirection)) {
+          _this.game.log("enqueueing move " + (_this._nextPosition(_this.moves.back())));
           _this.direction = newDirection;
           return _this.moves.enqueue(_this._nextPosition(_this.moves.back()));
         }
@@ -137,7 +141,8 @@
       pairs = pairs.map(function(pair) {
         return new SNAKE.Pair(pair);
       });
-      this.game.log(pairs);
+      this.game.log('dijkstras calculated:');
+      this.game.log(pairs.toString());
       return pairs;
     };
 
@@ -158,6 +163,7 @@
       if (!this.direction) {
         return;
       }
+      this.game.log("start of snake.move: snake has moves: " + (this.moves._queue.toString()));
       if (this.grid.squareHasType('food', this.head)) {
         this.toGrow += this.growthPerFood;
         this.eating = true;
@@ -174,10 +180,19 @@
           pair = _ref[_i];
           this.moves.enqueue(pair);
         }
+        this.game.log('moves after dijkstras');
+        this.game.log(this.moves._queue.toString());
         this.seekingFood = true;
       }
       temp = this.head.clone();
-      this.head = this.moves.isEmpty() ? this._nextPosition() : this.moves.dequeue();
+      if (this.moves.isEmpty()) {
+        this.head = this._nextPosition();
+        this.game.log("getting next pos according to dir " + this.direction + ": " + this.head);
+      } else {
+        this.head = this.moves.dequeue();
+        this.game.log("dequeueing " + this.head);
+      }
+      this.game.log(this.moves._queue.toString());
       moveTo = this.head.clone();
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
       if (this.grid.squareHasType('snake', moveTo)) {

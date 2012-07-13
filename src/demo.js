@@ -2,7 +2,8 @@
 (function() {
 
   new SNAKE.Game({
-    debugStep: true
+    debugStep: true,
+    debugPrint: true
   });
 
 }).call(this);

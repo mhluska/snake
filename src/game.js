@@ -16,6 +16,7 @@
       }
       this._gameLoop = __bind(this._gameLoop, this);
 
+      console.log(settings);
       this.stepCount = 0;
       this.stepsPerFood = 20;
       this.timeStepRate = 100;
@@ -50,6 +51,7 @@
     };
 
     Game.prototype._gameLoop = function() {
+      this.log("in _gameLoop: snake has moves: " + (this.snake.moves._queue.toString()));
       if ((this.stepCount % this.stepsPerFood) === 0) {
         this.grid.dropFood();
       }
