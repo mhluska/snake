@@ -113,6 +113,20 @@ class SNAKE.Grid
         @foodItems.enqueue SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
         @foodItems.dequeue() if @foodCount > @maxFood
 
+    # Uses Euclidean distance to find the nearest food item to source
+    closestFood: (source) ->
+        # TODO: Dont iterate the damn queue. Use the more general linked list
+        closestPos = null
+        for pos in @foodItems._queue
+            @game.log "iterating #{pos}"
+            if @graphics.visible @world[pos.x][pos.y].food
+                @game.log "checking #{pos}"
+                @game.log "pos distance: #{pos.distance()}, source distance: #{source.distance()}"
+                if closestPos is null or pos.distance() < closestPos.distance()
+                    closestPos = pos
+
+        closestPos
+
     toGraph: ->
 
         graphEdges = []

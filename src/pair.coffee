@@ -31,3 +31,5 @@ class SNAKE.Pair
         return @x is pair.x and @y is pair.y
 
     toString: -> "(#{@x}, #{@y})"
+
+    distance: -> Math.sqrt @x * @x, @y * @y

@@ -48,6 +48,10 @@
       return "(" + this.x + ", " + this.y + ")";
     };
 
+    Pair.prototype.distance = function() {
+      return Math.sqrt(this.x * this.x, this.y * this.y);
+    };
+
     return Pair;
 
   })();

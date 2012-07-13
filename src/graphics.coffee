@@ -66,3 +66,9 @@ class SNAKE.Graphics
             # Set a reference to the DOM node in the world data
             square[type] = @appendDOMNode pos, type
 
+    # TODO: The implementation of this function will depend on drawing mode
+    # (DOM, Canvas, WebGL etc.)
+    visible: (square) ->
+          return false unless square
+          $(square).is ':visible'
+

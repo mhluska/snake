@@ -86,14 +86,18 @@ class SNAKE.Snake
     _findFoodPath: ->
 
         graph = new SNAKE.Graph @grid.toGraph()
+        @game.log ''
+        @game.log 'Running Dijkstras!'
+        @game.log @grid
         @game.log graph
         # TODO: This is kind of cheating: accessing the array implementation
         # underneath the queue. Convert to array or maintain a separate array
         # of food. Or better yet, make a grid.closestFood function which
         # uses Euclidean distance to find the closest food item to a given
         # pair
-        foodStrings = @grid.foodItems._queue.map (item) -> item.toString()
-        pairs = graph.dijkstras @head.toString(), foodStrings...
+        foodPos = @grid.closestFood @head
+        @game.log "passing dijkstras foodPos: #{foodPos}"
+        pairs = graph.dijkstras @head.toString(), foodPos
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
         @game.log 'dijkstras calculated:'
         @game.log pairs.toString()

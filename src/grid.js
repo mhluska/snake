@@ -195,6 +195,24 @@
       }
     };
 
+    Grid.prototype.closestFood = function(source) {
+      var closestPos, pos, _i, _len, _ref;
+      closestPos = null;
+      _ref = this.foodItems._queue;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pos = _ref[_i];
+        this.game.log("iterating " + pos);
+        if (this.graphics.visible(this.world[pos.x][pos.y].food)) {
+          this.game.log("checking " + pos);
+          this.game.log("pos distance: " + (pos.distance()) + ", source distance: " + (source.distance()));
+          if (closestPos === null || pos.distance() < closestPos.distance()) {
+            closestPos = pos;
+          }
+        }
+      }
+      return closestPos;
+    };
+
     Grid.prototype.toGraph = function() {
       var graphEdges,
         _this = this;

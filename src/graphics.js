@@ -90,6 +90,13 @@
       });
     };
 
+    Graphics.prototype.visible = function(square) {
+      if (!square) {
+        return false;
+      }
+      return $(square).is(':visible');
+    };
+
     return Graphics;
 
   })();
