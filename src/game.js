@@ -5,10 +5,12 @@
 
     function Game() {}
 
-    Game.debug = false;
+    Game.debugPrint = false;
+
+    Game.debugStep = false;
 
     Game.log = function(message) {
-      if (!Game.debug) {
+      if (!Game.debugPrint) {
         return;
       }
       return console.log(message);

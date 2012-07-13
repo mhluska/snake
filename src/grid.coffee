@@ -28,6 +28,12 @@ class Game.Grid
 
         edges
 
+    _setupGameStep: (action) ->
+        $(window).keydown (event) =>
+            action() if event.keyCode is 83
+
+        console.warn 'Debug stepping is active. Press s to move a time step.'
+
     # Handles wrap around of pair coordinates on the game world
     moduloBoundaries: (pair) ->
 
@@ -80,6 +86,10 @@ class Game.Grid
         gameLoop = =>
             @snake.move()
             @graphics.update()
+
+        if Game.debugStep
+            @_setupGameStep gameLoop
+            return
 
         @gameIntervalID = setInterval gameLoop, @timeStepRate
         gameLoop()

@@ -41,6 +41,16 @@
       return edges;
     };
 
+    Grid.prototype._setupGameStep = function(action) {
+      var _this = this;
+      $(window).keydown(function(event) {
+        if (event.keyCode === 83) {
+          return action();
+        }
+      });
+      return console.warn('Debug stepping is active. Press s to move a time step.');
+    };
+
     Grid.prototype.moduloBoundaries = function(pair) {
       pair.x %= this.squaresX;
       pair.y %= this.squaresY;
@@ -131,6 +141,10 @@
         _this.snake.move();
         return _this.graphics.update();
       };
+      if (Game.debugStep) {
+        this._setupGameStep(gameLoop);
+        return;
+      }
       this.gameIntervalID = setInterval(gameLoop, this.timeStepRate);
       return gameLoop();
     };

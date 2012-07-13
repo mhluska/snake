@@ -2,6 +2,8 @@
 (function() {
   var graphics, grid, snake;
 
+  Game.debugStep = true;
+
   snake = new Game.Snake;
 
   grid = new Game.Grid(snake);
