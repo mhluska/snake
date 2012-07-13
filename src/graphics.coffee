@@ -1,4 +1,3 @@
-window.Game ?= {}
 class Game.Graphics
 
     constructor: (@grid, @graphicsType = 'dom') ->

@@ -21,7 +21,6 @@
 #   ...
 # ]
 
-window.Game ?= {}
 class Game.Graph
 
     constructor: (@edgeWeights = []) ->

@@ -1,4 +1,3 @@
-window.Game ?= {}
 class Game.Utils
 
     @randInt: (min, max) ->

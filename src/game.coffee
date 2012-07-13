@@ -1,7 +1,6 @@
 # TODO: Use the _privateMethod style throughout the whole project
-
-snake = new Game.Snake
-grid = new Game.Grid snake
-graphics = new Game.Graphics grid
-
-grid.startGame()
+class window.Game
+    @debug: false
+    @log: (message) ->
+        return unless Game.debug
+        console.log message

@@ -1,4 +1,3 @@
-window.Game ?= {}
 class Game.Snake
 
     constructor: (@length = 5, @direction = 'down', @head) ->
@@ -85,6 +84,7 @@ class Game.Snake
     _findFoodPath: ->
 
         graph = new Game.Graph @grid.toGraph()
+        Game.log graph
         # TODO: This is kind of cheating: accessing the array implementation
         # underneath the queue. Convert to array or maintain a separate array
         # of food. Or better yet, make a grid.closestFood function which
@@ -93,7 +93,7 @@ class Game.Snake
         foodStrings = @grid.foodItems._queue.map (item) -> item.toString()
         pairs = graph.dijkstras @head.toString(), foodStrings...
         pairs = pairs.map (pair) -> new Game.Pair pair
-        pairs.unshift @head
+        Game.log pairs
         pairs
 
     setup: (grid) ->
@@ -103,7 +103,10 @@ class Game.Snake
         # Snake registers itself on the grid
         @grid.registerSquareAt pair, 'snake' for pair in @chain
 
-        @moves.enqueue @_nextPosition()
+        # TODO: Do something about this. Its interfering with the graph algo.
+        # Factor out enqueue algo pairs and use it here since the game
+        # initially starts with the snake in AI mode
+        # @moves.enqueue @_nextPosition()
 
     move: ->
 
@@ -115,9 +118,11 @@ class Game.Snake
 
         @_eat() if @eating
 
-        # unless @seekingFood
-        #     @moves.enqueue pair for pair in @_findFoodPath()
-        #     @seekingFood = true
+        @seekingFood = false if @moves.isEmpty()
+
+        unless @seekingFood
+            @moves.enqueue pair for pair in @_findFoodPath()
+            @seekingFood = true
 
         temp = @head.clone()
 

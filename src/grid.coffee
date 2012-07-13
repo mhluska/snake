@@ -1,4 +1,3 @@
-window.Game ?= {}
 class Game.Grid
 
     constructor: (@snake, @squaresX = 25, @squaresY = 15) ->
@@ -57,7 +56,7 @@ class Game.Grid
             down:   new Game.Pair pos.x, pos.y - 1
             left:   new Game.Pair pos.x - 1, pos.y
 
-        for direction, adjacentPos in positions
+        for direction, adjacentPos of positions
             normalizedPos = @moduloBoundaries adjacentPos
             return if false is callback normalizedPos, direction
 
@@ -128,7 +127,7 @@ class Game.Grid
 
     squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
-    squareHasFood: (pos) -> 
+    squareHasFood: (pos) ->
         @squareHasType 'food', pos
 
     resetFoodInterval: ->
@@ -143,7 +142,6 @@ class Game.Grid
         @foodItems.dequeue() if @foodCount > @maxFood
 
     restart: ->
-        console.log 'restarting'
         @snake = new Game.Snake
         @makeWorld()
         @startGame()
