@@ -1,4 +1,4 @@
-class Game.Pair
+class SNAKE.Pair
 
     constructor: (x = 0, y = 0) ->
 
@@ -16,7 +16,7 @@ class Game.Pair
 
         [@x, @y] = [ parseInt(matches[1]), parseInt(matches[2]) ]
 
-    clone: -> new Game.Pair @x, @y
+    clone: -> new SNAKE.Pair @x, @y
 
     copy: (pair) ->
 

@@ -1,10 +1,10 @@
-class Game.Snake
+class SNAKE.Snake
 
-    constructor: (@length = 5, @direction = 'down', @head) ->
+    constructor: (@game, @length = 5, @direction = 'down', @head) ->
 
         @grid = null
         @lastTailPos = null
-        @moves = new Game.Queue
+        @moves = new SNAKE.Queue
 
         # The number of times the snake will grow when it eats
         @growthPerFood = 3
@@ -15,12 +15,12 @@ class Game.Snake
         # Whether the AI has set the snake to find food
         @seekingFood = false
 
-        @head ?= new Game.Pair 0, 4
+        @head ?= new SNAKE.Pair 0, 4
         x = @head.x
         y = @head.y
 
         # The coordinates of the snake chain
-        @chain = ( new Game.Pair x, y - piece for piece in [0..@length - 1] )
+        @chain = ( new SNAKE.Pair x, y - piece for piece in [0..@length - 1] )
 
         @_setupControls()
 
@@ -83,8 +83,8 @@ class Game.Snake
 
     _findFoodPath: ->
 
-        graph = new Game.Graph @grid.toGraph()
-        Game.log graph
+        graph = new SNAKE.Graph @grid.toGraph()
+        @game.log graph
         # TODO: This is kind of cheating: accessing the array implementation
         # underneath the queue. Convert to array or maintain a separate array
         # of food. Or better yet, make a grid.closestFood function which
@@ -92,8 +92,8 @@ class Game.Snake
         # pair
         foodStrings = @grid.foodItems._queue.map (item) -> item.toString()
         pairs = graph.dijkstras @head.toString(), foodStrings...
-        pairs = pairs.map (pair) -> new Game.Pair pair
-        Game.log pairs
+        pairs = pairs.map (pair) -> new SNAKE.Pair pair
+        @game.log pairs
         pairs
 
     setup: (grid) ->

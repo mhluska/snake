@@ -1,6 +1,6 @@
-class Game.Grid
+class SNAKE.Grid
 
-    constructor: (@snake, @squaresX = 25, @squaresY = 15) ->
+    constructor: (@game, @snake, @squaresX = 25, @squaresY = 15) ->
 
         @graphics = null
         @gameIntervalID = null
@@ -28,12 +28,6 @@ class Game.Grid
 
         edges
 
-    _setupGameStep: (action) ->
-        $(window).keydown (event) =>
-            action() if event.keyCode is 83
-
-        console.warn 'Debug stepping is active. Press s to move a time step.'
-
     # Handles wrap around of pair coordinates on the game world
     moduloBoundaries: (pair) ->
 
@@ -50,17 +44,17 @@ class Game.Grid
 
         for column, x in @world
             for square, y in column
-                pos = new Game.Pair x, y
+                pos = new SNAKE.Pair x, y
                 callback pos, square
 
     # Iterate over adjacent positions, taking into account wrap around
     eachAdjacentPosition: (pos, callback) ->
 
         positions =
-            up:     new Game.Pair pos.x, pos.y + 1
-            right:  new Game.Pair pos.x + 1, pos.y
-            down:   new Game.Pair pos.x, pos.y - 1
-            left:   new Game.Pair pos.x - 1, pos.y
+            up:     new SNAKE.Pair pos.x, pos.y + 1
+            right:  new SNAKE.Pair pos.x + 1, pos.y
+            down:   new SNAKE.Pair pos.x, pos.y - 1
+            left:   new SNAKE.Pair pos.x - 1, pos.y
 
         for direction, adjacentPos of positions
             normalizedPos = @moduloBoundaries adjacentPos
@@ -72,27 +66,6 @@ class Game.Grid
 
     setup: (graphics) ->
         @graphics = graphics
-
-    startGame: () ->
-        # Don't modify foodCount manually. This is handled by unregisterFoodAt 
-        # and registerFoodAt
-        @foodCount = 0
-        @foodItems = new Game.FoodQueue @
-
-        @snake.setup @
-        @dropFood()
-
-        clearInterval @gameIntervalID
-        gameLoop = =>
-            @snake.move()
-            @graphics.update()
-
-        if Game.debugStep
-            @_setupGameStep gameLoop
-            return
-
-        @gameIntervalID = setInterval gameLoop, @timeStepRate
-        gameLoop()
 
     moveSquare: (start, end, type) ->
 
@@ -148,11 +121,11 @@ class Game.Grid
 
         @resetFoodInterval()
 
-        @foodItems.enqueue Game.Utils.randPair @squaresX - 1, @squaresY - 1
+        @foodItems.enqueue SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
         @foodItems.dequeue() if @foodCount > @maxFood
 
     restart: ->
-        @snake = new Game.Snake
+        @snake = new SNAKE.Snake
         @makeWorld()
         @startGame()
 
@@ -162,5 +135,5 @@ class Game.Grid
 
         # TODO: Our graphEdges data structure has duplicate edges but it 
         # doesn't matter for now.
-        @eachSquare (pos) => Game.Utils.concat graphEdges, @_squareToEdges pos
+        @eachSquare (pos) => SNAKE.Utils.concat graphEdges, @_squareToEdges pos
         graphEdges

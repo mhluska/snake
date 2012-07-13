@@ -2,23 +2,24 @@
 (function() {
   var __slice = [].slice;
 
-  Game.Snake = (function() {
+  SNAKE.Snake = (function() {
 
-    function Snake(length, direction, head) {
+    function Snake(game, length, direction, head) {
       var piece, x, y, _ref;
+      this.game = game;
       this.length = length != null ? length : 5;
       this.direction = direction != null ? direction : 'down';
       this.head = head;
       this.grid = null;
       this.lastTailPos = null;
-      this.moves = new Game.Queue;
+      this.moves = new SNAKE.Queue;
       this.growthPerFood = 3;
       this.toGrow = 0;
       this.grown = 0;
       this.eating = false;
       this.seekingFood = false;
       if ((_ref = this.head) == null) {
-        this.head = new Game.Pair(0, 4);
+        this.head = new SNAKE.Pair(0, 4);
       }
       x = this.head.x;
       y = this.head.y;
@@ -26,7 +27,7 @@
         var _i, _ref1, _results;
         _results = [];
         for (piece = _i = 0, _ref1 = this.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; piece = 0 <= _ref1 ? ++_i : --_i) {
-          _results.push(new Game.Pair(x, y - piece));
+          _results.push(new SNAKE.Pair(x, y - piece));
         }
         return _results;
       }).call(this);
@@ -127,16 +128,16 @@
 
     Snake.prototype._findFoodPath = function() {
       var foodStrings, graph, pairs;
-      graph = new Game.Graph(this.grid.toGraph());
-      Game.log(graph);
+      graph = new SNAKE.Graph(this.grid.toGraph());
+      this.game.log(graph);
       foodStrings = this.grid.foodItems._queue.map(function(item) {
         return item.toString();
       });
       pairs = graph.dijkstras.apply(graph, [this.head.toString()].concat(__slice.call(foodStrings)));
       pairs = pairs.map(function(pair) {
-        return new Game.Pair(pair);
+        return new SNAKE.Pair(pair);
       });
-      Game.log(pairs);
+      this.game.log(pairs);
       return pairs;
     };
 

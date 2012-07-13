@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Game.Queue = (function() {
+  SNAKE.Queue = (function() {
 
     function Queue(items) {
       if (items == null) {
@@ -50,7 +50,7 @@
 
   })();
 
-  Game.FoodQueue = (function(_super) {
+  SNAKE.FoodQueue = (function(_super) {
 
     __extends(FoodQueue, _super);
 
@@ -75,6 +75,6 @@
 
     return FoodQueue;
 
-  })(Game.Queue);
+  })(SNAKE.Queue);
 
 }).call(this);

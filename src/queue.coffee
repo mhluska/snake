@@ -1,4 +1,4 @@
-class Game.Queue
+class SNAKE.Queue
 
     constructor: (items = []) ->
         @_queue = items
@@ -27,7 +27,7 @@ class Game.Queue
         @_queue.reverse()
         string
 
-class Game.FoodQueue extends Game.Queue
+class SNAKE.FoodQueue extends SNAKE.Queue
 
     constructor: (@grid, items) ->
         super items

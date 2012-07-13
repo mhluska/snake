@@ -2,7 +2,7 @@
 (function() {
   var __slice = [].slice;
 
-  Game.Graph = (function() {
+  SNAKE.Graph = (function() {
 
     function Graph(edgeWeights) {
       var tuple, vertex1, vertex2, weight, weightless, _base, _base1, _base2, _base3, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4;

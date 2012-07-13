@@ -21,7 +21,7 @@
 #   ...
 # ]
 
-class Game.Graph
+class SNAKE.Graph
 
     constructor: (@edgeWeights = []) ->
 

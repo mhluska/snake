@@ -1,6 +1,6 @@
-class Game.Graphics
+class SNAKE.Graphics
 
-    constructor: (@grid, @graphicsType = 'dom') ->
+    constructor: (@game, @grid, @graphicsType = 'dom') ->
 
        @grid.setup @
 

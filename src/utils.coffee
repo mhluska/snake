@@ -1,4 +1,4 @@
-class Game.Utils
+class SNAKE.Utils
 
     @randInt: (min, max) ->
         Math.floor(Math.random() * (max - min + 1)) + min
@@ -13,7 +13,7 @@ class Game.Utils
             randX = @randInt min1, max1
             randY = @randInt min2, max2
 
-        new Game.Pair randX, randY
+        new SNAKE.Pair randX, randY
 
     # Concat in place
     @concat: (array1, array2) -> array1.push.apply array1, array2
