@@ -160,7 +160,7 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, pair, piece, temp, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var index, moveTo, newPos, pair, piece, temp, _i, _j, _len, _len1, _ref, _ref1, _results;
       if (!this.direction) {
         return;
       }
@@ -190,8 +190,12 @@
         this.head = this._nextPosition();
         this.game.log("getting next pos according to dir " + this.direction + ": " + this.head);
       } else {
-        this.head = this.moves.dequeue();
-        this.game.log("dequeueing " + this.head);
+        this.game.log("current head is " + this.head);
+        newPos = this.moves.dequeue();
+        this.game.log("dequeueing " + newPos);
+        this.direction = this._nextDirection(newPos);
+        this.game.log("setting direction to " + this.direction);
+        this.head = newPos;
       }
       this.game.log(this.moves._queue.toString());
       moveTo = this.head.clone();

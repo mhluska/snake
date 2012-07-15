@@ -141,8 +141,12 @@ class SNAKE.Snake
           @head = @_nextPosition()
           @game.log "getting next pos according to dir #{@direction}: #{@head}"
         else
-          @head = @moves.dequeue()
-          @game.log "dequeueing #{@head}"
+          @game.log "current head is #{@head}"
+          newPos = @moves.dequeue()
+          @game.log "dequeueing #{newPos}"
+          @direction = @_nextDirection newPos
+          @game.log "setting direction to #{@direction}"
+          @head = newPos
 
         @game.log @moves._queue.toString()
 

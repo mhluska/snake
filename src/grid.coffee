@@ -46,9 +46,9 @@ class SNAKE.Grid
     eachAdjacentPosition: (pos, callback) ->
 
         positions =
-            up:     new SNAKE.Pair pos.x, pos.y + 1
+            down:   new SNAKE.Pair pos.x, pos.y + 1
             right:  new SNAKE.Pair pos.x + 1, pos.y
-            down:   new SNAKE.Pair pos.x, pos.y - 1
+            up:     new SNAKE.Pair pos.x, pos.y - 1
             left:   new SNAKE.Pair pos.x - 1, pos.y
 
         for direction, adjacentPos of positions

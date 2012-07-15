@@ -1,1 +1,2 @@
-new SNAKE.Game debugStep: true, debugPrint: true
+# new SNAKE.Game debugStep: true, debugPrint: true
+new SNAKE.Game
