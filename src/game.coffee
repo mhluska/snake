@@ -8,7 +8,6 @@ class SNAKE.Game
 
     constructor: (settings = {}) ->
 
-        console.log settings
         @stepCount = 0
         @stepsPerFood = 20
         @timeStepRate = 100
