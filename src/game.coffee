@@ -44,7 +44,7 @@ class SNAKE.Game
 
     _gameLoop: =>
 
-        @log "in _gameLoop: snake has moves: #{@snake.moves._queue.toString())}"
+        @log "in _gameLoop: snake has moves: #{@snake.moves._queue.toString()}"
 
         @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
 
