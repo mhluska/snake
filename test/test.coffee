@@ -13,6 +13,9 @@ class window.Test
                     # May break if the constructor has been tampered with
                     return object.constructor.prototype
 
+        # Class accessor. Kind of like '@@' in Ruby.
+        @.class = (Object.getPrototypeOf @).constructor
+
         @_runTests()
 
     # Changes string like 'testCamelCase' to 'Camel Case'
@@ -41,12 +44,10 @@ class window.Test
 
     _runTests: =>
 
-        testClass = (Object.getPrototypeOf @).constructor
-
-        console.warn "Testing module: #{@_formatTestName testClass.name}"
+        console.warn "Testing module: #{@_formatTestName @.class.name}"
         console.log ''
 
-        testClass.before?()
+        @.class.before?()
 
         for prop of @
             if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
@@ -56,10 +57,8 @@ class window.Test
                 @.after?()
                 console.log ''
 
-        testClass.after?()
+        @.class.after?()
         console.log ''
-
-    _getPrototype: ->
 
     show: (value, message) ->
 

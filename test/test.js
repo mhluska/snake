@@ -17,6 +17,7 @@
           };
         }
       }
+      this["class"] = (Object.getPrototypeOf(this)).constructor;
       this._runTests();
     }
 
@@ -59,12 +60,11 @@
     };
 
     Test.prototype._runTests = function() {
-      var prop, testClass;
-      testClass = (Object.getPrototypeOf(this)).constructor;
-      console.warn("Testing module: " + (this._formatTestName(testClass.name)));
+      var prop, _base, _base1;
+      console.warn("Testing module: " + (this._formatTestName(this["class"].name)));
       console.log('');
-      if (typeof testClass.before === "function") {
-        testClass.before();
+      if (typeof (_base = this["class"]).before === "function") {
+        _base.before();
       }
       for (prop in this) {
         if (prop.substring(0, 4) === 'test' && typeof this[prop] === 'function') {
@@ -79,13 +79,11 @@
           console.log('');
         }
       }
-      if (typeof testClass.after === "function") {
-        testClass.after();
+      if (typeof (_base1 = this["class"]).after === "function") {
+        _base1.after();
       }
       return console.log('');
     };
-
-    Test.prototype._getPrototype = function() {};
 
     Test.prototype.show = function(value, message) {
       if (message) {
