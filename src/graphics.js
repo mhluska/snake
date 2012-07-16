@@ -89,7 +89,7 @@
     };
 
     Graphics.prototype.visible = function(square) {
-      if (!(square && !this.grid.isEmptySquare(square))) {
+      if (!(square && (square instanceof jQuery))) {
         return false;
       }
       return $(square).is(':visible');

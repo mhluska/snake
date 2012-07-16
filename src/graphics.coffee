@@ -68,6 +68,6 @@ class SNAKE.Graphics
     # TODO: The implementation of this function will depend on drawing mode
     # (DOM, Canvas, WebGL etc.)
     visible: (square) ->
-        return false unless square and not @grid.isEmptySquare square
+        return false unless square and (square instanceof jQuery)
         $(square).is ':visible'
 
