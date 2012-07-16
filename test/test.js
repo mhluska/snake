@@ -6,11 +6,22 @@
 
     function Test() {
       this._runTests = __bind(this._runTests, this);
+      if (typeof Object.getPrototypeOf !== 'function') {
+        if (typeof 'test'.__proto__ === 'object') {
+          Object.getPrototypeOf = function(object) {
+            return object.__proto__;
+          };
+        } else {
+          Object.getPrototypeOf = function(object) {
+            return object.constructor.prototype;
+          };
+        }
+      }
       this._runTests();
     }
 
     Test.prototype._formatTestName = function(name) {
-      if (name.substring(0, 4) === 'test') {
+      if (name.substring(0, 4).toLowerCase() === 'test') {
         name = name.substring(4);
       }
       name = name.replace(/([A-Z])/g, function(match, group1) {
@@ -48,8 +59,13 @@
     };
 
     Test.prototype._runTests = function() {
-      var prop, _results;
-      _results = [];
+      var prop, testClass;
+      testClass = (Object.getPrototypeOf(this)).constructor;
+      console.warn("Testing module: " + (this._formatTestName(testClass.name)));
+      console.log('');
+      if (typeof testClass.before === "function") {
+        testClass.before();
+      }
       for (prop in this) {
         if (prop.substring(0, 4) === 'test' && typeof this[prop] === 'function') {
           console.warn("Running test: " + (this._formatTestName(prop)));
@@ -60,13 +76,16 @@
           if (typeof this.after === "function") {
             this.after();
           }
-          _results.push(console.log(''));
-        } else {
-          _results.push(void 0);
+          console.log('');
         }
       }
-      return _results;
+      if (typeof testClass.after === "function") {
+        testClass.after();
+      }
+      return console.log('');
     };
+
+    Test.prototype._getPrototype = function() {};
 
     Test.prototype.show = function(value, message) {
       if (message) {
