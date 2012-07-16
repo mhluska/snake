@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TEST_FILE='test.html'
 BROWSER_NAME='Google Chrome'
@@ -45,7 +45,7 @@ parse_dependencies() {
 
     # Read dependencies from a testing CoffeeScript file
     # TODO: Make regex find only quotes for string delimeters
-    MODULES=$(perl -n -e '/$\.import (\w+).;?\s*$/ && print "$1 "' ${1})
+    MODULES=$(perl -n -e '/$\.import (\S+).;?\s*$/ && print "$1 "' ${1})
 
     # Trim the trailing whitespace
     MODULES=${MODULES%?}
@@ -64,11 +64,18 @@ build_dependency_html() {
 
     HTML=
     for module in ${1}; do
-        FILE="${MODULE_PATH}/${module}.js"
-        if [ ! -e ${FILE} ]; then
-            echo "File ${FILE} does not exist"
-            exit 1
+
+        if [ -n "$(echo "${module}" | grep 'https\?://.*')" ]; then
+            FILE="${module}"
+        else
+
+            FILE="${MODULE_PATH}/${module}.js"
+            if [ ! -e ${FILE} ]; then
+                echo "File ${FILE} does not exist"
+                exit 1
+            fi
         fi
+
         HTML="${HTML}<script src='${FILE}'></script>"
     done
 
