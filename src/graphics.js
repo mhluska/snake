@@ -16,14 +16,12 @@
     }
 
     Graphics.prototype.setNodePosition = function(node, pos) {
-      var offset;
       if (!node) {
         return;
       }
-      offset = this.dom.grid.offset();
       node.css({
-        top: offset.top + pos.y * this.grid.squareHeight,
-        left: offset.left + pos.x * this.grid.squareWidth
+        top: pos.y * this.grid.squareHeight,
+        left: pos.x * this.grid.squareWidth
       });
       return node.show();
     };
@@ -74,7 +72,7 @@
         width: this.grid.squareWidth * this.grid.squaresX,
         height: this.grid.squareHeight * this.grid.squaresY
       });
-      $('body').append(this.dom.grid);
+      $('body').prepend(this.dom.grid);
       return this.grid.eachSquare(function(pos, square) {
         var type;
         if (_this.grid.isEmptySquare(square)) {
@@ -91,7 +89,7 @@
     };
 
     Graphics.prototype.visible = function(square) {
-      if (!square) {
+      if (!(square && !this.grid.isEmptySquare(square))) {
         return false;
       }
       return $(square).is(':visible');

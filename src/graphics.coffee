@@ -14,10 +14,9 @@ class SNAKE.Graphics
 
         return unless node
         
-        offset = @dom.grid.offset()
         node.css
-            top: offset.top + pos.y * @grid.squareHeight
-            left: offset.left + pos.x * @grid.squareWidth
+            top: pos.y * @grid.squareHeight
+            left: pos.x * @grid.squareWidth
 
         node.show()
 
@@ -54,7 +53,7 @@ class SNAKE.Graphics
             width: @grid.squareWidth * @grid.squaresX
             height: @grid.squareHeight * @grid.squaresY
 
-        $('body').append @dom.grid
+        $('body').prepend @dom.grid
 
         @grid.eachSquare (pos, square) =>
 
@@ -69,6 +68,6 @@ class SNAKE.Graphics
     # TODO: The implementation of this function will depend on drawing mode
     # (DOM, Canvas, WebGL etc.)
     visible: (square) ->
-          return false unless square
+          return false unless square and not @grid.isEmptySquare square
           $(square).is ':visible'
 

@@ -114,6 +114,13 @@ class SNAKE.Grid
         @foodItems.dequeue() if @foodCount > @maxFood
 
     # Uses Euclidean distance to find the nearest food item to source
+    # TODO: This function doesn't return the correct answer in 2D mode due to
+    # wrap around.
+    # TODO: The answer is also incorrect because we are getting distance to
+    # top left corner. We need smallest distance to snake head. So create a
+    # 2Vector class which extends Pair. Move distance function to 2Vector. Add
+    # math functions like Add and Subtract. Then subtract snake head from food
+    # vector and take the Euclidean distance
     closestFood: (source) ->
         # TODO: Dont iterate the damn queue. Use the more general linked list
         closestPos = null
@@ -132,6 +139,6 @@ class SNAKE.Grid
         graphEdges = []
 
         # TODO: Our graphEdges data structure has duplicate edges but it 
-        # doesn't matter for now.
+        # doesn't matter for now
         @eachSquare (pos) => SNAKE.Utils.concat graphEdges, @_squareToEdges pos
         graphEdges
