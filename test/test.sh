@@ -1,65 +1,114 @@
 #!/bin/bash
 
-USAGE="${0} file"
 TEST_FILE='test.html'
-BROWSER_NAME='google-chrome'
-PROJECT_PATH=$(dirname $(dirname $(readlink -f ${0})))
-MODULE_PATH="${PROJECT_PATH}/src"
+BROWSER_NAME='Google Chrome'
 
-if [ ${#} -lt 1 ]; then
-    echo 'Not enough arguments'
-    echo "Usage: ${USAGE}"
-    exit 1
-fi
-
-if [ ! -e ${1} ]; then
-    echo "File ${1} does not exist"
-    exit 1
-fi
-
-which "${BROWSER_NAME}" >/dev/null
-
-if [ ${?} -ne 0 ]; then
-    echo "Browser ${BROWSER_NAME} is not installed"
-    exit 1
-fi
-
-# Read dependencies from test script
-# TODO: Make regex find only quotes for string delimeters
-modules=$(perl -n -e '/$\.import (\w+).;?\s*$/ && print "$1 "' ${1})
-
-# Trim the trailing whitespace
-modules=${modules%?}
-
-# Remove duplicate modules
-unique_modules=$(echo ${modules} | sed 's/ /\n/g' | uniq)
-
-if [ ${#modules} -gt ${#unique_modules} ]; then
-    echo "Some duplicate modules were included in the test script"
-    exit 1
-fi
-
-# Build up script tag HTML, starting with the testing library
-scripts="<script src='test.js'></script>"
-for module in ${unique_modules}; do
-    file="${MODULE_PATH}/${module}.js"
-    if [ ! -e ${file} ]; then
-        echo "File ${file} does not exist"
+if [ $(uname -s) == 'Darwin' ]; then
+    
+    READLINK_PATH=$(which greadlink)
+    if [ ${?} -ne 0 ]; then
+        echo 'greadlink is not installed. Try brew install coreutils.'
         exit 1
     fi
-    scripts="${scripts}<script src='${file}'></script>"
-done
-scripts="${scripts}<script src='${1}'></script>"
 
-# Build a script file to run all the tests
-jsCode=
-for coffeeFile in `find . -type f -name '*.coffee' | grep -v 'test\.coffee'`; do
-    className=$(perl -n -e '/class ([\w.]+)/ && print $1' ${coffeeFile})
-    jsCode="${jsCode}new ${className}; "
-done
-jsCode=${jsCode%?}
-scripts="${scripts}<script>${jsCode}</script>"
+    BROWSER_PATH='/Applications/Google Chrome.app'
+    if [ ! -e "${BROWSER_PATH}" ]; then
+        echo "Browser ${BROWSER_NAME} is not installed"
+        exit 1
+    fi
+    BROWSER_OPEN_COMMAND='/usr/bin/open -a'
 
-html="<!DOCTYPE html><html><head></head><body>${scripts}</body></html>"
-echo ${html} > ${TEST_FILE}
-${BROWSER_NAME} ${TEST_FILE} &
+else
+
+    READLINK_PATH=$(which readlink)
+    # TODO: Get the full path of this so it doesn't rely on $PATH
+    BROWSER_PATH='google-chrome'
+    BRWOSER_COMMAND=
+
+    which "${BROWSER_OPEN_COMMAND}" >/dev/null
+    if [ ${?} -ne 0 ]; then
+        echo "Browser ${BROWSER_NAME} is not installed"
+        exit 1
+    fi
+
+fi
+
+PROJECT_PATH=$(dirname $(dirname $(${READLINK_PATH} -f ${0})))
+MODULE_PATH="${PROJECT_PATH}/src"
+
+remove_duplicates() {
+
+    echo $(echo ${1} | sed 's/ /\'$'\n/g' | awk ' !x[$0]++')
+}
+
+parse_dependencies() {
+
+    # Read dependencies from a testing CoffeeScript file
+    # TODO: Make regex find only quotes for string delimeters
+    MODULES=$(perl -n -e '/$\.import (\w+).;?\s*$/ && print "$1 "' ${1})
+
+    # Trim the trailing whitespace
+    MODULES=${MODULES%?}
+
+    UNIQUE_MODULES=$(remove_duplicates "${MODULES}")
+
+    if [ ${#MODULES} -gt ${#UNIQUE_MODULES} ]; then
+        echo 'Some duplicate modules were included in the test script'
+        exit 1
+    fi
+
+    echo ${UNIQUE_MODULES}
+}
+
+build_dependency_html() {
+
+    HTML=
+    for module in ${1}; do
+        FILE="${MODULE_PATH}/${module}.js"
+        if [ ! -e ${FILE} ]; then
+            echo "File ${FILE} does not exist"
+            exit 1
+        fi
+        HTML="${HTML}<script src='${FILE}'></script>"
+    done
+
+    echo ${HTML}
+}
+
+# Build up some HTML and JavaScript to run all the tests
+SCRIPTS=
+JS_CODE=
+DEPENDENCIES=
+for COFFEE_FILE in `find . -type f -name '*.coffee' | grep -v 'test\.coffee'`; do
+
+    CLASS_NAME=$(perl -n -e '/class ([\w.]+)/ && print $1' ${COFFEE_FILE})
+    JS_CODE="${JS_CODE}new ${CLASS_NAME}; "
+
+    COFFEE_PATH=$(dirname $(${READLINK_PATH} -f "${COFFEE_FILE}"))
+    JS_PATH="${COFFEE_PATH}/$(basename "${COFFEE_FILE}" '.coffee').js"
+    if [ ! -e "${JS_PATH}" ]; then
+        echo "File ${JS_PATH} does not exist. Try compiling ${COFFEE_FILE}."
+        exit 1
+    fi
+    SCRIPTS="${SCRIPTS}<script src='${JS_PATH}'></script>"
+    DEPENDENCIES="${DEPENDENCIES} $(parse_dependencies ${COFFEE_FILE})"
+done
+
+JS_CODE=${JS_CODE%?}
+DEPENDENCIES=$(remove_duplicates "${DEPENDENCIES}")
+
+read -d '' HTML << EOF
+<!DOCTYPE html>
+    <head></head>
+    <body>
+        <script src='test.js'></script>
+        $(build_dependency_html "${DEPENDENCIES}")
+        ${SCRIPTS}
+        <script>${JS_CODE}</script>
+    </body>
+</html>
+EOF
+
+echo ${HTML} > ${TEST_FILE}
+
+${BROWSER_OPEN_COMMAND} "${BROWSER_PATH}" "${TEST_FILE}" &
