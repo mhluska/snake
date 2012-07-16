@@ -2,12 +2,26 @@ class window.Test
 
     constructor: ->
 
+        # Backwards compatability for Object.getPrototypeOf
+        # Source: http://ejohn.org/blog/objectgetprototypeof/
+        if typeof Object.getPrototypeOf isnt 'function'
+            if typeof 'test'.__proto__ is 'object'
+                Object.getPrototypeOf = (object) ->
+                    return object.__proto__
+            else
+                Object.getPrototypeOf = (object) ->
+                    # May break if the constructor has been tampered with
+                    return object.constructor.prototype
+
+        # Class accessor. Kind of like '@@' in Ruby.
+        @.class = (Object.getPrototypeOf @).constructor
+
         @_runTests()
 
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->
 
-        name = name.substring 4 if name.substring(0, 4) is 'test'
+        name = name.substring 4 if name.substring(0, 4).toLowerCase() is 'test'
         name = name.replace /([A-Z])/g, (match, group1) -> " #{group1}"
         name.substring 1
 
@@ -30,6 +44,11 @@ class window.Test
 
     _runTests: =>
 
+        console.warn "Testing module: #{@_formatTestName @.class.name}"
+        console.log ''
+
+        @.class.before?()
+
         for prop of @
             if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
                 console.warn "Running test: #{@_formatTestName prop}"
@@ -37,6 +56,9 @@ class window.Test
                 @[prop]()
                 @.after?()
                 console.log ''
+
+        @.class.after?()
+        console.log ''
 
     show: (value, message) ->
 

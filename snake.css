@@ -20,5 +20,6 @@ body {
 
 #grid {
     background-color: #dfe4f9;
+    position: relative;
     margin: 0 auto;
 }
