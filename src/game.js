@@ -34,7 +34,6 @@
       this.snake = new SNAKE.Snake(this);
       this.grid = new SNAKE.Grid(this, this.snake);
       this.graphics = new SNAKE.Graphics(this, this.grid);
-      window.game = this;
       this._startGame();
     }
 
@@ -52,7 +51,6 @@
     };
 
     Game.prototype._gameLoop = function() {
-      this.log("in _gameLoop: snake has moves: " + (this.snake.moves._queue.toString()));
       if ((this.stepCount % this.stepsPerFood) === 0) {
         this.grid.dropFood();
       }

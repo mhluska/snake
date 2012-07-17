@@ -2,8 +2,6 @@ class SNAKE.Snake
 
     constructor: (@game, @length = 5, @direction = 'down', @head) ->
 
-        console.log 'game is'
-        console.log @game
         @grid = null
         @lastTailPos = null
         @moves = new SNAKE.Queue

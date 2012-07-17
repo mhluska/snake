@@ -25,7 +25,6 @@ class SNAKE.Game
         @snake = new SNAKE.Snake @
         @grid = new SNAKE.Grid @, @snake
         @graphics = new SNAKE.Graphics @, @grid
-        window.game = @
 
         @_startGame()
 
@@ -46,8 +45,6 @@ class SNAKE.Game
         @_gameLoop()
 
     _gameLoop: =>
-
-        @log "in _gameLoop: snake has moves: #{@snake.moves._queue.toString()}"
 
         @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
 
