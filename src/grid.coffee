@@ -99,7 +99,6 @@ class SNAKE.Grid
 
     unregisterFoodAt: (pos) ->
         return false unless @unregisterSquareAt pos, 'food'
-        console.log 'subtracting'
         @foodCount -= 1
         true
 
@@ -113,7 +112,6 @@ class SNAKE.Grid
 
         pos ?= SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
         @foodItems.enqueue pos
-        console.log "#{@foodCount} #{@maxFood}"
         @foodItems.dequeue() if @foodCount > @maxFood
 
     visibleFood: ->
