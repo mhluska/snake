@@ -2,6 +2,8 @@ class SNAKE.Snake
 
     constructor: (@game, @length = 5, @direction = 'down', @head) ->
 
+        console.log 'game is'
+        console.log @game
         @grid = null
         @lastTailPos = null
         @moves = new SNAKE.Queue
@@ -84,16 +86,11 @@ class SNAKE.Snake
 
     _findFoodPath: ->
 
-        # TODO: This is kind of cheating: accessing the array implementation
-        # underneath the queue. Convert to array or maintain a separate array
-        # of food. Or better yet, make a grid.closestFood function which
-        # uses Euclidean distance to find the closest food item to a given
-        # pair
-
         foodPositions = @grid.visibleFood()
         return [] unless foodPositions.length
 
         graph = new SNAKE.Graph @grid.toGraph()
+
         pairs = graph.dijkstras @head.toString(), foodPositions...
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
         pairs

@@ -34,6 +34,7 @@
       this.snake = new SNAKE.Snake(this);
       this.grid = new SNAKE.Grid(this, this.snake);
       this.graphics = new SNAKE.Graphics(this, this.grid);
+      window.game = this;
       this._startGame();
     }
 
@@ -61,7 +62,7 @@
     };
 
     Game.prototype.restart = function() {
-      this.snake = this.grid.snake = new SNAKE.Snake;
+      this.snake = this.grid.snake = new SNAKE.Snake(this);
       this.grid.makeWorld();
       return this._startGame();
     };

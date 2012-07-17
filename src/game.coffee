@@ -25,6 +25,7 @@ class SNAKE.Game
         @snake = new SNAKE.Snake @
         @grid = new SNAKE.Grid @, @snake
         @graphics = new SNAKE.Graphics @, @grid
+        window.game = @
 
         @_startGame()
 
@@ -56,7 +57,7 @@ class SNAKE.Game
         @stepCount += 1
 
     restart: ->
-        @snake = @grid.snake = new SNAKE.Snake
+        @snake = @grid.snake = new SNAKE.Snake @
         @grid.makeWorld()
         @_startGame()
 

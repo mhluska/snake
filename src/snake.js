@@ -10,6 +10,8 @@
       this.length = length != null ? length : 5;
       this.direction = direction != null ? direction : 'down';
       this.head = head;
+      console.log('game is');
+      console.log(this.game);
       this.grid = null;
       this.lastTailPos = null;
       this.moves = new SNAKE.Queue;
