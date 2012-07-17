@@ -48,7 +48,9 @@ class SNAKE.Snake
 
     _setupControls: ->
 
-        $(window).one 'keydown', => @autoPlay = false
+        $(window).one 'keydown', =>
+            @autoPlay = false
+            @moves.dequeue() until @moves.isEmpty()
 
         $(window).keydown (event) =>
             newDirection = @direction

@@ -73,7 +73,13 @@
     Snake.prototype._setupControls = function() {
       var _this = this;
       $(window).one('keydown', function() {
-        return _this.autoPlay = false;
+        var _results;
+        _this.autoPlay = false;
+        _results = [];
+        while (!_this.moves.isEmpty()) {
+          _results.push(_this.moves.dequeue());
+        }
+        return _results;
       });
       return $(window).keydown(function(event) {
         var newDirection;

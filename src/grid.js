@@ -161,6 +161,9 @@
     };
 
     Grid.prototype.unregisterSquareAt = function(pos, type) {
+      if (!this.squareHasType(type, pos)) {
+        return false;
+      }
       this.graphics.hideEntity(this.world[pos.x][pos.y][type]);
       this.world[pos.x][pos.y][type] = null;
       return true;
@@ -170,6 +173,7 @@
       if (!this.unregisterSquareAt(pos, 'food')) {
         return false;
       }
+      console.log('subtracting');
       this.foodCount -= 1;
       return true;
     };
@@ -190,6 +194,7 @@
         pos = SNAKE.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
       }
       this.foodItems.enqueue(pos);
+      console.log("" + this.foodCount + " " + this.maxFood);
       if (this.foodCount > this.maxFood) {
         return this.foodItems.dequeue();
       }
