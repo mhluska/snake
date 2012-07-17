@@ -17,7 +17,7 @@
       this.toGrow = 0;
       this.grown = 0;
       this.eating = false;
-      this.seekingFood = false;
+      this.autoPlay = true;
       if ((_ref = this.head) == null) {
         this.head = new SNAKE.Pair(0, 4);
       }
@@ -72,6 +72,9 @@
 
     Snake.prototype._setupControls = function() {
       var _this = this;
+      $(window).one('keydown', function() {
+        return _this.autoPlay = false;
+      });
       return $(window).keydown(function(event) {
         var newDirection;
         newDirection = _this.direction;
@@ -143,6 +146,19 @@
       return pairs;
     };
 
+    Snake.prototype._startFoodSearch = function() {
+      var pair, _i, _len, _ref, _results;
+      if (this.autoPlay && this.moves.isEmpty()) {
+        _ref = this._findFoodPath();
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          pair = _ref[_i];
+          _results.push(this.moves.enqueue(pair));
+        }
+        return _results;
+      }
+    };
+
     Snake.prototype.setup = function(grid) {
       var pair, _i, _len, _ref, _results;
       this.grid = grid;
@@ -156,7 +172,7 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, newPos, pair, piece, temp, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var index, moveTo, newPos, piece, temp, _i, _len, _ref, _results;
       if (!this.direction) {
         return;
       }
@@ -167,17 +183,7 @@
       if (this.eating) {
         this._eat();
       }
-      if (this.moves.isEmpty()) {
-        this.seekingFood = false;
-      }
-      if (!this.seekingFood) {
-        _ref = this._findFoodPath();
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          pair = _ref[_i];
-          this.moves.enqueue(pair);
-        }
-        this.seekingFood = true;
-      }
+      this._startFoodSearch();
       temp = this.head.clone();
       if (this.moves.isEmpty()) {
         this.head = this._nextPosition();
@@ -191,10 +197,10 @@
       if (this.grid.squareHasType('snake', moveTo)) {
         this.game.restart();
       }
-      _ref1 = this.chain;
+      _ref = this.chain;
       _results = [];
-      for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
-        piece = _ref1[index];
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        piece = _ref[index];
         this.grid.moveSquare(piece, moveTo, 'snake');
         piece.copy(moveTo);
         moveTo.copy(temp);

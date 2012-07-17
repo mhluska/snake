@@ -13,7 +13,7 @@ class SNAKE.Snake
         @eating = false
 
         # Whether the AI has set the snake to find food
-        @seekingFood = false
+        @autoPlay = true
 
         @head ?= new SNAKE.Pair 0, 4
         x = @head.x
@@ -47,6 +47,9 @@ class SNAKE.Snake
         nextDirection
 
     _setupControls: ->
+
+        $(window).one 'keydown', => @autoPlay = false
+
         $(window).keydown (event) =>
             newDirection = @direction
             switch event.keyCode
@@ -93,17 +96,16 @@ class SNAKE.Snake
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
         pairs
 
+    _startFoodSearch: ->
+        if @autoPlay and @moves.isEmpty()
+            @moves.enqueue pair for pair in @_findFoodPath()
+
     setup: (grid) ->
 
         @grid = grid
 
         # Snake registers itself on the grid
         @grid.registerSquareAt pair, 'snake' for pair in @chain
-
-        # TODO: Do something about this. Its interfering with the graph algo.
-        # Factor out enqueue algo pairs and use it here since the game
-        # initially starts with the snake in AI mode
-        # @moves.enqueue @_nextPosition()
 
     move: ->
 
@@ -115,11 +117,7 @@ class SNAKE.Snake
 
         @_eat() if @eating
 
-        @seekingFood = false if @moves.isEmpty()
-
-        unless @seekingFood
-            @moves.enqueue pair for pair in @_findFoodPath()
-            @seekingFood = true
+        @_startFoodSearch()
 
         temp = @head.clone()
 
