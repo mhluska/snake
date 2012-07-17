@@ -38,6 +38,17 @@
       return edges;
     };
 
+    Grid.prototype._unregisterAllTypesAt = function(pos) {
+      var type, _i, _len, _ref, _results;
+      _ref = this.squareTypes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        _results.push(this.unregisterSquareAt(pos, type));
+      }
+      return _results;
+    };
+
     Grid.prototype.moduloBoundaries = function(pair) {
       pair.x %= this.squaresX;
       pair.y %= this.squaresY;
@@ -93,7 +104,7 @@
     Grid.prototype.makeWorld = function() {
       var _this = this;
       this.eachSquare(function(pos) {
-        return _this.unregisterAllSquaresAt(pos);
+        return _this._unregisterAllTypesAt(pos);
       });
       return this.world = (function() {
         var _i, _ref, _results;
@@ -150,13 +161,7 @@
     };
 
     Grid.prototype.unregisterSquareAt = function(pos, type) {
-      var _ref;
-      if (!this.world[pos.x][pos.y][type]) {
-        return false;
-      }
-      if ((_ref = this.world[pos.x][pos.y][type]) != null) {
-        _ref.hide();
-      }
+      this.graphics.hideEntity(this.world[pos.x][pos.y][type]);
       this.world[pos.x][pos.y][type] = null;
       return true;
     };
@@ -169,17 +174,6 @@
       return true;
     };
 
-    Grid.prototype.unregisterAllSquaresAt = function(pos) {
-      var type, _i, _len, _ref, _results;
-      _ref = this.squareTypes;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        type = _ref[_i];
-        _results.push(this.unregisterSquareAt(pos, type));
-      }
-      return _results;
-    };
-
     Grid.prototype.squareHasType = function(type, pos) {
       return this.world[pos.x][pos.y][type] != null;
     };
@@ -188,29 +182,35 @@
       return this.squareHasType('food', pos);
     };
 
-    Grid.prototype.dropFood = function() {
-      this.foodItems.enqueue(SNAKE.Utils.randPair(this.squaresX - 1, this.squaresY - 1));
+    Grid.prototype.dropFood = function(pos) {
+      if (pos == null) {
+        pos = SNAKE.Utils.randPair(this.squaresX - 1, this.squaresY - 1);
+      }
+      this.foodItems.enqueue(pos);
       if (this.foodCount > this.maxFood) {
         return this.foodItems.dequeue();
       }
     };
 
     Grid.prototype.closestFood = function(source) {
-      var closestPos, pos, _i, _len, _ref;
-      closestPos = null;
+      var closestFood, pos, _i, _len, _ref;
+      closestFood = null;
+      console.log("source is " + source);
       _ref = this.foodItems._queue;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         pos = _ref[_i];
-        this.game.log("iterating " + pos);
-        if (this.graphics.visible(this.world[pos.x][pos.y].food)) {
-          this.game.log("checking " + pos);
-          this.game.log("pos distance: " + (pos.distance()) + ", source distance: " + (source.distance()));
-          if (closestPos === null || pos.distance() < closestPos.distance()) {
-            closestPos = pos;
+        if (this.graphics.entityIsVisible(this.world[pos.x][pos.y].food)) {
+          console.log("checking " + pos);
+          if (closestFood == null) {
+            closestFood = pos;
+          }
+          console.log("" + (source.distanceTo(pos)) + " " + (source.distanceTo(closestFood)));
+          if (source.distanceTo(pos) < source.distanceTo(closestFood)) {
+            closestFood = pos;
           }
         }
       }
-      return closestPos;
+      return closestFood;
     };
 
     Grid.prototype.toGraph = function() {

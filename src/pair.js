@@ -48,8 +48,16 @@
       return "(" + this.x + ", " + this.y + ")";
     };
 
-    Pair.prototype.distance = function() {
-      return Math.sqrt(this.x * this.x, this.y * this.y);
+    Pair.prototype.length = function() {
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+    };
+
+    Pair.prototype.subtract = function(pair) {
+      return new SNAKE.Pair(this.x - pair.x, this.y - pair.y);
+    };
+
+    Pair.prototype.distanceTo = function(pair) {
+      return this.subtract(pair).length();
     };
 
     return Pair;

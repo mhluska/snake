@@ -65,9 +65,17 @@ class SNAKE.Graphics
             # Set a reference to the DOM node in the world data
             square[type] = @appendDOMNode pos, type
 
-    # TODO: The implementation of this function will depend on drawing mode
-    # (DOM, Canvas, WebGL etc.)
-    visible: (square) ->
-        return false unless square and (square instanceof jQuery)
-        $(square).is ':visible'
+    # TODO: The implementation of these functions will depend on the drawing
+    # mode (DOM, Canvas, WebGL etc.)
+    # TODO: These functions should belong to an Entity class (snake piece,
+    # food, etc.)
+    entityExists: (entity) ->
+        entity and (entity instanceof jQuery)
 
+    entityIsVisible: (entity) ->
+        return false unless @entityExists entity
+        $(entity).is ':visible'
+
+    hideEntity: (entity) ->
+        return unless @entityExists entity
+        $(entity).hide()

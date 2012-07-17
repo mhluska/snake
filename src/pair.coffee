@@ -32,4 +32,9 @@ class SNAKE.Pair
 
     toString: -> "(#{@x}, #{@y})"
 
-    distance: -> Math.sqrt @x * @x, @y * @y
+    length: -> Math.sqrt @x * @x + @y * @y
+
+    subtract: (pair) -> new SNAKE.Pair @x - pair.x, @y - pair.y
+
+    distanceTo: (pair) -> @subtract(pair).length()
+

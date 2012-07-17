@@ -23,6 +23,9 @@ class SNAKE.Grid
 
         edges
 
+    _unregisterAllTypesAt: (pos) ->
+        @unregisterSquareAt pos, type for type in @squareTypes
+
     # Handles wrap around of pair coordinates on the game world
     moduloBoundaries: (pair) ->
 
@@ -56,7 +59,7 @@ class SNAKE.Grid
             return if false is callback normalizedPos, direction
 
     makeWorld: ->
-        @eachSquare (pos) => @unregisterAllSquaresAt pos
+        @eachSquare (pos) => @_unregisterAllTypesAt pos
         @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
     setup: (graphics) ->
@@ -85,13 +88,11 @@ class SNAKE.Grid
 
     unregisterSquareAt: (pos, type) ->
 
-        return false unless @world[pos.x][pos.y][type]
-
         # The square will float around invisible until the graphics module
         # decides to clean it up
         # TODO: Make a queue to keep track of these hidden nodes and garbage 
         # collect them after a while or after game over
-        @world[pos.x][pos.y][type]?.hide()
+        @graphics.hideEntity @world[pos.x][pos.y][type]
         @world[pos.x][pos.y][type] = null
         true
 
@@ -100,39 +101,37 @@ class SNAKE.Grid
         @foodCount -= 1
         true
 
-    unregisterAllSquaresAt: (pos) ->
-        @unregisterSquareAt pos, type for type in @squareTypes
-
     squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
     squareHasFood: (pos) ->
         @squareHasType 'food', pos
 
-    dropFood: =>
+    dropFood: (pos) =>
 
-        @foodItems.enqueue SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
+        pos ?= SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
+        @foodItems.enqueue pos
         @foodItems.dequeue() if @foodCount > @maxFood
 
     # Uses Euclidean distance to find the nearest food item to source
     # TODO: This function doesn't return the correct answer in 2D mode due to
     # wrap around.
-    # TODO: The answer is also incorrect because we are getting distance to
-    # top left corner. We need smallest distance to snake head. So create a
-    # 2Vector class which extends Pair. Move distance function to 2Vector. Add
-    # math functions like Add and Subtract. Then subtract snake head from food
-    # vector and take the Euclidean distance
     closestFood: (source) ->
         # TODO: Dont iterate the damn queue. Use the more general linked list
-        closestPos = null
+        closestFood = null
+        console.log "source is #{source}"
         for pos in @foodItems._queue
-            @game.log "iterating #{pos}"
-            if @graphics.visible @world[pos.x][pos.y].food
-                @game.log "checking #{pos}"
-                @game.log "pos distance: #{pos.distance()}, source distance: #{source.distance()}"
-                if closestPos is null or pos.distance() < closestPos.distance()
-                    closestPos = pos
 
-        closestPos
+            if @graphics.entityIsVisible @world[pos.x][pos.y].food
+
+                console.log "checking #{pos}"
+                closestFood ?= pos
+
+                console.log "#{source.distanceTo(pos)} #{source.distanceTo closestFood
+}"
+                if source.distanceTo(pos) < source.distanceTo closestFood
+                    closestFood = pos
+
+        closestFood
 
     toGraph: ->
 

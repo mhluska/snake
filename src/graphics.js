@@ -88,11 +88,22 @@
       });
     };
 
-    Graphics.prototype.visible = function(square) {
-      if (!(square && (square instanceof jQuery))) {
+    Graphics.prototype.entityExists = function(entity) {
+      return entity && (entity instanceof jQuery);
+    };
+
+    Graphics.prototype.entityIsVisible = function(entity) {
+      if (!this.entityExists(entity)) {
         return false;
       }
-      return $(square).is(':visible');
+      return $(entity).is(':visible');
+    };
+
+    Graphics.prototype.hideEntity = function(entity) {
+      if (!this.entityExists(entity)) {
+        return;
+      }
+      return $(entity).hide();
     };
 
     return Graphics;

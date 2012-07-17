@@ -14,6 +14,8 @@
 
   'import pair';
 
+  'import vector2';
+
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -34,12 +36,39 @@
       });
     };
 
+    TestGrid.prototype.before = function() {
+      this.game = TestGrid.game;
+      this.snake = this.game.snake;
+      return this.grid = this.game.grid;
+    };
+
+    TestGrid.prototype.setupFood = function(coordsArray) {
+      var coords, foodPos, _i, _len;
+      this.game.restart();
+      this.game._gameLoop();
+      this.grid.foodItems.dequeue();
+      for (_i = 0, _len = coordsArray.length; _i < _len; _i++) {
+        coords = coordsArray[_i];
+        foodPos = new SNAKE.Pair(coords[0], coords[1]);
+        this.grid.dropFood(foodPos);
+      }
+      return this.game._gameLoop();
+    };
+
     TestGrid.prototype.testClosestFood = function() {
-      TestGrid.game.grid.dropFood();
-      TestGrid.game.grid.dropFood();
-      TestGrid.game.grid.dropFood();
-      TestGrid.game._gameLoop();
-      return console.log('doing test closest food!');
+      var closestFood;
+      this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [4, 6]]);
+      closestFood = this.grid.closestFood(this.game.snake.head);
+      this.show("Closest food item: " + (closestFood.toString()));
+      return this.assert(closestFood.equals(new SNAKE.Pair(4, 6)));
+    };
+
+    TestGrid.prototype.testClosestFoodWrap = function() {
+      var closestFood;
+      this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [this.grid.squaresX - 1, 6]]);
+      closestFood = this.grid.closestFood(this.game.snake.head);
+      this.show("Closest food item: " + (closestFood.toString()));
+      return this.assert(closestFood.equals(new SNAKE.Pair(this.grid.squaresX - 1, 6)));
     };
 
     TestGrid.prototype.testModuloBoundaries = function() {
