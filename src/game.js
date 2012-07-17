@@ -41,6 +41,7 @@
       this.grid.foodCount = 0;
       this.grid.foodItems = new SNAKE.FoodQueue(this.grid);
       this.snake.setup(this.grid);
+      this.stepCount = 0;
       if (this.debugStep) {
         return this.setupGameStep();
       }

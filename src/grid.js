@@ -179,6 +179,9 @@
     };
 
     Grid.prototype.squareHasFood = function(pos) {
+      if (!pos) {
+        return false;
+      }
       return this.squareHasType('food', pos);
     };
 
@@ -192,25 +195,17 @@
       }
     };
 
-    Grid.prototype.closestFood = function(source) {
-      var closestFood, pos, _i, _len, _ref;
-      closestFood = null;
-      console.log("source is " + source);
+    Grid.prototype.visibleFood = function() {
+      var foodPos, foodPositions, _i, _len, _ref;
+      foodPositions = [];
       _ref = this.foodItems._queue;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        pos = _ref[_i];
-        if (this.graphics.entityIsVisible(this.world[pos.x][pos.y].food)) {
-          console.log("checking " + pos);
-          if (closestFood == null) {
-            closestFood = pos;
-          }
-          console.log("" + (source.distanceTo(pos)) + " " + (source.distanceTo(closestFood)));
-          if (source.distanceTo(pos) < source.distanceTo(closestFood)) {
-            closestFood = pos;
-          }
+        foodPos = _ref[_i];
+        if (this.graphics.entityIsVisible(this.world[foodPos.x][foodPos.y].food)) {
+          foodPositions.push(foodPos);
         }
       }
-      return closestFood;
+      return foodPositions;
     };
 
     Grid.prototype.toGraph = function() {

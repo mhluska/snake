@@ -14,8 +14,6 @@
 
   'import pair';
 
-  'import vector2';
-
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -38,6 +36,7 @@
 
     TestGrid.prototype.before = function() {
       this.game = TestGrid.game;
+      console.log(this.game);
       this.snake = this.game.snake;
       return this.grid = this.game.grid;
     };
@@ -55,10 +54,29 @@
       return this.game._gameLoop();
     };
 
+    TestGrid.prototype.testRestarts = function() {
+      this.game.restart();
+      this.game._gameLoop();
+      this.grid.foodItems.dequeue();
+      this.grid.dropFood(new SNAKE.Pair(5, 5));
+      this.grid.dropFood(new SNAKE.Pair(5, 6));
+      this.grid.dropFood(new SNAKE.Pair(5, 6));
+      this.game._gameLoop();
+      this.game.restart();
+      this.game.restart();
+      this.game._gameLoop();
+      this.game._gameLoop();
+      this.game.restart();
+      this.game._gameLoop();
+      this.game._gameLoop();
+      this.game._gameLoop();
+      return this.game.restart();
+    };
+
     TestGrid.prototype.testClosestFood = function() {
       var closestFood;
       this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [4, 6]]);
-      closestFood = this.grid.closestFood(this.game.snake.head);
+      closestFood = this.game.snake._findFoodPath().pop();
       this.show("Closest food item: " + (closestFood.toString()));
       return this.assert(closestFood.equals(new SNAKE.Pair(4, 6)));
     };
@@ -66,7 +84,7 @@
     TestGrid.prototype.testClosestFoodWrap = function() {
       var closestFood;
       this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [this.grid.squaresX - 1, 6]]);
-      closestFood = this.grid.closestFood(this.game.snake.head);
+      closestFood = this.game.snake._findFoodPath().pop();
       this.show("Closest food item: " + (closestFood.toString()));
       return this.assert(closestFood.equals(new SNAKE.Pair(this.grid.squaresX - 1, 6)));
     };

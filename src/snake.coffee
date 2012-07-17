@@ -84,14 +84,17 @@ class SNAKE.Snake
 
     _findFoodPath: ->
 
-        graph = new SNAKE.Graph @grid.toGraph()
         # TODO: This is kind of cheating: accessing the array implementation
         # underneath the queue. Convert to array or maintain a separate array
         # of food. Or better yet, make a grid.closestFood function which
         # uses Euclidean distance to find the closest food item to a given
         # pair
-        foodPos = @grid.closestFood @head
-        pairs = graph.dijkstras @head.toString(), foodPos
+
+        foodPositions = @grid.visibleFood()
+        return [] unless foodPositions.length
+
+        graph = new SNAKE.Graph @grid.toGraph()
+        pairs = graph.dijkstras @head.toString(), foodPositions...
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
         pairs
 

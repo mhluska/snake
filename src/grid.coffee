@@ -104,6 +104,7 @@ class SNAKE.Grid
     squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
 
     squareHasFood: (pos) ->
+        return false unless pos
         @squareHasType 'food', pos
 
     dropFood: (pos) =>
@@ -112,26 +113,18 @@ class SNAKE.Grid
         @foodItems.enqueue pos
         @foodItems.dequeue() if @foodCount > @maxFood
 
-    # Uses Euclidean distance to find the nearest food item to source
-    # TODO: This function doesn't return the correct answer in 2D mode due to
-    # wrap around.
-    closestFood: (source) ->
-        # TODO: Dont iterate the damn queue. Use the more general linked list
-        closestFood = null
-        console.log "source is #{source}"
-        for pos in @foodItems._queue
+    visibleFood: ->
 
-            if @graphics.entityIsVisible @world[pos.x][pos.y].food
-
-                console.log "checking #{pos}"
-                closestFood ?= pos
-
-                console.log "#{source.distanceTo(pos)} #{source.distanceTo closestFood
-}"
-                if source.distanceTo(pos) < source.distanceTo closestFood
-                    closestFood = pos
-
-        closestFood
+        # TODO: This is kind of cheating: accessing the array implementation
+        # underneath the queue. Use the more general linked list as an
+        # implementation so that you can iterate it and still have O(1) enqueue
+        # and dequeue
+        foodPositions = []
+        for foodPos in @foodItems._queue
+            if @graphics.entityIsVisible @world[foodPos.x][foodPos.y].food
+                foodPositions.push foodPos
+        
+        foodPositions
 
     toGraph: ->
 

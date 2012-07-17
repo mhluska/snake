@@ -5,7 +5,6 @@
 'import grid'
 'import graphics'
 'import pair'
-'import vector2'
 
 class window.TestGrid extends Test
 
@@ -19,6 +18,7 @@ class window.TestGrid extends Test
     before: ->
 
         @game = TestGrid.game
+        console.log @game
         @snake = @game.snake
         @grid = @game.grid
 
@@ -37,6 +37,27 @@ class window.TestGrid extends Test
 
         @game._gameLoop()
 
+    testRestarts: ->
+
+        @game.restart()
+        @game._gameLoop()
+        @grid.foodItems.dequeue()
+        @grid.dropFood new SNAKE.Pair 5, 5
+        @grid.dropFood new SNAKE.Pair 5, 6
+        @grid.dropFood new SNAKE.Pair 5, 6
+        @game._gameLoop()
+        @game.restart()
+        @game.restart()
+
+        @game._gameLoop()
+        @game._gameLoop()
+        @game.restart()
+
+        @game._gameLoop()
+        @game._gameLoop()
+        @game._gameLoop()
+        @game.restart()
+
     testClosestFood: ->
 
         @setupFood [
@@ -45,7 +66,7 @@ class window.TestGrid extends Test
             [4, 6]
         ]
 
-        closestFood = @grid.closestFood @game.snake.head
+        closestFood = @game.snake._findFoodPath().pop()
         @show "Closest food item: #{closestFood.toString()}"
 
         @assert closestFood.equals new SNAKE.Pair 4, 6
@@ -58,10 +79,11 @@ class window.TestGrid extends Test
             [@grid.squaresX - 1, 6]
         ]
 
-        closestFood = @grid.closestFood @game.snake.head
+        closestFood = @game.snake._findFoodPath().pop()
         @show "Closest food item: #{closestFood.toString()}"
 
         @assert closestFood.equals new SNAKE.Pair @grid.squaresX - 1, 6
+
     testModuloBoundaries: ->
         console.log 'doing test modulo boundaries!'
 

@@ -36,6 +36,8 @@ class SNAKE.Game
 
         @snake.setup @grid
 
+        @stepCount = 0
+
         return @setupGameStep() if @debugStep
 
         clearInterval @gameIntervalID
