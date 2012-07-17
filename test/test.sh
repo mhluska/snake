@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 TEST_FILE='test.html'
 BROWSER_NAME='Google Chrome'
@@ -21,16 +21,14 @@ if [ $(uname -s) == 'Darwin' ]; then
 else
 
     READLINK_PATH=$(which readlink)
-    # TODO: Get the full path of this so it doesn't rely on $PATH
-    BROWSER_PATH='google-chrome'
-    BRWOSER_COMMAND=
 
-    which "${BROWSER_OPEN_COMMAND}" >/dev/null
+    BROWSER_PATH=$(which google-chrome)
     if [ ${?} -ne 0 ]; then
         echo "Browser ${BROWSER_NAME} is not installed"
         exit 1
     fi
 
+    BRWOSER_OPEN_COMMAND=
 fi
 
 PROJECT_PATH=$(dirname $(dirname $(${READLINK_PATH} -f ${0})))

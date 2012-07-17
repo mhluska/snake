@@ -11,14 +11,15 @@ class window.TestGrid extends Test
     # Setup a game
     @before: ->
 
-        $('head').append  '<link rel="stylesheet" type="text/css" href="../snake.css" />'
+        linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
+        $('head').append linkHtml
         @game = new SNAKE.Game debugStep: true
 
     testClosestFood: ->
-        @.class.game.grid.dropFood()
-        @.class.game.grid.dropFood()
-        @.class.game.grid.dropFood()
-        @.class.game._gameLoop()
+        TestGrid.game.grid.dropFood()
+        TestGrid.game.grid.dropFood()
+        TestGrid.game.grid.dropFood()
+        TestGrid.game._gameLoop()
         console.log 'doing test closest food!'
 
     testModuloBoundaries: ->

@@ -26,17 +26,19 @@
     }
 
     TestGrid.before = function() {
-      $('head').append('<link rel="stylesheet" type="text/css" href="../snake.css" />');
+      var linkHtml;
+      linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />';
+      $('head').append(linkHtml);
       return this.game = new SNAKE.Game({
         debugStep: true
       });
     };
 
     TestGrid.prototype.testClosestFood = function() {
-      this["class"].game.grid.dropFood();
-      this["class"].game.grid.dropFood();
-      this["class"].game.grid.dropFood();
-      this["class"].game._gameLoop();
+      TestGrid.game.grid.dropFood();
+      TestGrid.game.grid.dropFood();
+      TestGrid.game.grid.dropFood();
+      TestGrid.game._gameLoop();
       return console.log('doing test closest food!');
     };
 
