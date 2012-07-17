@@ -189,7 +189,7 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, piece, temp, _i, _len, _ref, _results;
+      var moveTo;
       if (!this.direction) {
         return;
       }
@@ -201,23 +201,15 @@
         this._eat();
       }
       this._startFoodSearch();
-      temp = this.head.clone();
       this._updateHead();
       moveTo = this.head.clone();
       if (this.grid.squareHasType('snake', moveTo)) {
         this.game.restart();
       }
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
-      _ref = this.chain;
-      _results = [];
-      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-        piece = _ref[index];
-        this.grid.moveSquare(piece, moveTo, 'snake');
-        piece.copy(moveTo);
-        moveTo.copy(temp);
-        _results.push(temp.copy(this.chain[index + 1]));
-      }
-      return _results;
+      this.grid.moveSquare(this.lastTailPos, moveTo, 'snake');
+      this.chain.pop();
+      return this.chain.unshift(moveTo);
     };
 
     return Snake;

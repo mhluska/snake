@@ -130,21 +130,14 @@ class SNAKE.Snake
 
         @_startFoodSearch()
 
-        temp = @head.clone()
         @_updateHead()
         moveTo = @head.clone()
 
         @game.restart() if @grid.squareHasType 'snake', moveTo
 
+        # Move the snake and update his chain of positions
         @lastTailPos = @chain[@chain.length - 1].clone()
-
-        # TODO: Make this constant time instead of linear by updating just the
-        # head and tail piece
-        for piece, index in @chain
-        
-            @grid.moveSquare piece, moveTo, 'snake'
-        
-            piece.copy moveTo
-            moveTo.copy temp
-            temp.copy @chain[index + 1]
+        @grid.moveSquare @lastTailPos, moveTo, 'snake'
+        @chain.pop()
+        @chain.unshift moveTo
 
