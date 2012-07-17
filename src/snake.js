@@ -165,6 +165,17 @@
       }
     };
 
+    Snake.prototype._updateHead = function() {
+      var newPos;
+      if (this.moves.isEmpty()) {
+        return this.head = this._nextPosition();
+      } else {
+        newPos = this.moves.dequeue();
+        this.direction = this._nextDirection(newPos);
+        return this.head = newPos;
+      }
+    };
+
     Snake.prototype.setup = function(grid) {
       var pair, _i, _len, _ref, _results;
       this.grid = grid;
@@ -178,7 +189,7 @@
     };
 
     Snake.prototype.move = function() {
-      var index, moveTo, newPos, piece, temp, _i, _len, _ref, _results;
+      var index, moveTo, piece, temp, _i, _len, _ref, _results;
       if (!this.direction) {
         return;
       }
@@ -191,18 +202,12 @@
       }
       this._startFoodSearch();
       temp = this.head.clone();
-      if (this.moves.isEmpty()) {
-        this.head = this._nextPosition();
-      } else {
-        newPos = this.moves.dequeue();
-        this.direction = this._nextDirection(newPos);
-        this.head = newPos;
-      }
+      this._updateHead();
       moveTo = this.head.clone();
-      this.lastTailPos = this.chain[this.chain.length - 1].clone();
       if (this.grid.squareHasType('snake', moveTo)) {
         this.game.restart();
       }
+      this.lastTailPos = this.chain[this.chain.length - 1].clone();
       _ref = this.chain;
       _results = [];
       for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {

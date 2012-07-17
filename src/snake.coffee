@@ -102,6 +102,15 @@ class SNAKE.Snake
         if @autoPlay and @moves.isEmpty()
             @moves.enqueue pair for pair in @_findFoodPath()
 
+    _updateHead: ->
+
+        if @moves.isEmpty()
+          @head = @_nextPosition()
+        else
+          newPos = @moves.dequeue()
+          @direction = @_nextDirection newPos
+          @head = newPos
+
     setup: (grid) ->
 
         @grid = grid
@@ -122,19 +131,12 @@ class SNAKE.Snake
         @_startFoodSearch()
 
         temp = @head.clone()
-
-        if @moves.isEmpty()
-          @head = @_nextPosition()
-        else
-          newPos = @moves.dequeue()
-          @direction = @_nextDirection newPos
-          @head = newPos
-
+        @_updateHead()
         moveTo = @head.clone()
 
-        @lastTailPos = @chain[@chain.length - 1].clone()
-
         @game.restart() if @grid.squareHasType 'snake', moveTo
+
+        @lastTailPos = @chain[@chain.length - 1].clone()
 
         # TODO: Make this constant time instead of linear by updating just the
         # head and tail piece
