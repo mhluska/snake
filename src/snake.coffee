@@ -57,7 +57,6 @@ class SNAKE.Snake
                 else return
 
             unless @_isOpposite newDirection
-                @game.log "enqueueing move #{@_nextPosition @moves.back()}"
                 @direction = newDirection
                 @moves.enqueue @_nextPosition @moves.back()
 
@@ -86,21 +85,14 @@ class SNAKE.Snake
     _findFoodPath: ->
 
         graph = new SNAKE.Graph @grid.toGraph()
-        @game.log ''
-        @game.log 'Running Dijkstras!'
-        @game.log @grid
-        @game.log graph
         # TODO: This is kind of cheating: accessing the array implementation
         # underneath the queue. Convert to array or maintain a separate array
         # of food. Or better yet, make a grid.closestFood function which
         # uses Euclidean distance to find the closest food item to a given
         # pair
         foodPos = @grid.closestFood @head
-        @game.log "passing dijkstras foodPos: #{foodPos}"
         pairs = graph.dijkstras @head.toString(), foodPos
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
-        @game.log 'dijkstras calculated:'
-        @game.log pairs.toString()
         pairs
 
     setup: (grid) ->
@@ -119,8 +111,6 @@ class SNAKE.Snake
 
         return unless @direction
 
-        @game.log "start of snake.move: snake has moves: #{@moves._queue.toString()}"
-
         if @grid.squareHasType 'food', @head
             @toGrow += @growthPerFood
             @eating = true
@@ -131,24 +121,16 @@ class SNAKE.Snake
 
         unless @seekingFood
             @moves.enqueue pair for pair in @_findFoodPath()
-            @game.log 'moves after dijkstras'
-            @game.log @moves._queue.toString()
             @seekingFood = true
 
         temp = @head.clone()
 
         if @moves.isEmpty()
           @head = @_nextPosition()
-          @game.log "getting next pos according to dir #{@direction}: #{@head}"
         else
-          @game.log "current head is #{@head}"
           newPos = @moves.dequeue()
-          @game.log "dequeueing #{newPos}"
           @direction = @_nextDirection newPos
-          @game.log "setting direction to #{@direction}"
           @head = newPos
-
-        @game.log @moves._queue.toString()
 
         moveTo = @head.clone()
 
