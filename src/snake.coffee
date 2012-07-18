@@ -7,10 +7,8 @@ class SNAKE.Snake
         @moves = new SNAKE.Queue
 
         # The number of times the snake will grow when it eats
-        @growthPerFood = 3
-        @toGrow = 0
-        @grown = 0
-        @eating = false
+        @stepsPerGrowth = 3
+        @growUntil = 0
 
         # Whether the AI has set the snake to find food
         @autoPlay = true
@@ -49,6 +47,7 @@ class SNAKE.Snake
     _setupControls: ->
 
         $(window).one 'keydown', =>
+            return if @game.debugStep
             @autoPlay = false
             @moves.dequeue() until @moves.isEmpty()
 
@@ -72,20 +71,13 @@ class SNAKE.Snake
         return true if newDirection is 'down' and @direction is 'up'
         false
 
-    _eat: ->
+    _grow: ->
         
         return unless @lastTailPos
 
         @chain.push @lastTailPos
         @grid.registerSquareAt @lastTailPos, 'snake'
         @grid.unregisterFoodAt @chain[0]
-
-        @grown += 1
-
-        if @grown is @toGrow
-            @eating = false
-            @toGrow = 0
-            @grown = 0
 
     _findFoodPath: ->
 
@@ -98,18 +90,14 @@ class SNAKE.Snake
         pairs = pairs.map (pair) -> new SNAKE.Pair pair
         pairs
 
-    _startFoodSearch: ->
+    _updateMoves: ->
         if @autoPlay and @moves.isEmpty()
             @moves.enqueue pair for pair in @_findFoodPath()
 
-    _updateHead: ->
+    _getNextHead: ->
+        if @moves.isEmpty() then @_nextPosition() else @moves.dequeue()
 
-        if @moves.isEmpty()
-          @head = @_nextPosition()
-        else
-          newPos = @moves.dequeue()
-          @direction = @_nextDirection newPos
-          @head = newPos
+    _eating: -> @game.stepCount < @growUntil
 
     setup: (grid) ->
 
@@ -123,21 +111,21 @@ class SNAKE.Snake
         return unless @direction
 
         if @grid.squareHasType 'food', @head
-            @toGrow += @growthPerFood
-            @eating = true
+            @growUntil = @game.stepCount + @stepsPerGrowth
 
-        @_eat() if @eating
+        @_grow() if @_eating()
 
-        @_startFoodSearch()
+        @_updateMoves()
 
-        @_updateHead()
-        moveTo = @head.clone()
+        nextHead = @_getNextHead()
+        @direction = @_nextDirection nextHead
+        @head = nextHead
 
-        @game.restart() if @grid.squareHasType 'snake', moveTo
+        @game.restart() if @grid.squareHasType 'snake', @head
 
         # Move the snake and update his chain of positions
         @lastTailPos = @chain[@chain.length - 1].clone()
-        @grid.moveSquare @lastTailPos, moveTo, 'snake'
+        @grid.moveSquare @lastTailPos, @head, 'snake'
         @chain.pop()
-        @chain.unshift moveTo
+        @chain.unshift @head.clone()
 

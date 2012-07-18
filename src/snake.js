@@ -13,10 +13,8 @@
       this.grid = null;
       this.lastTailPos = null;
       this.moves = new SNAKE.Queue;
-      this.growthPerFood = 3;
-      this.toGrow = 0;
-      this.grown = 0;
-      this.eating = false;
+      this.stepsPerGrowth = 3;
+      this.growUntil = 0;
       this.autoPlay = true;
       if ((_ref = this.head) == null) {
         this.head = new SNAKE.Pair(0, 4);
@@ -74,6 +72,9 @@
       var _this = this;
       $(window).one('keydown', function() {
         var _results;
+        if (_this.game.debugStep) {
+          return;
+        }
         _this.autoPlay = false;
         _results = [];
         while (!_this.moves.isEmpty()) {
@@ -123,19 +124,13 @@
       return false;
     };
 
-    Snake.prototype._eat = function() {
+    Snake.prototype._grow = function() {
       if (!this.lastTailPos) {
         return;
       }
       this.chain.push(this.lastTailPos);
       this.grid.registerSquareAt(this.lastTailPos, 'snake');
-      this.grid.unregisterFoodAt(this.chain[0]);
-      this.grown += 1;
-      if (this.grown === this.toGrow) {
-        this.eating = false;
-        this.toGrow = 0;
-        return this.grown = 0;
-      }
+      return this.grid.unregisterFoodAt(this.chain[0]);
     };
 
     Snake.prototype._findFoodPath = function() {
@@ -152,7 +147,7 @@
       return pairs;
     };
 
-    Snake.prototype._startFoodSearch = function() {
+    Snake.prototype._updateMoves = function() {
       var pair, _i, _len, _ref, _results;
       if (this.autoPlay && this.moves.isEmpty()) {
         _ref = this._findFoodPath();
@@ -165,15 +160,16 @@
       }
     };
 
-    Snake.prototype._updateHead = function() {
-      var newPos;
+    Snake.prototype._getNextHead = function() {
       if (this.moves.isEmpty()) {
-        return this.head = this._nextPosition();
+        return this._nextPosition();
       } else {
-        newPos = this.moves.dequeue();
-        this.direction = this._nextDirection(newPos);
-        return this.head = newPos;
+        return this.moves.dequeue();
       }
+    };
+
+    Snake.prototype._eating = function() {
+      return this.game.stepCount < this.growUntil;
     };
 
     Snake.prototype.setup = function(grid) {
@@ -189,27 +185,27 @@
     };
 
     Snake.prototype.move = function() {
-      var moveTo;
+      var nextHead;
       if (!this.direction) {
         return;
       }
       if (this.grid.squareHasType('food', this.head)) {
-        this.toGrow += this.growthPerFood;
-        this.eating = true;
+        this.growUntil = this.game.stepCount + this.stepsPerGrowth;
       }
-      if (this.eating) {
-        this._eat();
+      if (this._eating()) {
+        this._grow();
       }
-      this._startFoodSearch();
-      this._updateHead();
-      moveTo = this.head.clone();
-      if (this.grid.squareHasType('snake', moveTo)) {
+      this._updateMoves();
+      nextHead = this._getNextHead();
+      this.direction = this._nextDirection(nextHead);
+      this.head = nextHead;
+      if (this.grid.squareHasType('snake', this.head)) {
         this.game.restart();
       }
       this.lastTailPos = this.chain[this.chain.length - 1].clone();
-      this.grid.moveSquare(this.lastTailPos, moveTo, 'snake');
+      this.grid.moveSquare(this.lastTailPos, this.head, 'snake');
       this.chain.pop();
-      return this.chain.unshift(moveTo);
+      return this.chain.unshift(this.head.clone());
     };
 
     return Snake;
