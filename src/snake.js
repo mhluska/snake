@@ -33,24 +33,43 @@
     }
 
     Snake.prototype._nextPosition = function(position) {
+      var nextPos;
       if (position == null) {
         position = this.head;
       }
-      position = position.clone();
+      nextPos = position.clone();
       switch (this.direction) {
         case 'up':
-          position.y -= 1;
+          nextPos.y -= 1;
           break;
         case 'right':
-          position.x += 1;
+          nextPos.x += 1;
           break;
         case 'down':
-          position.y += 1;
+          nextPos.y += 1;
           break;
         case 'left':
-          position.x -= 1;
+          nextPos.x -= 1;
       }
-      return this.grid.moduloBoundaries(position);
+      nextPos = this.grid.moduloBoundaries(nextPos);
+      if (!this.autoPlay) {
+        return nextPos;
+      }
+      return this._avoidDeathOnPosition(position, nextPos);
+    };
+
+    Snake.prototype._avoidDeathOnPosition = function(position, nextPosition) {
+      var _this = this;
+      if (!this.grid.squareHasType('snake', nextPosition)) {
+        return nextPosition;
+      }
+      this.grid.eachAdjacentPosition(position, function(adjPos, direction) {
+        if (!(_this._isOpposite(direction) || _this.grid.squareHasType('snake', adjPos))) {
+          nextPosition = adjPos;
+          return false;
+        }
+      });
+      return nextPosition;
     };
 
     Snake.prototype._nextDirection = function(position) {

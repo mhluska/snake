@@ -23,14 +23,32 @@ class SNAKE.Snake
         @_setupControls()
 
     _nextPosition: (position = @head) ->
-        position = position.clone()
+        nextPos = position.clone()
         switch @direction
-            when 'up'    then position.y -= 1
-            when 'right' then position.x += 1
-            when 'down'  then position.y += 1
-            when 'left'  then position.x -= 1
+            when 'up'    then nextPos.y -= 1
+            when 'right' then nextPos.x += 1
+            when 'down'  then nextPos.y += 1
+            when 'left'  then nextPos.x -= 1
 
-        @grid.moduloBoundaries position
+        nextPos = @grid.moduloBoundaries nextPos
+
+        return nextPos unless @autoPlay
+
+        @_avoidDeathOnPosition position, nextPos
+
+    # Attempts to find another position if the next position results in death
+    _avoidDeathOnPosition: (position, nextPosition) ->
+
+        return nextPosition unless @grid.squareHasType 'snake', nextPosition
+
+        # Find the first adjacent position that has no snake
+        @grid.eachAdjacentPosition position, (adjPos, direction) =>
+
+            unless @_isOpposite(direction) or @grid.squareHasType 'snake', adjPos
+              nextPosition = adjPos
+              return false
+
+        nextPosition
 
     _nextDirection: (position) ->
 
