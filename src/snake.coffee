@@ -34,10 +34,10 @@ class SNAKE.Snake
 
         return nextPos unless @autoPlay
 
-        @_avoidDeathOnPosition position, nextPos
+        @_avoidDeathOnPosition nextPos, position
 
     # Attempts to find another position if the next position results in death
-    _avoidDeathOnPosition: (position, nextPosition) ->
+    _avoidDeathOnPosition: (nextPosition, position) ->
 
         return nextPosition unless @grid.squareHasType 'snake', nextPosition
 

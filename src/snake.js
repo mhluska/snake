@@ -55,10 +55,10 @@
       if (!this.autoPlay) {
         return nextPos;
       }
-      return this._avoidDeathOnPosition(position, nextPos);
+      return this._avoidDeathOnPosition(nextPos, position);
     };
 
-    Snake.prototype._avoidDeathOnPosition = function(position, nextPosition) {
+    Snake.prototype._avoidDeathOnPosition = function(nextPosition, position) {
       var _this = this;
       if (!this.grid.squareHasType('snake', nextPosition)) {
         return nextPosition;
