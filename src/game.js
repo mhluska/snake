@@ -32,7 +32,7 @@
         }
       }
       this.snake = new SNAKE.Snake(this);
-      this.grid = new SNAKE.Grid(this, this.snake);
+      this.grid = new SNAKE.Grid2(this, this.snake);
       this.graphics = new SNAKE.Graphics(this, this.grid);
       this._startGame();
     }

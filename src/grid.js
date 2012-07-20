@@ -14,10 +14,7 @@
       this._squareToEdges = __bind(this._squareToEdges, this);
 
       this.graphics = null;
-      this.squareWidth = 15;
-      this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
-      this.maxFood = 4;
       this.foodCount = 0;
       this.foodItems = null;
     }
@@ -49,87 +46,15 @@
       return _results;
     };
 
-    Grid.prototype.moduloBoundaries = function(pair) {
-      pair.x %= this.squaresX;
-      pair.y %= this.squaresY;
-      if (pair.x < 0) {
-        pair.x = this.squaresX - 1;
-      }
-      if (pair.y < 0) {
-        pair.y = this.squaresY - 1;
-      }
-      return pair;
-    };
-
-    Grid.prototype.eachSquare = function(callback) {
-      var column, pos, square, x, y, _i, _len, _ref, _results;
-      if (!this.world) {
-        return;
-      }
-      _ref = this.world;
-      _results = [];
-      for (x = _i = 0, _len = _ref.length; _i < _len; x = ++_i) {
-        column = _ref[x];
-        _results.push((function() {
-          var _j, _len1, _results1;
-          _results1 = [];
-          for (y = _j = 0, _len1 = column.length; _j < _len1; y = ++_j) {
-            square = column[y];
-            pos = new SNAKE.Pair(x, y);
-            _results1.push(callback(pos, square));
-          }
-          return _results1;
-        })());
-      }
-      return _results;
-    };
-
-    Grid.prototype.eachAdjacentPosition = function(pos, callback) {
-      var adjacentPos, direction, normalizedPos, positions;
-      positions = {
-        down: new SNAKE.Pair(pos.x, pos.y + 1),
-        right: new SNAKE.Pair(pos.x + 1, pos.y),
-        up: new SNAKE.Pair(pos.x, pos.y - 1),
-        left: new SNAKE.Pair(pos.x - 1, pos.y)
-      };
-      for (direction in positions) {
-        adjacentPos = positions[direction];
-        normalizedPos = this.moduloBoundaries(adjacentPos);
-        if (false === callback(normalizedPos, direction)) {
-          return;
-        }
-      }
-    };
-
     Grid.prototype.makeWorld = function() {
       var _this = this;
-      this.eachSquare(function(pos) {
+      return this.eachSquare(function(pos) {
         return _this._unregisterAllTypesAt(pos);
       });
-      return this.world = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (_i = 0, _ref = this.squaresX; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--) {
-          _results.push((function() {
-            var _j, _ref1, _results1;
-            _results1 = [];
-            for (_j = 0, _ref1 = this.squaresY; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--) {
-              _results1.push({});
-            }
-            return _results1;
-          }).call(this));
-        }
-        return _results;
-      }).call(this);
     };
 
     Grid.prototype.setup = function(graphics) {
       return this.graphics = graphics;
-    };
-
-    Grid.prototype.moveSquare = function(start, end, type) {
-      this.world[end.x][end.y][type] = this.world[start.x][start.y][type];
-      return this.world[start.x][start.y][type] = null;
     };
 
     Grid.prototype.isEmptySquare = function(square) {
@@ -144,28 +69,11 @@
       return true;
     };
 
-    Grid.prototype.registerSquareAt = function(pos, type) {
-      if (this.world[pos.x][pos.y][type]) {
-        return false;
-      }
-      this.world[pos.x][pos.y][type] = true;
-      return true;
-    };
-
     Grid.prototype.registerFoodAt = function(pos) {
       if (!this.registerSquareAt(pos, 'food')) {
         return false;
       }
       this.foodCount += 1;
-      return true;
-    };
-
-    Grid.prototype.unregisterSquareAt = function(pos, type) {
-      if (!this.squareHasType(type, pos)) {
-        return false;
-      }
-      this.graphics.hideEntity(this.world[pos.x][pos.y][type]);
-      this.world[pos.x][pos.y][type] = null;
       return true;
     };
 
@@ -175,10 +83,6 @@
       }
       this.foodCount -= 1;
       return true;
-    };
-
-    Grid.prototype.squareHasType = function(type, pos) {
-      return this.world[pos.x][pos.y][type] != null;
     };
 
     Grid.prototype.squareHasFood = function(pos) {
@@ -196,19 +100,6 @@
       if (this.foodCount > this.maxFood) {
         return this.foodItems.dequeue();
       }
-    };
-
-    Grid.prototype.visibleFood = function() {
-      var foodPos, foodPositions, _i, _len, _ref;
-      foodPositions = [];
-      _ref = this.foodItems._queue;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        foodPos = _ref[_i];
-        if (this.graphics.entityIsVisible(this.world[foodPos.x][foodPos.y].food)) {
-          foodPositions.push(foodPos);
-        }
-      }
-      return foodPositions;
     };
 
     Grid.prototype.toGraph = function() {

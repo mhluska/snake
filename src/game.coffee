@@ -23,7 +23,7 @@ class SNAKE.Game
             @[option] = settings[option] if settings[option]
 
         @snake = new SNAKE.Snake @
-        @grid = new SNAKE.Grid @, @snake
+        @grid = new SNAKE.Grid2 @, @snake
         @graphics = new SNAKE.Graphics @, @grid
 
         @_startGame()
