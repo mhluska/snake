@@ -87,43 +87,14 @@
       }).call(this);
     };
 
-    Grid2.prototype.moveSquare = function(start, end, type) {
-      this.world[end.x][end.y][type] = this.world[start.x][start.y][type];
-      return this.world[start.x][start.y][type] = null;
-    };
-
-    Grid2.prototype.registerSquareAt = function(pos, type) {
-      if (this.world[pos.x][pos.y][type]) {
-        return false;
+    Grid2.prototype.squareAt = function(pos, type, value) {
+      if (arguments.length === 1) {
+        return this.world[pos.x][pos.y];
       }
-      this.world[pos.x][pos.y][type] = true;
-      return true;
-    };
-
-    Grid2.prototype.unregisterSquareAt = function(pos, type) {
-      if (!this.squareHasType(type, pos)) {
-        return false;
+      if (arguments.length === 2) {
+        return this.world[pos.x][pos.y][type];
       }
-      this.graphics.hideEntity(this.world[pos.x][pos.y][type]);
-      this.world[pos.x][pos.y][type] = null;
-      return true;
-    };
-
-    Grid2.prototype.squareHasType = function(type, pos) {
-      return this.world[pos.x][pos.y][type] != null;
-    };
-
-    Grid2.prototype.visibleFood = function() {
-      var foodPos, foodPositions, _i, _len, _ref;
-      foodPositions = [];
-      _ref = this.foodItems._queue;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        foodPos = _ref[_i];
-        if (this.graphics.entityIsVisible(this.world[foodPos.x][foodPos.y].food)) {
-          foodPositions.push(foodPos);
-        }
-      }
-      return foodPositions;
+      return this.world[pos.x][pos.y][type] = value;
     };
 
     return Grid2;

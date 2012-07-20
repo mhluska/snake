@@ -85,11 +85,50 @@
       return true;
     };
 
+    Grid.prototype.registerSquareAt = function(pos, type) {
+      if (this.squareAt(pos, type)) {
+        return false;
+      }
+      this.squareAt(pos, type, true);
+      return true;
+    };
+
+    Grid.prototype.unregisterSquareAt = function(pos, type) {
+      if (!this.squareHasType(type, pos)) {
+        return false;
+      }
+      this.graphics.hideEntity(this.squareAt(pos, type));
+      this.squareAt(pos, type, null);
+      return true;
+    };
+
     Grid.prototype.squareHasFood = function(pos) {
       if (!pos) {
         return false;
       }
       return this.squareHasType('food', pos);
+    };
+
+    Grid.prototype.moveSquare = function(start, end, type) {
+      this.squareAt(end, type, this.squareAt(start, type));
+      return this.squareAt(start, type, null);
+    };
+
+    Grid.prototype.squareHasType = function(type, pos) {
+      return (this.squareAt(pos, type)) != null;
+    };
+
+    Grid.prototype.visibleFood = function() {
+      var foodPos, foodPositions, _i, _len, _ref;
+      foodPositions = [];
+      _ref = this.foodItems._queue;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        foodPos = _ref[_i];
+        if (this.graphics.entityIsVisible(this.squareAt(foodPos).food)) {
+          foodPositions.push(foodPos);
+        }
+      }
+      return foodPositions;
     };
 
     Grid.prototype.dropFood = function(pos) {

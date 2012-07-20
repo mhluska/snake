@@ -44,40 +44,9 @@ class SNAKE.Grid2 extends SNAKE.Grid
         super()
         @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
-    moveSquare: (start, end, type) ->
+    squareAt: (pos, type, value) -> 
 
-        @world[end.x][end.y][type] = @world[start.x][start.y][type]
-        @world[start.x][start.y][type] = null
-
-    registerSquareAt: (pos, type) ->
-        return false if @world[pos.x][pos.y][type]
-        @world[pos.x][pos.y][type] = true
-        true
-
-    unregisterSquareAt: (pos, type) ->
-
-        return false unless @squareHasType type, pos
-        # The square will float around invisible until the graphics module
-        # decides to clean it up
-        # TODO: Make a queue to keep track of these hidden nodes and garbage 
-        # collect them after a while or after game over
-        @graphics.hideEntity @world[pos.x][pos.y][type]
-        @world[pos.x][pos.y][type] = null
-        true
-
-    squareHasType: (type, pos) -> @world[pos.x][pos.y][type]?
-
-    visibleFood: ->
-
-        # TODO: This is kind of cheating: accessing the array implementation
-        # underneath the queue. Use the more general linked list as an
-        # implementation so that you can iterate it and still have O(1) enqueue
-        # and dequeue
-        foodPositions = []
-        for foodPos in @foodItems._queue
-            if @graphics.entityIsVisible @world[foodPos.x][foodPos.y].food
-                foodPositions.push foodPos
-        
-        foodPositions
-
+      return @world[pos.x][pos.y] if arguments.length is 1
+      return @world[pos.x][pos.y][type] if arguments.length is 2
+      @world[pos.x][pos.y][type] = value
 

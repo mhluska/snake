@@ -45,9 +45,45 @@ class SNAKE.Grid
         @foodCount -= 1
         true
 
+    registerSquareAt: (pos, type) ->
+        return false if @squareAt pos, type
+        @squareAt pos, type, true
+        true
+
+    unregisterSquareAt: (pos, type) ->
+
+        return false unless @squareHasType type, pos
+        # The square will float around invisible until the graphics module
+        # decides to clean it up
+        # TODO: Make a queue to keep track of these hidden nodes and garbage 
+        # collect them after a while or after game over
+        @graphics.hideEntity @squareAt pos, type
+        @squareAt pos, type, null
+        true
+
     squareHasFood: (pos) ->
         return false unless pos
         @squareHasType 'food', pos
+
+    moveSquare: (start, end, type) ->
+
+        @squareAt end, type, @squareAt start, type
+        @squareAt start, type, null
+
+    squareHasType: (type, pos) -> (@squareAt pos, type)?
+
+    visibleFood: ->
+
+        # TODO: This is kind of cheating: accessing the array implementation
+        # underneath the queue. Use the more general linked list as an
+        # implementation so that you can iterate it and still have O(1) enqueue
+        # and dequeue
+        foodPositions = []
+        for foodPos in @foodItems._queue
+            if @graphics.entityIsVisible @squareAt(foodPos).food
+                foodPositions.push foodPos
+        
+        foodPositions
 
     dropFood: (pos) =>
 
