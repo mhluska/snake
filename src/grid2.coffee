@@ -4,8 +4,6 @@ class SNAKE.Grid2 extends SNAKE.Grid
 
         super @game, @snake
 
-        @squareWidth = 15
-        @squareHeight = 15
         @maxFood = 4
 
     # Handles wrap around of pair coordinates on the game world

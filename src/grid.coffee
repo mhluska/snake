@@ -4,6 +4,9 @@ class SNAKE.Grid
 
         @graphics = null
 
+        @squareWidth = 15
+        @squareHeight = 15
+
         @squareTypes = ['food', 'snake']
 
         @foodCount = 0

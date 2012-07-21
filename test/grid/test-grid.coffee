@@ -2,7 +2,7 @@
 'import game'
 'import queue'
 'import snake'
-'import grid'
+'import grid2'
 'import graphics'
 'import pair'
 

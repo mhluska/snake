@@ -11,8 +11,6 @@
       this.game = game;
       this.snake = snake;
       Grid2.__super__.constructor.call(this, this.game, this.snake);
-      this.squareWidth = 15;
-      this.squareHeight = 15;
       this.maxFood = 4;
     }
 

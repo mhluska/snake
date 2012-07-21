@@ -3,20 +3,14 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  SNAKE.Grid3 = (function(_super) {
+  SNAKE.Graphics3 = (function(_super) {
 
-    __extends(Grid3, _super);
+    __extends(Graphics3, _super);
 
-    function Grid3(game, snake) {
-      this.game = game;
-      this.snake = snake;
-      Grid3.__super__.constructor.call(this, this.game, this.snake);
-      this.maxFood = 16;
-      this.squareDepth = 15;
-    }
+    function Graphics3() {}
 
-    return Grid3;
+    return Graphics3;
 
-  })(SNAKE.Grid);
+  })(SNAKE.Graphics);
 
 }).call(this);

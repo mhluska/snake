@@ -1,6 +1,4 @@
 # TODO: Use the _privateMethod style throughout the whole project
-# TODO: Set up ender.js and use it to install keymaster.js and zepto
-# TODO: Switch from jQuery to zepto
 
 window.SNAKE ?= {}
 
@@ -15,6 +13,7 @@ class SNAKE.Game
         @gameIntervalID = null
 
         defaults =
+            useDom: false
             debugPrint: false
             debugStep: false
 
@@ -23,10 +22,17 @@ class SNAKE.Game
             @[option] = settings[option] if settings[option]
 
         @snake = new SNAKE.Snake @
-        @grid = new SNAKE.Grid2 @, @snake
-        @graphics = new SNAKE.Graphics @, @grid
 
-        @_startGame()
+        if @useDom
+            @grid = new SNAKE.Grid2 @, @snake
+            @graphics = new SNAKE.Graphics2 @, @grid
+            @_startGame()
+
+        else
+            $.getScript 'https://github.com/mrdoob/three.js/raw/master/build/Three.js', =>
+                @grid = new SNAKE.Grid3 @, @snake
+                @graphics = new SNAKE.Graphics3 @, @grid)
+                @_startGame()
 
     _startGame: ->
         # Don't modify foodCount manually. This is handled by unregisterFoodAt 

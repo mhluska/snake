@@ -10,7 +10,8 @@
   SNAKE.Game = (function() {
 
     function Game(settings) {
-      var defaults, option, value;
+      var defaults, deferred, option, value,
+        _this = this;
       if (settings == null) {
         settings = {};
       }
@@ -21,6 +22,7 @@
       this.timeStepRate = 100;
       this.gameIntervalID = null;
       defaults = {
+        useDom: false,
         debugPrint: false,
         debugStep: false
       };
@@ -32,9 +34,13 @@
         }
       }
       this.snake = new SNAKE.Snake(this);
-      this.grid = new SNAKE.Grid2(this, this.snake);
-      this.graphics = new SNAKE.Graphics(this, this.grid);
-      this._startGame();
+      deferred = this.useDom ? (this.grid = new SNAKE.Grid2(this, this.snake), this.graphics = new SNAKE.Graphics2(this, this.grid), $.Deferred().resolve()) : $.getScript('https://github.com/mrdoob/three.js/raw/master/build/Three.js', function() {
+        _this.grid = new SNAKE.Grid3(_this, _this.snake);
+        return _this.graphics = new SNAKE.Graphics3(_this, _this.grid);
+      });
+      deferred.done(function() {
+        return _this._startGame();
+      });
     }
 
     Game.prototype._startGame = function() {

@@ -14,6 +14,8 @@
       this._squareToEdges = __bind(this._squareToEdges, this);
 
       this.graphics = null;
+      this.squareWidth = 15;
+      this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
       this.foodCount = 0;
       this.foodItems = null;
