@@ -4,7 +4,9 @@ window.SNAKE ?= {}
 
 class SNAKE.Game
 
-    constructor: (settings = {}) ->
+    constructor: (selector, settings = {}) ->
+        
+        return if arguments.length < 2
 
         @stepCount = 0
         @stepsPerFood = 20
@@ -24,14 +26,16 @@ class SNAKE.Game
         @snake = new SNAKE.Snake @
 
         if @useDom
+            
+            # TODO: Load stylesheet only if were using DOM
             @grid = new SNAKE.Grid2 @, @snake
-            @graphics = new SNAKE.Graphics2 @, @grid
+            @graphics = new SNAKE.Graphics2 @, @grid, $(selector).eq(0)
             @_startGame()
 
         else
             $.getScript 'https://github.com/mrdoob/three.js/raw/master/build/Three.js', =>
                 @grid = new SNAKE.Grid3 @, @snake
-                @graphics = new SNAKE.Graphics3 @, @grid)
+                @graphics = new SNAKE.Graphics3 @, @grid
                 @_startGame()
 
     _startGame: ->

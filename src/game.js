@@ -9,14 +9,17 @@
 
   SNAKE.Game = (function() {
 
-    function Game(settings) {
-      var defaults, deferred, option, value,
+    function Game(selector, settings) {
+      var defaults, option, value,
         _this = this;
       if (settings == null) {
         settings = {};
       }
       this._gameLoop = __bind(this._gameLoop, this);
 
+      if (arguments.length < 2) {
+        return;
+      }
       this.stepCount = 0;
       this.stepsPerFood = 20;
       this.timeStepRate = 100;
@@ -34,13 +37,17 @@
         }
       }
       this.snake = new SNAKE.Snake(this);
-      deferred = this.useDom ? (this.grid = new SNAKE.Grid2(this, this.snake), this.graphics = new SNAKE.Graphics2(this, this.grid), $.Deferred().resolve()) : $.getScript('https://github.com/mrdoob/three.js/raw/master/build/Three.js', function() {
-        _this.grid = new SNAKE.Grid3(_this, _this.snake);
-        return _this.graphics = new SNAKE.Graphics3(_this, _this.grid);
-      });
-      deferred.done(function() {
-        return _this._startGame();
-      });
+      if (this.useDom) {
+        this.grid = new SNAKE.Grid2(this, this.snake);
+        this.graphics = new SNAKE.Graphics2(this, this.grid, $(selector).eq(0));
+        this._startGame();
+      } else {
+        $.getScript('https://github.com/mrdoob/three.js/raw/master/build/Three.js', function() {
+          _this.grid = new SNAKE.Grid3(_this, _this.snake);
+          _this.graphics = new SNAKE.Graphics3(_this, _this.grid);
+          return _this._startGame();
+        });
+      }
     }
 
     Game.prototype._startGame = function() {

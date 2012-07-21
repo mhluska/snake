@@ -7,12 +7,12 @@
 
     __extends(Graphics2, _super);
 
-    function Graphics2(game, grid) {
+    function Graphics2(game, grid, gridNode) {
       this.game = game;
       this.grid = grid;
       Graphics2.__super__.constructor.call(this, this.game, this.grid);
       this.grid.makeWorld();
-      this.buildDOM();
+      this.buildDOM(gridNode);
       this.nodeRemoveQueue = [];
     }
 
@@ -65,10 +65,10 @@
       return node.appendTo(this.dom.grid);
     };
 
-    Graphics2.prototype.buildDOM = function() {
+    Graphics2.prototype.buildDOM = function(gridNode) {
       var _this = this;
       this.dom = {};
-      this.dom.grid = $('<div id="grid"></div>');
+      this.dom.grid = gridNode;
       this.dom.grid.css({
         width: this.grid.squareWidth * this.grid.squaresX,
         height: this.grid.squareHeight * this.grid.squaresY

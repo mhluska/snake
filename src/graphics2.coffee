@@ -1,11 +1,11 @@
 class SNAKE.Graphics2 extends SNAKE.Graphics
 
-    constructor: (@game, @grid) ->
+    constructor: (@game, @grid, gridNode) ->
 
         super @game, @grid
 
         @grid.makeWorld()
-        @buildDOM()
+        @buildDOM gridNode
         @nodeRemoveQueue = []
 
     setNodePosition: (node, pos) ->
@@ -43,10 +43,10 @@ class SNAKE.Graphics2 extends SNAKE.Graphics
         node = @buildDOMNode pos, type
         node.appendTo @dom.grid
 
-    buildDOM: ->
+    buildDOM: (gridNode) ->
 
         @dom = {}
-        @dom.grid = $('<div id="grid"></div>')
+        @dom.grid = gridNode
         @dom.grid.css
             width: @grid.squareWidth * @grid.squaresX
             height: @grid.squareHeight * @grid.squaresY
