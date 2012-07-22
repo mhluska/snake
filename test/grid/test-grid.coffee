@@ -2,8 +2,9 @@
 'import game'
 'import queue'
 'import snake'
-'import grid2'
+'import grid'
 'import graphics'
+'import graphics2'
 'import pair'
 
 class window.TestGrid extends Test
@@ -13,12 +14,12 @@ class window.TestGrid extends Test
 
         linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
         $('head').append linkHtml
-        @game = new SNAKE.Game debugStep: true
+        $('body').prepend '<div id="game"></div>'
+        @game = new SNAKE.Game '#game', useDom: true, debugStep: true
 
     before: ->
 
         @game = TestGrid.game
-        console.log @game
         @snake = @game.snake
         @grid = @game.grid
 

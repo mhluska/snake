@@ -31,6 +31,7 @@ class SNAKE.Grid
 
     makeWorld: ->
         @eachSquare (pos) => @_unregisterAllTypesAt pos
+        @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
     # Handles wrap around of pair coordinates on the game world
     moduloBoundaries: (pair) ->
@@ -63,10 +64,6 @@ class SNAKE.Grid
         for direction, adjacentPos of positions
             normalizedPos = @moduloBoundaries adjacentPos
             return if false is callback normalizedPos, direction
-
-    makeWorld: ->
-        super()
-        @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
     squareAt: (pos, type, value) ->
 

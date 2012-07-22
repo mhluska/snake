@@ -12,6 +12,8 @@
 
   'import graphics';
 
+  'import graphics2';
+
   'import pair';
 
   var __hasProp = {}.hasOwnProperty,
@@ -29,14 +31,15 @@
       var linkHtml;
       linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />';
       $('head').append(linkHtml);
-      return this.game = new SNAKE.Game({
+      $('body').prepend('<div id="game"></div>');
+      return this.game = new SNAKE.Game('#game', {
+        useDom: true,
         debugStep: true
       });
     };
 
     TestGrid.prototype.before = function() {
       this.game = TestGrid.game;
-      console.log(this.game);
       this.snake = this.game.snake;
       return this.grid = this.game.grid;
     };

@@ -1,0 +1,3 @@
+class SNAKE.Cube
+
+    constructor: () ->

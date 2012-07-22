@@ -17,9 +17,6 @@
       }
       this._gameLoop = __bind(this._gameLoop, this);
 
-      if (arguments.length < 2) {
-        return;
-      }
       this.stepCount = 0;
       this.stepsPerFood = 20;
       this.timeStepRate = 100;
@@ -38,12 +35,12 @@
       }
       this.snake = new SNAKE.Snake(this);
       if (this.useDom) {
-        this.grid = new SNAKE.Grid2(this, this.snake);
+        this.grid = new SNAKE.Grid(this, this.snake);
         this.graphics = new SNAKE.Graphics2(this, this.grid, $(selector).eq(0));
         this._startGame();
       } else {
         $.getScript('https://github.com/mrdoob/three.js/raw/master/build/Three.js', function() {
-          _this.grid = new SNAKE.Grid3(_this, _this.snake);
+          _this.grid = new SNAKE.Cube(_this, _this.snake);
           _this.graphics = new SNAKE.Graphics3(_this, _this.grid);
           return _this._startGame();
         });
@@ -73,6 +70,8 @@
     };
 
     Game.prototype.restart = function() {
+      console.log('grid!');
+      console.log(this.grid);
       this.snake = this.grid.snake = new SNAKE.Snake(this);
       this.grid.makeWorld();
       return this._startGame();
