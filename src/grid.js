@@ -17,8 +17,10 @@
       this.squareWidth = 15;
       this.squareHeight = 15;
       this.squareTypes = ['food', 'snake'];
+      this.maxFood = 4;
       this.foodCount = 0;
       this.foodItems = null;
+      this.world = null;
     }
 
     Grid.prototype._squareToEdges = function(pos) {
@@ -53,6 +55,87 @@
       return this.eachSquare(function(pos) {
         return _this._unregisterAllTypesAt(pos);
       });
+    };
+
+    Grid.prototype.moduloBoundaries = function(pair) {
+      pair.x %= this.squaresX;
+      pair.y %= this.squaresY;
+      if (pair.x < 0) {
+        pair.x = this.squaresX - 1;
+      }
+      if (pair.y < 0) {
+        pair.y = this.squaresY - 1;
+      }
+      return pair;
+    };
+
+    Grid.prototype.eachSquare = function(callback) {
+      var column, pos, square, x, y, _i, _len, _ref, _results;
+      if (!this.world) {
+        return;
+      }
+      _ref = this.world;
+      _results = [];
+      for (x = _i = 0, _len = _ref.length; _i < _len; x = ++_i) {
+        column = _ref[x];
+        _results.push((function() {
+          var _j, _len1, _results1;
+          _results1 = [];
+          for (y = _j = 0, _len1 = column.length; _j < _len1; y = ++_j) {
+            square = column[y];
+            pos = new SNAKE.Pair(x, y);
+            _results1.push(callback(pos, square));
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+
+    Grid.prototype.eachAdjacentPosition = function(pos, callback) {
+      var adjacentPos, direction, normalizedPos, positions;
+      positions = {
+        down: new SNAKE.Pair(pos.x, pos.y + 1),
+        right: new SNAKE.Pair(pos.x + 1, pos.y),
+        up: new SNAKE.Pair(pos.x, pos.y - 1),
+        left: new SNAKE.Pair(pos.x - 1, pos.y)
+      };
+      for (direction in positions) {
+        adjacentPos = positions[direction];
+        normalizedPos = this.moduloBoundaries(adjacentPos);
+        if (false === callback(normalizedPos, direction)) {
+          return;
+        }
+      }
+    };
+
+    Grid.prototype.makeWorld = function() {
+      Grid.__super__.makeWorld.call(this);
+      return this.world = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (_i = 0, _ref = this.squaresX; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--) {
+          _results.push((function() {
+            var _j, _ref1, _results1;
+            _results1 = [];
+            for (_j = 0, _ref1 = this.squaresY; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--) {
+              _results1.push({});
+            }
+            return _results1;
+          }).call(this));
+        }
+        return _results;
+      }).call(this);
+    };
+
+    Grid.prototype.squareAt = function(pos, type, value) {
+      if (arguments.length === 1) {
+        return this.world[pos.x][pos.y];
+      }
+      if (arguments.length === 2) {
+        return this.world[pos.x][pos.y][type];
+      }
+      return this.world[pos.x][pos.y][type] = value;
     };
 
     Grid.prototype.setup = function(graphics) {
