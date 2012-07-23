@@ -29,27 +29,38 @@ class SNAKE.Graph
         # Map those unique IDs to the original objects for retrieval later
         @_idMap = @_makeIdMap tuples
 
-        isWeightless = @_weightlessGraph()
-
         # Setup neighbour arrays and bi-directional distances between vertices
-        @_distanceBetween = {}
-        @_neighbours = {}
+        @_distanceBetween = @_getDistanceBetween()
+        @_neighbours = @_getNeighbours()
 
-        @_eachTuple @_edgeWeights, (vertex1, vertex2, weight) =>
+    _getDistanceBetween: ->
+        
+        isWeightless = @_weightlessGraph()
+        @_eachTupleMakeObject @_edgeWeights, (obj, vertex1, vertex2, weight) ->
 
             weight = 1 if isWeightless
+            obj[vertex1] ?= {}
+            obj[vertex2] ?= {}
+            obj[vertex1][vertex2] = weight
+            obj[vertex2][vertex1] = weight
 
-            @_distanceBetween[vertex1] ?= {}
-            @_distanceBetween[vertex2] ?= {}
-            @_distanceBetween[vertex1][vertex2] = weight
-            @_distanceBetween[vertex2][vertex1] = weight
+    _getNeighbours: ->
 
-            @_neighbours[vertex1] ?= []
-            @_neighbours[vertex2] ?= []
+        @_eachTupleMakeObject @_edgeWeights, (obj, vertex1, vertex2) ->
+            obj[vertex1] ?= []
+            obj[vertex2] ?= []
 
             unless vertex1 is vertex2
-                @_neighbours[vertex1].push vertex2
-                @_neighbours[vertex2].push vertex1
+                obj[vertex1].push vertex2
+                obj[vertex2].push vertex1
+
+    _makeIdMap: (tuples) ->
+
+        @_eachTupleMakeObject tuples, (obj, vertex1, vertex2) =>
+
+            obj[@_toId vertex1] = vertex1
+            obj[@_toId vertex2] = vertex2
+
 
     _toId: (datum) -> (SNAKE.Utils.equivalenceId datum).toString()
 
@@ -64,15 +75,10 @@ class SNAKE.Graph
 
         edgeWeights
 
-    _makeIdMap: (tuples) ->
-
-        map = {}
-        @_eachTuple tuples, (vertex1, vertex2) =>
-
-            map[@_toId vertex1] = vertex1
-            map[@_toId vertex2] = vertex2
-
-        map
+    _eachTupleMakeObject: (tuples, callback, obj = {}) ->
+        for tuple in tuples
+            return if false is callback obj, tuple...
+        obj
 
     _eachTuple: (tuples, callback) ->
 
