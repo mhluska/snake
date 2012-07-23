@@ -59,8 +59,51 @@
       return true;
     };
 
+    Test.prototype._equalObjects = function(obj1, obj2) {
+      var prop;
+      for (prop in obj1) {
+        if (typeof obj2[prop] === 'undefined') {
+          return false;
+        }
+      }
+      for (prop in obj1) {
+        if (obj1[prop]) {
+          switch (typeof obj1[prop]) {
+            case 'object':
+              if (!this._equalObjects(obj1[prop], obj2[prop])) {
+                return false;
+              }
+              break;
+            case 'function':
+              if (typeof obj2[prop] === 'undefined') {
+                return false;
+              }
+              if (obj1[prop] !== obj2[prop]) {
+                return false;
+              }
+              break;
+            default:
+              if (obj1[prop] !== obj2[prop]) {
+                return false;
+              }
+          }
+        } else if (obj2[prop]) {
+          return false;
+        }
+      }
+      for (prop in obj2) {
+        if (typeof obj1[prop] === 'undefined') {
+          return false;
+        }
+      }
+      return true;
+    };
+
     Test.prototype._runTests = function() {
       var prop, _base, _base1;
+      if (!this._formatTestName(this["class"].name)) {
+        return;
+      }
       console.warn("Testing module: " + (this._formatTestName(this["class"].name)));
       console.log('');
       if (typeof (_base = this["class"]).before === "function") {
@@ -123,7 +166,7 @@
         return false;
       }
       if (type1 === 'object' && type2 === 'object') {
-        return console.warn('Object comparison not implemented yet');
+        return this._equalObjects(value1, value2);
       }
       if (type1 === 'array' && type2 === 'array') {
         return this._equalArrays(value1, value2);

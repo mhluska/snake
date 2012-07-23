@@ -13,7 +13,7 @@ class window.Test
                     # May break if the constructor has been tampered with
                     return object.constructor.prototype
 
-        # Class accessor. Kind of like '@@' in Ruby.
+        # Class accessor. Kind of like '@@' in Ruby
         @.class = (Object.getPrototypeOf @).constructor
 
         @_runTests()
@@ -42,7 +42,36 @@ class window.Test
 
         true
 
+    # Source: http://stackoverflow.com/a/1144249/659910 
+    _equalObjects: (obj1, obj2) ->
+
+      for prop of obj1
+          return false if typeof obj2[prop] is 'undefined'
+
+      for prop of obj1
+          if obj1[prop]
+              switch typeof obj1[prop]
+
+                  when 'object'
+                      return false unless @_equalObjects obj1[prop], obj2[prop]
+
+                  when 'function'
+                      return false if typeof obj2[prop] is 'undefined'
+                      return false if obj1[prop] isnt obj2[prop]
+                  else
+                      return false if obj1[prop] isnt obj2[prop]
+
+          else if obj2[prop]
+              return false
+
+      for prop of obj2
+          return false if typeof obj1[prop] is 'undefined'
+
+      true
+
     _runTests: =>
+
+        return unless @_formatTestName @.class.name
 
         console.warn "Testing module: #{@_formatTestName @.class.name}"
         console.log ''
@@ -94,7 +123,7 @@ class window.Test
         return false if type1 isnt type2
 
         if type1 is 'object' and type2 is 'object'
-            return console.warn 'Object comparison not implemented yet'
+            return @_equalObjects value1, value2
 
         if type1 is 'array' and type2 is 'array'
             return @_equalArrays value1, value2
