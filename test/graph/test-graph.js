@@ -48,6 +48,18 @@
       return this.runDijkstras(edgeWeights, 'a', 'd', ['c', 'f', 'd'], message);
     };
 
+    TestGraph.prototype.testDijkstrasWithObjectVertices = function() {
+      var edgeWeights, message, obj, source, target;
+      source = [];
+      target = [];
+      obj = {
+        key1: 'val1'
+      };
+      edgeWeights = [[source, 'b', 2], [source, obj, 8], [source, target, 20], [target, obj, 9], [obj, 'f', 1], [target, 'f', 1], ['e', 'e', 0]];
+      message = "Shortest path from [] to {}";
+      return this.runDijkstras(edgeWeights, source, [target], [obj, 'f', target], message);
+    };
+
     TestGraph.prototype.testDijkstrasWithoutWeights = function() {
       var edges, message;
       edges = [['a', 'b'], ['a', 'c'], ['a', 'd'], ['d', 'c'], ['c', 'f'], ['d', 'f'], ['e', 'e']];
