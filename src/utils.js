@@ -42,6 +42,23 @@
       return args[lengths.indexOf(minLength)];
     };
 
+    Utils.equivalenceId = (function() {
+      var dataAdded, dataIds, id;
+      id = 0;
+      dataIds = [];
+      dataAdded = [];
+      return function(datum) {
+        var index;
+        index = dataAdded.indexOf(datum);
+        if (index === -1) {
+          dataAdded.push(datum);
+          dataIds.push(id);
+          return id++;
+        }
+        return dataIds[index];
+      };
+    })();
+
     return Utils;
 
   }).call(this);
