@@ -1,5 +1,3 @@
-# Allows the snake AI to find shortest paths between food items
-
 # The constructor takes edge weights encoded as 3-arrays. Since we are working 
 # with undirected graphs, the ordering of the first two values does not matter.
 # The third value must be the edge weight. A disconnected vertex 'v' gets a 
@@ -23,18 +21,23 @@
 
 class SNAKE.Graph
 
-    constructor: (@edgeWeights = []) ->
+    constructor: (tuples = []) ->
 
-        # @edgeWeights = @_edgesToString edgeWeights
-        weightless = @_weightlessGraph()
+        # Replace any objects passed to the graph with unique IDs
+        @_edgeWeights = @_assignLabels tuples
+
+        # Map those unique IDs to the original objects for retrieval later
+        @_idMap = @_makeIdMap tuples
+
+        isWeightless = @_weightlessGraph()
 
         # Setup neighbour arrays and bi-directional distances between vertices
         @_distanceBetween = {}
         @_neighbours = {}
-        for tuple in @edgeWeights
-            [vertex1, vertex2, weight] = tuple
-            
-            weight = 1 if weightless
+
+        @_eachTuple @_edgeWeights, (vertex1, vertex2, weight) =>
+
+            weight = 1 if isWeightless
 
             @_distanceBetween[vertex1] ?= {}
             @_distanceBetween[vertex2] ?= {}
@@ -43,13 +46,42 @@ class SNAKE.Graph
 
             @_neighbours[vertex1] ?= []
             @_neighbours[vertex2] ?= []
+
             unless vertex1 is vertex2
                 @_neighbours[vertex1].push vertex2
                 @_neighbours[vertex2].push vertex1
 
+    _toId: (datum) -> (SNAKE.Utils.equivalenceId datum).toString()
+
+    _assignLabels: (tuples) ->
+        
+        edgeWeights = []
+        @_eachTuple tuples, (vertex1, vertex2, weight) =>
+
+            tuple = [@_toId(vertex1), @_toId(vertex2)]
+            tuple.push weight if weight
+            edgeWeights.push tuple
+
+        edgeWeights
+
+    _makeIdMap: (tuples) ->
+
+        map = {}
+        @_eachTuple tuples, (vertex1, vertex2) =>
+
+            map[@_toId vertex1] = vertex1
+            map[@_toId vertex2] = vertex2
+
+        map
+
+    _eachTuple: (tuples, callback) ->
+
+        for tuple in tuples
+            return if false is callback tuple...
+
     _weightlessGraph: ->
 
-        for pair in @edgeWeights
+        for pair in @_edgeWeights
             return false if pair.length isnt 2
         true
 
@@ -59,10 +91,16 @@ class SNAKE.Graph
 
         path = []
         while previous[target]
-            path.unshift target
+            path.unshift @_idMap[target]
             target = previous[target]
 
         path
+
+    _keysToData: (dict) ->
+
+        newDict = {}
+        newDict[ @_idMap[key] ] = key for key of dict
+        newDict
 
     distanceBetween: (vertex1, vertex2) ->
 
@@ -79,6 +117,8 @@ class SNAKE.Graph
 
         return unless source
 
+        source = @_toId source
+        targets = targets.map (target) => @_toId target
         vertices = @vertices()
 
         # Initialize distance and previous
@@ -117,7 +157,7 @@ class SNAKE.Graph
                     distance[neighbour] = alt
                     previous[neighbour] = closest
                     
-        return distance unless targets.length
+        return @_keysToData distance unless targets.length
 
         pathDistances = targets.map (target) -> distance[target]
         minDistance = Math.min.apply null, pathDistances

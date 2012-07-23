@@ -154,7 +154,9 @@
 
     Snake.prototype._findFoodPath = function() {
       var foodPositions, graph, pairs;
-      foodPositions = this.grid.visibleFood();
+      foodPositions = this.grid.visibleFood().map(function(food) {
+        return food.toString();
+      });
       if (!foodPositions.length) {
         return [];
       }

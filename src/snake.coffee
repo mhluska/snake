@@ -99,7 +99,7 @@ class SNAKE.Snake
 
     _findFoodPath: ->
 
-        foodPositions = @grid.visibleFood()
+        foodPositions = @grid.visibleFood().map (food) -> food.toString()
         return [] unless foodPositions.length
 
         graph = new SNAKE.Graph @grid.toGraph()

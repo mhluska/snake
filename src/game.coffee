@@ -62,8 +62,6 @@ class SNAKE.Game
         @stepCount += 1
 
     restart: ->
-        console.log 'grid!'
-        console.log @grid
         @snake = @grid.snake = new SNAKE.Snake @
         @grid.makeWorld()
         @_startGame()
