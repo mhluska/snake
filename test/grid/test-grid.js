@@ -38,6 +38,11 @@
       });
     };
 
+    TestGrid.after = function() {
+      $('#game').remove();
+      return $('link').last().remove();
+    };
+
     TestGrid.prototype.before = function() {
       this.game = TestGrid.game;
       this.snake = this.game.snake;
@@ -79,7 +84,8 @@
     TestGrid.prototype.testClosestFood = function() {
       var closestFood;
       this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [4, 6]]);
-      closestFood = this.game.snake._findFoodPath().pop();
+      this.game._gameLoop();
+      closestFood = this.game.snake.moves.back();
       this.show("Closest food item: " + (closestFood.toString()));
       return this.assert(closestFood.equals(new SNAKE.Pair(4, 6)));
     };
@@ -87,7 +93,8 @@
     TestGrid.prototype.testClosestFoodWrap = function() {
       var closestFood;
       this.setupFood([[this.grid.squaresX - 1, this.grid.squaresY - 1], [0, 0], [this.grid.squaresX - 1, 6]]);
-      closestFood = this.game.snake._findFoodPath().pop();
+      this.game._gameLoop();
+      closestFood = this.game.snake.moves.back();
       this.show("Closest food item: " + (closestFood.toString()));
       return this.assert(closestFood.equals(new SNAKE.Pair(this.grid.squaresX - 1, 6)));
     };

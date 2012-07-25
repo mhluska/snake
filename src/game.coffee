@@ -1,4 +1,5 @@
 # TODO: Use the _privateMethod style throughout the whole project
+# TODO: Rename grid since it can be a Grid or Cube module
 
 window.SNAKE ?= {}
 

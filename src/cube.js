@@ -3,7 +3,21 @@
 
   SNAKE.Cube = (function() {
 
-    function Cube() {}
+    function Cube(game, length) {
+      var index;
+      this.game = game;
+      this.length = length != null ? length : 15;
+      this.faces = (function() {
+        var _i, _results;
+        _results = [];
+        for (index = _i = 0; _i <= 5; index = ++_i) {
+          _results.push(new SNAKE.Grid(game, this.length, this.length));
+        }
+        return _results;
+      }).call(this);
+    }
+
+    Cube.prototype.registerSquareAt = function() {};
 
     return Cube;
 

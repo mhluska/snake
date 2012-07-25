@@ -17,6 +17,10 @@ class window.TestGrid extends Test
         $('body').prepend '<div id="game"></div>'
         @game = new SNAKE.Game '#game', useDom: true, debugStep: true
 
+    @after: ->
+        $('#game').remove()
+        $('link').last().remove()
+
     before: ->
 
         @game = TestGrid.game
@@ -67,7 +71,8 @@ class window.TestGrid extends Test
             [4, 6]
         ]
 
-        closestFood = @game.snake._findFoodPath().pop()
+        @game._gameLoop()
+        closestFood = @game.snake.moves.back()
         @show "Closest food item: #{closestFood.toString()}"
 
         @assert closestFood.equals new SNAKE.Pair 4, 6
@@ -80,7 +85,8 @@ class window.TestGrid extends Test
             [@grid.squaresX - 1, 6]
         ]
 
-        closestFood = @game.snake._findFoodPath().pop()
+        @game._gameLoop()
+        closestFood = @game.snake.moves.back()
         @show "Closest food item: #{closestFood.toString()}"
 
         @assert closestFood.equals new SNAKE.Pair @grid.squaresX - 1, 6

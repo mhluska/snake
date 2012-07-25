@@ -9,7 +9,7 @@
       this.game = game;
       this.length = length != null ? length : 5;
       this.direction = direction != null ? direction : 'down';
-      this.head = head;
+      this.head = head != null ? head : null;
       this.grid = null;
       this.lastTailPos = null;
       this.moves = new SNAKE.Queue;

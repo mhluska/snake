@@ -1,6 +1,7 @@
+# TODO: Use private syntax for member variables
 class SNAKE.Snake
 
-    constructor: (@game, @length = 5, @direction = 'down', @head) ->
+    constructor: (@game, @length = 5, @direction = 'down', @head = null) ->
 
         @grid = null
         @lastTailPos = null
