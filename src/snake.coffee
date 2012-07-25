@@ -133,11 +133,11 @@ class SNAKE.Snake
 
         @_grow() if @_eating()
 
-        @_updateMoves()
-
         nextHead = @_getNextHead()
         @direction = @_nextDirection nextHead
         @head = nextHead
+
+        @_updateMoves()
 
         @game.restart() if @grid.squareHasType 'snake', @head
 

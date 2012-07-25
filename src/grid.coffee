@@ -1,6 +1,6 @@
 class SNAKE.Grid
 
-    constructor: (@game, @snake, @squaresX = 25, @squaresY = 15) ->
+    constructor: (@game, @squaresX = 25, @squaresY = 15) ->
 
         @graphics = null
 
@@ -17,7 +17,7 @@ class SNAKE.Grid
 
     _squareToEdges: (pos) =>
 
-        return if @squareHasType('snake', pos) and not pos.equals @snake.head
+        return if @squareHasType 'snake', pos
 
         edges = []
         @eachAdjacentPosition pos, (adjacentPos, direction) =>

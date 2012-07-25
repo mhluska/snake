@@ -4,9 +4,8 @@
 
   SNAKE.Grid = (function() {
 
-    function Grid(game, snake, squaresX, squaresY) {
+    function Grid(game, squaresX, squaresY) {
       this.game = game;
-      this.snake = snake;
       this.squaresX = squaresX != null ? squaresX : 25;
       this.squaresY = squaresY != null ? squaresY : 15;
       this.dropFood = __bind(this.dropFood, this);
@@ -26,7 +25,7 @@
     Grid.prototype._squareToEdges = function(pos) {
       var edges,
         _this = this;
-      if (this.squareHasType('snake', pos) && !pos.equals(this.snake.head)) {
+      if (this.squareHasType('snake', pos)) {
         return;
       }
       edges = [];

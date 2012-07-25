@@ -216,10 +216,10 @@
       if (this._eating()) {
         this._grow();
       }
-      this._updateMoves();
       nextHead = this._getNextHead();
       this.direction = this._nextDirection(nextHead);
       this.head = nextHead;
+      this._updateMoves();
       if (this.grid.squareHasType('snake', this.head)) {
         this.game.restart();
       }

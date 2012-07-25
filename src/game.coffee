@@ -26,13 +26,13 @@ class SNAKE.Game
         if @useDom
             
             # TODO: Load stylesheet only if were using DOM
-            @grid = new SNAKE.Grid @, @snake
+            @grid = new SNAKE.Grid @
             @graphics = new SNAKE.Graphics2 @, @grid, $(selector).eq(0)
             @_startGame()
 
         else
             $.getScript 'https://github.com/mrdoob/three.js/raw/master/build/Three.js', =>
-                @grid = new SNAKE.Cube @, @snake
+                @grid = new SNAKE.Cube @
                 @graphics = new SNAKE.Graphics3 @, @grid
                 @_startGame()
 

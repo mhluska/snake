@@ -35,12 +35,12 @@
       }
       this.snake = new SNAKE.Snake(this);
       if (this.useDom) {
-        this.grid = new SNAKE.Grid(this, this.snake);
+        this.grid = new SNAKE.Grid(this);
         this.graphics = new SNAKE.Graphics2(this, this.grid, $(selector).eq(0));
         this._startGame();
       } else {
         $.getScript('https://github.com/mrdoob/three.js/raw/master/build/Three.js', function() {
-          _this.grid = new SNAKE.Cube(_this, _this.snake);
+          _this.grid = new SNAKE.Cube(_this);
           _this.graphics = new SNAKE.Graphics3(_this, _this.grid);
           return _this._startGame();
         });
