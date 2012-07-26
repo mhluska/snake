@@ -1,150 +1,153 @@
 # TODO: Use private syntax for member variables
-class SNAKE.Snake
 
-    constructor: (@game, @length = 5, @direction = 'down', @head = null) ->
+define ['queue', 'pair', 'graph'], (Queue, Pair, Graph) ->
 
-        @grid = null
-        @lastTailPos = null
-        @moves = new SNAKE.Queue
+    class Snake
 
-        # The number of times the snake will grow when it eats
-        @stepsPerGrowth = 3
-        @growUntil = 0
+        constructor: (@game, @length = 5, @direction = 'down', @head = null) ->
 
-        # Whether the AI has set the snake to find food
-        @autoPlay = true
+            @grid = null
+            @lastTailPos = null
+            @moves = new Queue
 
-        @head ?= new SNAKE.Pair 0, 4
-        x = @head.x
-        y = @head.y
+            # The number of times the snake will grow when it eats
+            @stepsPerGrowth = 3
+            @growUntil = 0
 
-        # The coordinates of the snake chain
-        @chain = ( new SNAKE.Pair x, y - piece for piece in [0..@length - 1] )
+            # Whether the AI has set the snake to find food
+            @autoPlay = true
 
-        @_setupControls()
+            @head ?= new Pair 0, 4
+            x = @head.x
+            y = @head.y
 
-    _nextPosition: (position = @head) ->
-        nextPos = position.clone()
-        switch @direction
-            when 'up'    then nextPos.y -= 1
-            when 'right' then nextPos.x += 1
-            when 'down'  then nextPos.y += 1
-            when 'left'  then nextPos.x -= 1
+            # The coordinates of the snake chain
+            @chain = ( new Pair x, y - piece for piece in [0..@length - 1] )
 
-        nextPos = @grid.moduloBoundaries nextPos
+            @_setupControls()
 
-        return nextPos unless @autoPlay
+        _nextPosition: (position = @head) ->
+            nextPos = position.clone()
+            switch @direction
+                when 'up'    then nextPos.y -= 1
+                when 'right' then nextPos.x += 1
+                when 'down'  then nextPos.y += 1
+                when 'left'  then nextPos.x -= 1
 
-        @_avoidDeathOnPosition nextPos, position
+            nextPos = @grid.moduloBoundaries nextPos
 
-    # Attempts to find another position if the next position results in death
-    _avoidDeathOnPosition: (nextPosition, position) ->
+            return nextPos unless @autoPlay
 
-        return nextPosition unless @grid.squareHasType 'snake', nextPosition
+            @_avoidDeathOnPosition nextPos, position
 
-        # Find the first adjacent position that has no snake
-        @grid.eachAdjacentPosition position, (adjPos, direction) =>
+        # Attempts to find another position if the next position results in death
+        _avoidDeathOnPosition: (nextPosition, position) ->
 
-            unless @_isOpposite(direction) or @grid.squareHasType 'snake', adjPos
-              nextPosition = adjPos
-              return false
+            return nextPosition unless @grid.squareHasType 'snake', nextPosition
 
-        nextPosition
+            # Find the first adjacent position that has no snake
+            @grid.eachAdjacentPosition position, (adjPos, direction) =>
 
-    _nextDirection: (position) ->
+                unless @_isOpposite(direction) or @grid.squareHasType 'snake', adjPos
+                  nextPosition = adjPos
+                  return false
 
-        return unless position
+            nextPosition
 
-        nextDirection = @direction
-        @grid.eachAdjacentPosition @head, (adjPosition, direction) ->
-            if position.equals adjPosition
-                nextDirection = direction
-                return false
+        _nextDirection: (position) ->
 
-        nextDirection
+            return unless position
 
-    _setupControls: ->
+            nextDirection = @direction
+            @grid.eachAdjacentPosition @head, (adjPosition, direction) ->
+                if position.equals adjPosition
+                    nextDirection = direction
+                    return false
 
-        $(window).one 'keydown', =>
-            return if @game.debugStep
-            @autoPlay = false
-            @moves.dequeue() until @moves.isEmpty()
+            nextDirection
 
-        $(window).keydown (event) =>
-            newDirection = @direction
-            switch event.keyCode
-                when 37 then newDirection = 'left'
-                when 38 then newDirection = 'up'
-                when 39 then newDirection = 'right'
-                when 40 then newDirection = 'down'
-                else return
+        _setupControls: ->
 
-            unless @_isOpposite newDirection
-                @direction = newDirection
-                @moves.enqueue @_nextPosition @moves.back()
+            $(window).one 'keydown', =>
+                return if @game.debugStep
+                @autoPlay = false
+                @moves.dequeue() until @moves.isEmpty()
 
-    _isOpposite: (newDirection) ->
-        return true if newDirection is 'left' and @direction is 'right'
-        return true if newDirection is 'right' and @direction is 'left'
-        return true if newDirection is 'up' and @direction is 'down'
-        return true if newDirection is 'down' and @direction is 'up'
-        false
+            $(window).keydown (event) =>
+                newDirection = @direction
+                switch event.keyCode
+                    when 37 then newDirection = 'left'
+                    when 38 then newDirection = 'up'
+                    when 39 then newDirection = 'right'
+                    when 40 then newDirection = 'down'
+                    else return
 
-    _grow: ->
-        
-        return unless @lastTailPos
+                unless @_isOpposite newDirection
+                    @direction = newDirection
+                    @moves.enqueue @_nextPosition @moves.back()
 
-        @chain.push @lastTailPos
-        @grid.registerSquareAt @lastTailPos, 'snake'
-        @grid.unregisterFoodAt @chain[0]
+        _isOpposite: (newDirection) ->
+            return true if newDirection is 'left' and @direction is 'right'
+            return true if newDirection is 'right' and @direction is 'left'
+            return true if newDirection is 'up' and @direction is 'down'
+            return true if newDirection is 'down' and @direction is 'up'
+            false
 
-    _findFoodPath: ->
+        _grow: ->
+            
+            return unless @lastTailPos
 
-        foodPositions = @grid.visibleFood().map (food) -> food.toString()
-        return [] unless foodPositions.length
+            @chain.push @lastTailPos
+            @grid.registerSquareAt @lastTailPos, 'snake'
+            @grid.unregisterFoodAt @chain[0]
 
-        graph = new SNAKE.Graph @grid.toGraph()
+        _findFoodPath: ->
 
-        pairs = graph.dijkstras @head.toString(), foodPositions...
-        pairs = pairs.map (pair) -> new SNAKE.Pair pair
-        pairs
+            foodPositions = @grid.visibleFood().map (food) -> food.toString()
+            return [] unless foodPositions.length
 
-    _updateMoves: ->
-        if @autoPlay and @moves.isEmpty()
-            @moves.enqueue pair for pair in @_findFoodPath()
+            graph = new Graph @grid.toGraph()
 
-    _getNextHead: ->
-        if @moves.isEmpty() then @_nextPosition() else @moves.dequeue()
+            pairs = graph.dijkstras @head.toString(), foodPositions...
+            pairs = pairs.map (pair) -> new Pair pair
+            pairs
 
-    _eating: -> @game.stepCount < @growUntil
+        _updateMoves: ->
+            if @autoPlay and @moves.isEmpty()
+                @moves.enqueue pair for pair in @_findFoodPath()
 
-    setup: (grid) ->
+        _getNextHead: ->
+            if @moves.isEmpty() then @_nextPosition() else @moves.dequeue()
 
-        @grid = grid
+        _eating: -> @game.stepCount < @growUntil
 
-        # Snake registers itself on the grid
-        @grid.registerSquareAt pair, 'snake' for pair in @chain
+        setup: (grid) ->
 
-    move: ->
+            @grid = grid
 
-        return unless @direction
+            # Snake registers itself on the grid
+            @grid.registerSquareAt pair, 'snake' for pair in @chain
 
-        if @grid.squareHasType 'food', @head
-            @growUntil = @game.stepCount + @stepsPerGrowth
+        move: ->
 
-        @_grow() if @_eating()
+            return unless @direction
 
-        nextHead = @_getNextHead()
-        @direction = @_nextDirection nextHead
-        @head = nextHead
+            if @grid.squareHasType 'food', @head
+                @growUntil = @game.stepCount + @stepsPerGrowth
 
-        @_updateMoves()
+            @_grow() if @_eating()
 
-        @game.restart() if @grid.squareHasType 'snake', @head
+            nextHead = @_getNextHead()
+            @direction = @_nextDirection nextHead
+            @head = nextHead
 
-        # Move the snake and update his chain of positions
-        @lastTailPos = @chain[@chain.length - 1].clone()
-        @grid.moveSquare @lastTailPos, @head, 'snake'
-        @chain.pop()
-        @chain.unshift @head.clone()
+            @_updateMoves()
+
+            @game.restart() if @grid.squareHasType 'snake', @head
+
+            # Move the snake and update his chain of positions
+            @lastTailPos = @chain[@chain.length - 1].clone()
+            @grid.moveSquare @lastTailPos, @head, 'snake'
+            @chain.pop()
+            @chain.unshift @head.clone()
 

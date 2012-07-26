@@ -1,40 +1,42 @@
-class SNAKE.Pair
+define ->
 
-    constructor: (x = 0, y = 0) ->
+    class Pair
 
-        if arguments.length is 2
-            [@x, @y] = [x, y]
-            return
+        constructor: (x = 0, y = 0) ->
 
-        # Support for contruction using a string '(x, y)'
-        @_parsePairString x
+            if arguments.length is 2
+                [@x, @y] = [x, y]
+                return
 
-    _parsePairString: (string) ->
+            # Support for contruction using a string '(x, y)'
+            @_parsePairString x
 
-        regex = /\((\d+), ?(\d+)\)/g
-        matches = regex.exec string
+        _parsePairString: (string) ->
 
-        [@x, @y] = [ parseInt(matches[1]), parseInt(matches[2]) ]
+            regex = /\((\d+), ?(\d+)\)/g
+            matches = regex.exec string
 
-    clone: -> new SNAKE.Pair @x, @y
+            [@x, @y] = [ parseInt(matches[1]), parseInt(matches[2]) ]
 
-    copy: (pair) ->
+        clone: -> new Pair @x, @y
 
-        return unless pair
+        copy: (pair) ->
 
-        @x = pair.x
-        @y = pair.y
+            return unless pair
 
-    equals: (pair) ->
+            @x = pair.x
+            @y = pair.y
 
-        return false unless pair
-        return @x is pair.x and @y is pair.y
+        equals: (pair) ->
 
-    toString: -> "(#{@x}, #{@y})"
+            return false unless pair
+            return @x is pair.x and @y is pair.y
 
-    length: -> Math.sqrt @x * @x + @y * @y
+        toString: -> "(#{@x}, #{@y})"
 
-    subtract: (pair) -> new SNAKE.Pair @x - pair.x, @y - pair.y
+        length: -> Math.sqrt @x * @x + @y * @y
 
-    distanceTo: (pair) -> @subtract(pair).length()
+        subtract: (pair) -> new Pair @x - pair.x, @y - pair.y
+
+        distanceTo: (pair) -> @subtract(pair).length()
 

@@ -1,43 +1,31 @@
-class SNAKE.Queue
+define ->
 
-    constructor: (items = []) ->
-        @_queue = items
+    class Queue
 
-    enqueue: (item) ->
-        @_queue.push item
+        constructor: (items = []) ->
+            @_queue = items
 
-    dequeue: ->
-        return null unless @size()
-        @_queue.shift()
+        enqueue: (item) ->
+            @_queue.push item
 
-    size: -> @_queue.length
+        dequeue: ->
+            return null unless @size()
+            @_queue.shift()
 
-    peek: ->
-        @_queue[0]
+        size: -> @_queue.length
 
-    back: ->
-        @_queue[@size() - 1]
+        peek: ->
+            @_queue[0]
 
-    isEmpty: ->
-        @_queue.length is 0
+        back: ->
+            @_queue[@size() - 1]
 
-    toString: ->
-        string = @_queue.reverse().toString()
-        # We have to do this since reverse modifies in place
-        @_queue.reverse()
-        string
+        isEmpty: ->
+            @_queue.length is 0
 
-class SNAKE.FoodQueue extends SNAKE.Queue
+        toString: ->
+            string = @_queue.reverse().toString()
+            # We have to do this since reverse modifies in place
+            @_queue.reverse()
+            string
 
-    constructor: (@grid, items) ->
-        super items
-
-    enqueue: (item) ->
-        super item
-        @grid.registerFoodAt item
-
-    dequeue: ->
-        # Remove any food positions that the snake has already eaten
-        super() until @grid.squareHasFood @peek()
-        foodPos = super()
-        @grid.unregisterFoodAt foodPos

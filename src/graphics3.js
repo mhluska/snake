@@ -3,14 +3,17 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  SNAKE.Graphics3 = (function(_super) {
+  define(['graphics'], function(Graphics) {
+    var Graphics3;
+    return Graphics3 = (function(_super) {
 
-    __extends(Graphics3, _super);
+      __extends(Graphics3, _super);
 
-    function Graphics3() {}
+      function Graphics3() {}
 
-    return Graphics3;
+      return Graphics3;
 
-  })(SNAKE.Graphics);
+    })(Graphics);
+  });
 
 }).call(this);

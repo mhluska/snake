@@ -1,7 +1,9 @@
-class SNAKE.Cube
+define ['grid'], (Grid) ->
 
-    constructor: (@game, @length = 15) ->
+    class Cube
 
-        @faces = (new SNAKE.Grid(game, @length, @length) for index in [0..5])
+        constructor: (@game, @length = 15) ->
 
-    registerSquareAt: ->
+            @faces = (new Grid(game, @length, @length) for index in [0..5])
+
+        registerSquareAt: ->

@@ -1,3 +1,5 @@
-class SNAKE.Graphics3 extends SNAKE.Graphics
+define ['graphics'], (Graphics) ->
 
-    constructor: ->
+    class Graphics3 extends Graphics
+
+        constructor: ->

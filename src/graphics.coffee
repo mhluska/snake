@@ -1,5 +1,7 @@
-class SNAKE.Graphics
+define ->
 
-    constructor: (@game, @grid) ->
+    class Graphics
 
-       @grid.setup @
+        constructor: (@game, @grid) ->
+
+           @grid.setup @

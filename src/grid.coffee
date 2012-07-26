@@ -1,146 +1,148 @@
-class SNAKE.Grid
+define ['pair', 'utils'], (Pair, Utils) ->
 
-    constructor: (@game, @squaresX = 25, @squaresY = 15) ->
+    class Grid
 
-        @graphics = null
+        constructor: (@game, @squaresX = 25, @squaresY = 15) ->
 
-        @squareWidth = 15
-        @squareHeight = 15
+            @graphics = null
 
-        @squareTypes = ['food', 'snake']
+            @squareWidth = 15
+            @squareHeight = 15
 
-        @maxFood = 4
-        @foodCount = 0
-        @foodItems = null
+            @squareTypes = ['food', 'snake']
 
-        @world = null
+            @maxFood = 4
+            @foodCount = 0
+            @foodItems = null
 
-    _squareToEdges: (pos) =>
+            @world = null
 
-        return if @squareHasType 'snake', pos
+        _squareToEdges: (pos) =>
 
-        edges = []
-        @eachAdjacentPosition pos, (adjacentPos, direction) =>
-            return if @squareHasType 'snake', adjacentPos
-            edges.push [ pos.toString(), adjacentPos.toString() ]
+            return if @squareHasType 'snake', pos
 
-        edges
+            edges = []
+            @eachAdjacentPosition pos, (adjacentPos, direction) =>
+                return if @squareHasType 'snake', adjacentPos
+                edges.push [ pos.toString(), adjacentPos.toString() ]
 
-    _unregisterAllTypesAt: (pos) ->
-        @unregisterSquareAt pos, type for type in @squareTypes
+            edges
 
-    makeWorld: ->
-        @eachSquare (pos) => @_unregisterAllTypesAt pos
-        @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
+        _unregisterAllTypesAt: (pos) ->
+            @unregisterSquareAt pos, type for type in @squareTypes
 
-    # Handles wrap around of pair coordinates on the game world
-    moduloBoundaries: (pair) ->
+        makeWorld: ->
+            @eachSquare (pos) => @_unregisterAllTypesAt pos
+            @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
-        pair.x %= @squaresX
-        pair.y %= @squaresY
-        pair.x = @squaresX - 1 if pair.x < 0
-        pair.y = @squaresY - 1 if pair.y < 0
+        # Handles wrap around of pair coordinates on the game world
+        moduloBoundaries: (pair) ->
 
-        pair
+            pair.x %= @squaresX
+            pair.y %= @squaresY
+            pair.x = @squaresX - 1 if pair.x < 0
+            pair.y = @squaresY - 1 if pair.y < 0
 
-    eachSquare: (callback) ->
+            pair
 
-        return unless @world
+        eachSquare: (callback) ->
 
-        for column, x in @world
-            for square, y in column
-                pos = new SNAKE.Pair x, y
-                callback pos, square
+            return unless @world
 
-    # Iterate over adjacent positions, taking into account wrap around
-    eachAdjacentPosition: (pos, callback) ->
+            for column, x in @world
+                for square, y in column
+                    pos = new Pair x, y
+                    callback pos, square
 
-        positions =
-            down:   new SNAKE.Pair pos.x, pos.y + 1
-            right:  new SNAKE.Pair pos.x + 1, pos.y
-            up:     new SNAKE.Pair pos.x, pos.y - 1
-            left:   new SNAKE.Pair pos.x - 1, pos.y
+        # Iterate over adjacent positions, taking into account wrap around
+        eachAdjacentPosition: (pos, callback) ->
 
-        for direction, adjacentPos of positions
-            normalizedPos = @moduloBoundaries adjacentPos
-            return if false is callback normalizedPos, direction
+            positions =
+                down:   new Pair pos.x, pos.y + 1
+                right:  new Pair pos.x + 1, pos.y
+                up:     new Pair pos.x, pos.y - 1
+                left:   new Pair pos.x - 1, pos.y
 
-    squareAt: (pos, type, value) ->
+            for direction, adjacentPos of positions
+                normalizedPos = @moduloBoundaries adjacentPos
+                return if false is callback normalizedPos, direction
 
-      return @world[pos.x][pos.y] if arguments.length is 1
-      return @world[pos.x][pos.y][type] if arguments.length is 2
-      @world[pos.x][pos.y][type] = value
+        squareAt: (pos, type, value) ->
 
-    setup: (graphics) ->
-        @graphics = graphics
+          return @world[pos.x][pos.y] if arguments.length is 1
+          return @world[pos.x][pos.y][type] if arguments.length is 2
+          @world[pos.x][pos.y][type] = value
 
-    isEmptySquare: (square) ->
+        setup: (graphics) ->
+            @graphics = graphics
 
-        for type in @squareTypes
-            return false if square[type]
-        true
+        isEmptySquare: (square) ->
 
-    registerFoodAt: (pos) ->
-        return false unless @registerSquareAt pos, 'food'
-        @foodCount += 1
-        true
+            for type in @squareTypes
+                return false if square[type]
+            true
 
-    unregisterFoodAt: (pos) ->
-        return false unless @unregisterSquareAt pos, 'food'
-        @foodCount -= 1
-        true
+        registerFoodAt: (pos) ->
+            return false unless @registerSquareAt pos, 'food'
+            @foodCount += 1
+            true
 
-    registerSquareAt: (pos, type) ->
-        return false if @squareAt pos, type
-        @squareAt pos, type, true
-        true
+        unregisterFoodAt: (pos) ->
+            return false unless @unregisterSquareAt pos, 'food'
+            @foodCount -= 1
+            true
 
-    unregisterSquareAt: (pos, type) ->
+        registerSquareAt: (pos, type) ->
+            return false if @squareAt pos, type
+            @squareAt pos, type, true
+            true
 
-        return false unless @squareHasType type, pos
-        # The square will float around invisible until the graphics module
-        # decides to clean it up
-        # TODO: Make a queue to keep track of these hidden nodes and garbage 
-        # collect them after a while or after game over
-        @graphics.hideEntity @squareAt pos, type
-        @squareAt pos, type, null
-        true
+        unregisterSquareAt: (pos, type) ->
 
-    squareHasFood: (pos) ->
-        return false unless pos
-        @squareHasType 'food', pos
+            return false unless @squareHasType type, pos
+            # The square will float around invisible until the graphics module
+            # decides to clean it up
+            # TODO: Make a queue to keep track of these hidden nodes and garbage 
+            # collect them after a while or after game over
+            @graphics.hideEntity @squareAt pos, type
+            @squareAt pos, type, null
+            true
 
-    moveSquare: (start, end, type) ->
+        squareHasFood: (pos) ->
+            return false unless pos
+            @squareHasType 'food', pos
 
-        @squareAt end, type, @squareAt start, type
-        @squareAt start, type, null
+        moveSquare: (start, end, type) ->
 
-    squareHasType: (type, pos) -> (@squareAt pos, type)?
+            @squareAt end, type, @squareAt start, type
+            @squareAt start, type, null
 
-    visibleFood: ->
+        squareHasType: (type, pos) -> (@squareAt pos, type)?
 
-        # TODO: This is kind of cheating: accessing the array implementation
-        # underneath the queue. Use the more general linked list as an
-        # implementation so that you can iterate it and still have O(1) enqueue
-        # and dequeue
-        foodPositions = []
-        for foodPos in @foodItems._queue
-            if @graphics.entityIsVisible @squareAt(foodPos).food
-                foodPositions.push foodPos
-        
-        foodPositions
+        visibleFood: ->
 
-    dropFood: (pos) =>
+            # TODO: This is kind of cheating: accessing the array implementation
+            # underneath the queue. Use the more general linked list as an
+            # implementation so that you can iterate it and still have O(1) enqueue
+            # and dequeue
+            foodPositions = []
+            for foodPos in @foodItems._queue
+                if @graphics.entityIsVisible @squareAt(foodPos).food
+                    foodPositions.push foodPos
+            
+            foodPositions
 
-        pos ?= SNAKE.Utils.randPair @squaresX - 1, @squaresY - 1
-        @foodItems.enqueue pos
-        @foodItems.dequeue() if @foodCount > @maxFood
+        dropFood: (pos) =>
 
-    toGraph: ->
+            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
+            @foodItems.enqueue pos
+            @foodItems.dequeue() if @foodCount > @maxFood
 
-        graphEdges = []
+        toGraph: ->
 
-        # TODO: Our graphEdges data structure has duplicate edges but it 
-        # doesn't matter for now
-        @eachSquare (pos) => SNAKE.Utils.concat graphEdges, @_squareToEdges pos
-        graphEdges
+            graphEdges = []
+
+            # TODO: Our graphEdges data structure has duplicate edges but it 
+            # doesn't matter for now
+            @eachSquare (pos) => Utils.concat graphEdges, @_squareToEdges pos
+            graphEdges

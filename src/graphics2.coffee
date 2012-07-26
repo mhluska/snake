@@ -1,77 +1,79 @@
-class SNAKE.Graphics2 extends SNAKE.Graphics
+define ['graphics'], (Graphics) ->
 
-    constructor: (@game, @grid, gridNode) ->
+    class Graphics2 extends Graphics
 
-        super @game, @grid
+        constructor: (@game, @grid, gridNode) ->
 
-        @grid.makeWorld()
-        @buildDOM gridNode
-        @nodeRemoveQueue = []
+            super @game, @grid
 
-    setNodePosition: (node, pos) ->
+            @grid.makeWorld()
+            @buildDOM gridNode
+            @nodeRemoveQueue = []
 
-        return unless node
-        
-        node.css
-            top: pos.y * @grid.squareHeight
-            left: pos.x * @grid.squareWidth
+        setNodePosition: (node, pos) ->
 
-        node.show()
+            return unless node
+            
+            node.css
+                top: pos.y * @grid.squareHeight
+                left: pos.x * @grid.squareWidth
 
-    update: ->
+            node.show()
 
-        @grid.eachSquare (pos, square) =>
-            for type in @grid.squareTypes
+        update: ->
 
-                # Create a new node for any nodes marked for creation
-                square[type] = @appendDOMNode pos, type if square[type] is true
-                @setNodePosition square[type], pos if square[type]
+            @grid.eachSquare (pos, square) =>
+                for type in @grid.squareTypes
 
-    buildDOMNode: (pos, type) ->
+                    # Create a new node for any nodes marked for creation
+                    square[type] = @appendDOMNode pos, type if square[type] is true
+                    @setNodePosition square[type], pos if square[type]
 
-        node = $("<div class='#{type}'></div>")
-        node.css
-            width: @grid.squareWidth
-            height: @grid.squareHeight
+        buildDOMNode: (pos, type) ->
 
-        @setNodePosition node, pos
+            node = $("<div class='#{type}'></div>")
+            node.css
+                width: @grid.squareWidth
+                height: @grid.squareHeight
 
-        node
+            @setNodePosition node, pos
 
-    appendDOMNode: (pos, type) ->
+            node
 
-        node = @buildDOMNode pos, type
-        node.appendTo @dom.grid
+        appendDOMNode: (pos, type) ->
 
-    buildDOM: (gridNode) ->
+            node = @buildDOMNode pos, type
+            node.appendTo @dom.grid
 
-        @dom = {}
-        @dom.grid = gridNode
-        @dom.grid.css
-            width: @grid.squareWidth * @grid.squaresX
-            height: @grid.squareHeight * @grid.squaresY
+        buildDOM: (gridNode) ->
 
-        $('body').prepend @dom.grid
+            @dom = {}
+            @dom.grid = gridNode
+            @dom.grid.css
+                width: @grid.squareWidth * @grid.squaresX
+                height: @grid.squareHeight * @grid.squaresY
 
-        @grid.eachSquare (pos, square) =>
+            $('body').prepend @dom.grid
 
-            return if @grid.isEmptySquare square
+            @grid.eachSquare (pos, square) =>
 
-            type = 'snake' if square.snake
-            type = 'food' if square.food
+                return if @grid.isEmptySquare square
 
-            # Set a reference to the DOM node in the world data
-            square[type] = @appendDOMNode pos, type
+                type = 'snake' if square.snake
+                type = 'food' if square.food
 
-    # TODO: These functions should belong to an Entity class (snake piece,
-    # food, etc.)
-    entityExists: (entity) ->
-        entity and (entity instanceof jQuery)
+                # Set a reference to the DOM node in the world data
+                square[type] = @appendDOMNode pos, type
 
-    entityIsVisible: (entity) ->
-        return false unless @entityExists entity
-        $(entity).is ':visible'
+        # TODO: These functions should belong to an Entity class (snake piece,
+        # food, etc.)
+        entityExists: (entity) ->
+            entity and (entity instanceof jQuery)
 
-    hideEntity: (entity) ->
-        return unless @entityExists entity
-        $(entity).hide()
+        entityIsVisible: (entity) ->
+            return false unless @entityExists entity
+            $(entity).is ':visible'
+
+        hideEntity: (entity) ->
+            return unless @entityExists entity
+            $(entity).hide()
