@@ -16,12 +16,7 @@ class window.Test
         # Class accessor. Kind of like '@@' in Ruby
         @.class = (Object.getPrototypeOf @).constructor
 
-        @_overrideRequireJS()
-
         @_runTests()
-
-    # TODO: Allow the user to specify whether they are using 
-    _overrideRequireJS: ->
 
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->

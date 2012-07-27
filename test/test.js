@@ -18,11 +18,8 @@
         }
       }
       this["class"] = (Object.getPrototypeOf(this)).constructor;
-      this._overrideRequireJS();
       this._runTests();
     }
-
-    Test.prototype._overrideRequireJS = function() {};
 
     Test.prototype._formatTestName = function(name) {
       if (name.substring(0, 4).toLowerCase() === 'test') {
