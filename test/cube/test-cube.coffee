@@ -1,9 +1,4 @@
-'import game'
-'import snake'
-'import grid'
-'import graph'
-'import graphics3'
-'import cube'
+'import require-jquery'
 
 class window.TestCube extends Test
 
@@ -14,8 +9,6 @@ class window.TestCube extends Test
 
     testMakeCube: ->
 
-        # TODO: This fails because the Game module uses an asynchronous call to 
-        # get the Three.js library
         game = new SNAKE.Game '#game', debugStep: true
         @show game.grid.faces, 'Faces:'
 

@@ -1,12 +1,13 @@
-'import game'
-'import utils'
-'import graph'
+'import require-jquery'
 
 class window.TestGraph extends Test
 
+    @before: (start) ->
+        require ['../src/graph'], (@Graph) -> start()
+
     runDijkstras: (edges, start, ends, expected, message = null) ->
 
-        graph = new SNAKE.Graph edges
+        graph = new TestGraph.Graph edges
 
         dijkstras = graph.dijkstras start, ends...
         @show dijkstras, "Result of Dijkstra's algorithm:"
@@ -26,7 +27,7 @@ class window.TestGraph extends Test
 
         @show edgeWeights, "Edge weights:"
 
-        graph = new SNAKE.Graph edgeWeights
+        graph = new TestGraph.Graph edgeWeights
 
         @show graph._neighbours, "Internal neighbours object:"
         @show graph.vertices(), 'Vertices:'
