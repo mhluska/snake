@@ -18,8 +18,11 @@
         }
       }
       this["class"] = (Object.getPrototypeOf(this)).constructor;
+      this._overrideRequireJS();
       this._runTests();
     }
+
+    Test.prototype._overrideRequireJS = function() {};
 
     Test.prototype._formatTestName = function(name) {
       if (name.substring(0, 4).toLowerCase() === 'test') {
@@ -100,32 +103,36 @@
     };
 
     Test.prototype._runTests = function() {
-      var prop, _base, _base1;
+      var _this = this;
       if (!this._formatTestName(this["class"].name)) {
         return;
       }
-      console.warn("Testing module: " + (this._formatTestName(this["class"].name)));
-      console.log('');
-      if (typeof (_base = this["class"]).before === "function") {
-        _base.before();
-      }
-      for (prop in this) {
-        if (prop.substring(0, 4) === 'test' && typeof this[prop] === 'function') {
-          console.warn("Running test: " + (this._formatTestName(prop)));
-          if (typeof this.before === "function") {
-            this.before();
+      return this["class"].before(function() {
+        var prop, _base;
+        console.warn("Testing module: " + (_this._formatTestName(_this["class"].name)));
+        console.log('');
+        for (prop in _this) {
+          if (prop.substring(0, 4) === 'test' && typeof _this[prop] === 'function') {
+            console.warn("Running test: " + (_this._formatTestName(prop)));
+            if (typeof _this.before === "function") {
+              _this.before();
+            }
+            _this[prop]();
+            if (typeof _this.after === "function") {
+              _this.after();
+            }
+            console.log('');
           }
-          this[prop]();
-          if (typeof this.after === "function") {
-            this.after();
-          }
-          console.log('');
         }
-      }
-      if (typeof (_base1 = this["class"]).after === "function") {
-        _base1.after();
-      }
-      return console.log('');
+        if (typeof (_base = _this["class"]).after === "function") {
+          _base.after();
+        }
+        return console.log('');
+      });
+    };
+
+    Test.prototype.before = function(start) {
+      return start();
     };
 
     Test.prototype.show = function(value, message) {

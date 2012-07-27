@@ -16,7 +16,12 @@ class window.Test
         # Class accessor. Kind of like '@@' in Ruby
         @.class = (Object.getPrototypeOf @).constructor
 
+        @_overrideRequireJS()
+
         @_runTests()
+
+    # TODO: Allow the user to specify whether they are using 
+    _overrideRequireJS: ->
 
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->
@@ -73,21 +78,25 @@ class window.Test
 
         return unless @_formatTestName @.class.name
 
-        console.warn "Testing module: #{@_formatTestName @.class.name}"
-        console.log ''
+        @.class.before =>
 
-        @.class.before?()
+            console.warn "Testing module: #{@_formatTestName @.class.name}"
+            console.log ''
 
-        for prop of @
-            if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
-                console.warn "Running test: #{@_formatTestName prop}"
-                @.before?()
-                @[prop]()
-                @.after?()
-                console.log ''
+            for prop of @
+                if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
+                    console.warn "Running test: #{@_formatTestName prop}"
+                    @.before?()
+                    @[prop]()
+                    @.after?()
+                    console.log ''
 
-        @.class.after?()
-        console.log ''
+            @.class.after?()
+            console.log ''
+
+    # This function can be overriden with some asynchronous initialization. It
+    # must execute the start callback once the initialization finishes.
+    before: (start) -> start()
 
     show: (value, message) ->
 
