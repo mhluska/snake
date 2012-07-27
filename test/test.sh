@@ -104,13 +104,13 @@ DEPENDENCIES=$(remove_duplicates "${DEPENDENCIES}")
 
 read -d '' HTML << EOF
 <!DOCTYPE html>
-    <head></head>
-    <body>
-        <script src='test.js'></script>
+    <head>
         $(build_dependency_html "${DEPENDENCIES}")
+        <script src='test.js'></script>
         ${SCRIPTS}
         <script>${JS_CODE}</script>
-    </body>
+    </head>
+    <body></body>
 </html>
 EOF
 
