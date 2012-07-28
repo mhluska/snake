@@ -107,13 +107,17 @@ touch config.js
 read -d '' HTML << EOF
 <!DOCTYPE html>
     <head>
+        <link rel="stylesheet" type="text/css" href="test.css" />
+        <script src='mustache-min.js'></script>
         $(build_dependency_html "${DEPENDENCIES}")
         <script src='config.js'></script>
         <script src='test.js'></script>
         ${SCRIPTS}
         <script>${JS_CODE}</script>
     </head>
-    <body></body>
+    <body>
+        $(cat templates.html)
+    </body>
 </html>
 EOF
 

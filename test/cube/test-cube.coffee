@@ -12,8 +12,13 @@ class window.TestCube extends Test
 
             start()
 
+    @after: (start) ->
+        $('#game').remove()
+        $('link').last().remove()
+        start()
+
     testMakeCube: ->
 
         game = new TestCube.Game '#game', debugStep: true
-        @show game.grid.faces, 'Faces:'
+        # @show game.grid.faces, 'Faces:'
 

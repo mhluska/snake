@@ -25,12 +25,17 @@
       });
     };
 
+    TestCube.after = function(start) {
+      $('#game').remove();
+      $('link').last().remove();
+      return start();
+    };
+
     TestCube.prototype.testMakeCube = function() {
       var game;
-      game = new TestCube.Game('#game', {
+      return game = new TestCube.Game('#game', {
         debugStep: true
       });
-      return this.show(game.grid.faces, 'Faces:');
     };
 
     return TestCube;

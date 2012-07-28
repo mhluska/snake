@@ -20,9 +20,10 @@ class window.TestGrid extends Test
 
             start()
 
-    @after: ->
+    @after: (start) ->
         $('#game').remove()
         $('link').last().remove()
+        start()
 
     before: ->
 

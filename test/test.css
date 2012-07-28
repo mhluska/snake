@@ -1,0 +1,24 @@
+.test-results {
+    margin-bottom: 40px;
+}
+
+.test-results h1 {
+    font-size: 1.7em;
+}
+
+.test-results h2 {
+    font-size: 1.2em;
+}
+
+.test-results p {
+    font-size: 0.9em;
+    margin: 0 0 10px 0;
+}
+
+.test-results {
+    font-family: Arial, sans-serif;
+    color: #111;
+}
+
+.test-results #tmpl-module-title {
+}

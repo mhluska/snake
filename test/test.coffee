@@ -13,14 +13,21 @@ class window.Test
                     # May break if the constructor has been tampered with
                     return object.constructor.prototype
 
+        @_outputBuffer = []
+
         # Class accessor. Kind of like '@@' in Ruby
         @.class = (Object.getPrototypeOf @).constructor
 
+        @_origBefore = @before
+        @_origAfter = @after
+
         @_runTests()
 
-    # This function can be overriden with some asynchronous initialization. It
+    # @before and @after can be overriden with asynchronous initialization. It
     # must execute the start callback once the initialization finishes.
     @before: (start) -> start()
+
+    @after: (start) -> start()
 
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->
@@ -79,23 +86,52 @@ class window.Test
 
         @.class.before =>
 
+            @_writeModuleName "Testing module: #{@_formatTestName @.class.name}"
             console.warn "Testing module: #{@_formatTestName @.class.name}"
             console.log ''
 
             for prop of @
                 if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
+                    @_writeTestName "Running test: #{@_formatTestName prop}"
                     console.warn "Running test: #{@_formatTestName prop}"
                     @.before?()
                     @[prop]()
                     @.after?()
                     console.log ''
 
-            @.class.after?()
-            console.log ''
+            @.class.after =>
+
+                console.log ''
+                @_flushBuffer()
+
+    _write: (templateName, string) ->
+
+        template = document.getElementById "tmpl-#{templateName}"
+        @_outputBuffer.push Mustache.render template.innerHTML, text: string
+
+    _writeModuleName: (string) -> @_write 'module-title', string
+
+    _writeTestName: (string) -> @_write 'test-title', string
+
+    _writeMessage: (string) -> @_write 'message', string
+
+    _writeError: (string) -> @_write 'error', string
+
+    _flushBuffer: ->
+
+        results = document.createElement 'DIV'
+        results.className = 'test-results'
+        results.innerHTML = @_outputBuffer.join ''
+        document.body.appendChild results
+        @_outputBuffer = []
 
     show: (value, message) ->
 
+        return unless arguments.length > 0
+
+        @_writeMessage message if message
         console.log message if message
+        @_writeMessage value
         console.log value
 
     assert: (bool, message) ->
@@ -117,6 +153,7 @@ class window.Test
         errorMessage = "#{clean}: Test failed"
         errorMessage += ": #{message}" if message
 
+        @_writeError errorMessage
         console.error errorMessage
 
     equals: (value1, value2) ->

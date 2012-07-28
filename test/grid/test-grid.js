@@ -31,9 +31,10 @@
       });
     };
 
-    TestGrid.after = function() {
+    TestGrid.after = function(start) {
       $('#game').remove();
-      return $('link').last().remove();
+      $('link').last().remove();
+      return start();
     };
 
     TestGrid.prototype.before = function() {

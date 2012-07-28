@@ -17,11 +17,18 @@
           };
         }
       }
+      this._outputBuffer = [];
       this["class"] = (Object.getPrototypeOf(this)).constructor;
+      this._origBefore = this.before;
+      this._origAfter = this.after;
       this._runTests();
     }
 
     Test.before = function(start) {
+      return start();
+    };
+
+    Test.after = function(start) {
       return start();
     };
 
@@ -109,11 +116,13 @@
         return;
       }
       return this["class"].before(function() {
-        var prop, _base;
+        var prop;
+        _this._writeModuleName("Testing module: " + (_this._formatTestName(_this["class"].name)));
         console.warn("Testing module: " + (_this._formatTestName(_this["class"].name)));
         console.log('');
         for (prop in _this) {
           if (prop.substring(0, 4) === 'test' && typeof _this[prop] === 'function') {
+            _this._writeTestName("Running test: " + (_this._formatTestName(prop)));
             console.warn("Running test: " + (_this._formatTestName(prop)));
             if (typeof _this.before === "function") {
               _this.before();
@@ -125,17 +134,57 @@
             console.log('');
           }
         }
-        if (typeof (_base = _this["class"]).after === "function") {
-          _base.after();
-        }
-        return console.log('');
+        return _this["class"].after(function() {
+          console.log('');
+          return _this._flushBuffer();
+        });
       });
     };
 
+    Test.prototype._write = function(templateName, string) {
+      var template;
+      template = document.getElementById("tmpl-" + templateName);
+      return this._outputBuffer.push(Mustache.render(template.innerHTML, {
+        text: string
+      }));
+    };
+
+    Test.prototype._writeModuleName = function(string) {
+      return this._write('module-title', string);
+    };
+
+    Test.prototype._writeTestName = function(string) {
+      return this._write('test-title', string);
+    };
+
+    Test.prototype._writeMessage = function(string) {
+      return this._write('message', string);
+    };
+
+    Test.prototype._writeError = function(string) {
+      return this._write('error', string);
+    };
+
+    Test.prototype._flushBuffer = function() {
+      var results;
+      results = document.createElement('DIV');
+      results.className = 'test-results';
+      results.innerHTML = this._outputBuffer.join('');
+      document.body.appendChild(results);
+      return this._outputBuffer = [];
+    };
+
     Test.prototype.show = function(value, message) {
+      if (!(arguments.length > 0)) {
+        return;
+      }
+      if (message) {
+        this._writeMessage(message);
+      }
       if (message) {
         console.log(message);
       }
+      this._writeMessage(value);
       return console.log(value);
     };
 
@@ -159,6 +208,7 @@
       if (message) {
         errorMessage += ": " + message;
       }
+      this._writeError(errorMessage);
       return console.error(errorMessage);
     };
 
