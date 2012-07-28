@@ -18,6 +18,10 @@ class window.Test
 
         @_runTests()
 
+    # This function can be overriden with some asynchronous initialization. It
+    # must execute the start callback once the initialization finishes.
+    @before: (start) -> start()
+
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->
 
@@ -88,10 +92,6 @@ class window.Test
 
             @.class.after?()
             console.log ''
-
-    # This function can be overriden with some asynchronous initialization. It
-    # must execute the start callback once the initialization finishes.
-    before: (start) -> start()
 
     show: (value, message) ->
 

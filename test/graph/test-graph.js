@@ -15,8 +15,9 @@
     }
 
     TestGraph.before = function(start) {
-      return require(['../src/graph'], function(Graph) {
-        this.Graph = Graph;
+      var _this = this;
+      return require(['src/graph'], function(Graph) {
+        _this.Graph = Graph;
         return start();
       });
     };

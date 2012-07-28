@@ -3,7 +3,8 @@
 class window.TestGraph extends Test
 
     @before: (start) ->
-        require ['../src/graph'], (@Graph) -> start()
+
+        require ['src/graph'], (@Graph) => start()
 
     runDijkstras: (edges, start, ends, expected, message = null) ->
 

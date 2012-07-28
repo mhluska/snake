@@ -2,13 +2,18 @@
 
 class window.TestCube extends Test
 
-    @before: ->
-        linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
-        $('head').append linkHtml
-        $('body').prepend '<div id="game"></div>'
+    @before: (start) ->
+
+        require ['src/game'], (@Game) =>
+
+            linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
+            $('head').append linkHtml
+            $('body').prepend '<div id="game"></div>'
+
+            start()
 
     testMakeCube: ->
 
-        game = new SNAKE.Game '#game', debugStep: true
+        game = new TestCube.Game '#game', debugStep: true
         @show game.grid.faces, 'Faces:'
 

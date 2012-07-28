@@ -21,6 +21,10 @@
       this._runTests();
     }
 
+    Test.before = function(start) {
+      return start();
+    };
+
     Test.prototype._formatTestName = function(name) {
       if (name.substring(0, 4).toLowerCase() === 'test') {
         name = name.substring(4);
@@ -126,10 +130,6 @@
         }
         return console.log('');
       });
-    };
-
-    Test.prototype.before = function(start) {
-      return start();
     };
 
     Test.prototype.show = function(value, message) {

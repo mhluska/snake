@@ -15,23 +15,6 @@
 
     TestGrid.before = function(start) {
       var _this = this;
-      require.config({
-        baseUrl: '../',
-        map: {
-          '*': {
-            game: 'src/game',
-            snake: 'src/snake',
-            utils: 'src/utils',
-            pair: 'src/pair',
-            grid: 'src/grid',
-            foodqueue: 'src/foodqueue',
-            queue: 'src/queue',
-            graph: 'src/graph',
-            graphics2: 'src/graphics2',
-            graphics: 'src/graphics'
-          }
-        }
-      });
       return require(['src/grid', 'src/game2', 'src/pair'], function(Grid, Game, Pair) {
         var linkHtml;
         _this.Grid = Grid;

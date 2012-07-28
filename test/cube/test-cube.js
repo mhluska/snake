@@ -13,16 +13,21 @@
       return TestCube.__super__.constructor.apply(this, arguments);
     }
 
-    TestCube.before = function() {
-      var linkHtml;
-      linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />';
-      $('head').append(linkHtml);
-      return $('body').prepend('<div id="game"></div>');
+    TestCube.before = function(start) {
+      var _this = this;
+      return require(['src/game'], function(Game) {
+        var linkHtml;
+        _this.Game = Game;
+        linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />';
+        $('head').append(linkHtml);
+        $('body').prepend('<div id="game"></div>');
+        return start();
+      });
     };
 
     TestCube.prototype.testMakeCube = function() {
       var game;
-      game = new SNAKE.Game('#game', {
+      game = new TestCube.Game('#game', {
         debugStep: true
       });
       return this.show(game.grid.faces, 'Faces:');

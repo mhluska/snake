@@ -84,7 +84,7 @@ build_dependency_html() {
 SCRIPTS=
 JS_CODE=
 DEPENDENCIES=
-for COFFEE_FILE in `find . -type f -name '*.coffee' | grep -v 'test\.coffee'`; do
+for COFFEE_FILE in `find . -mindepth 2 -type f -name '*.coffee' | grep -v 'test\.coffee'`; do
 
     CLASS_NAME=$(perl -n -e '/class ([\w.]+)/ && print $1' ${COFFEE_FILE})
     JS_CODE="${JS_CODE}new ${CLASS_NAME}; "
@@ -102,10 +102,13 @@ done
 JS_CODE=${JS_CODE%?}
 DEPENDENCIES=$(remove_duplicates "${DEPENDENCIES}")
 
+touch config.js
+
 read -d '' HTML << EOF
 <!DOCTYPE html>
     <head>
         $(build_dependency_html "${DEPENDENCIES}")
+        <script src='config.js'></script>
         <script src='test.js'></script>
         ${SCRIPTS}
         <script>${JS_CODE}</script>
