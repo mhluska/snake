@@ -14,14 +14,12 @@ define [
         constructor: (selector, settings = {}) ->
             
             @stepCount = 0
-            @foodCount = 0
             @stepsPerFood = 20
             @timeStepRate = 100
 
             # These are set by subclasses
             @grid = null
             @graphics = null
-            @foodItems = null
 
             @gameIntervalID = null
 
@@ -38,8 +36,8 @@ define [
         _startGame: ->
             # Don't modify foodCount manually. This is handled by unregisterFoodAt 
             # and registerFoodAt in grid
-            @foodCount = 0
-            @foodItems = new FoodQueue @grid
+            @grid.foodCount = 0
+            @grid.foodItems = new FoodQueue @grid
 
             @snake.setup @grid
 
@@ -53,25 +51,12 @@ define [
 
         _gameLoop: =>
 
-            @dropFood() if (@stepCount % @stepsPerFood) is 0
+            @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
 
             @snake.move()
             @graphics.update()
 
             @stepCount += 1
-
-        visibleFood: ->
-
-            # TODO: This is kind of cheating: accessing the array 
-            # implementation underneath the queue. Use the more general linked 
-            # list as an implementation so that you can iterate it and still 
-            # have O(1) enqueue and dequeue
-            foodPositions = []
-            for foodPos in @foodItems._queue
-                if @graphics.entityIsVisible @grid.squareAt(foodPos).food
-                    foodPositions.push foodPos
-            
-            foodPositions
 
         restart: ->
             @snake = @grid.snake = new Snake @

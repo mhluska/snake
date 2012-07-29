@@ -2,10 +2,9 @@ define [
     
     'game'
     'cube'
-    'utils'
     'graphics3'
 
-    ], (Game, Cube, Utils, Graphics3) ->
+    ], (Game, Cube, Graphics3) ->
 
     class Game3 extends Game
 
@@ -13,16 +12,8 @@ define [
 
             super selector, settings
             
-            @cube = new Cube @
+            @grid = new Cube @
 
-            @maxFood = 24
-            @foodItems = null
-
-            @graphics = new Graphics3 @, @cube
+            @graphics = new Graphics3 @, @grid
             @_startGame()
 
-        dropFood: ->
-
-            # Drop the food on a random face
-            index = Utils.randInt 0, 5
-            @cube.faces[index].dropFood()

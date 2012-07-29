@@ -1,10 +1,11 @@
-define ['grid', 'graph'], (Grid, Graph) ->
+define ['grid', 'graph', 'utils'], (Grid, Graph, Utils) ->
 
     class Cube
 
         constructor: (@game, @length = 15) ->
 
             @faces = (new Grid(game, @length, @length) for index in [0..5])
+            @maxFood = 24
 
             # Create a graph to model face connections
             @cubeGraph = new Graph [
@@ -18,4 +19,8 @@ define ['grid', 'graph'], (Grid, Graph) ->
 
         registerSquareAt: ->
 
+        dropFood: ->
 
+            # Drop the food on a random face
+            index = Utils.randInt 0, 5
+            @faces[index].dropFood()

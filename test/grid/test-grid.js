@@ -47,7 +47,7 @@
       var coords, foodPos, _i, _len;
       this.game.restart();
       this.game._gameLoop();
-      this.game.foodItems.dequeue();
+      this.grid.foodItems.dequeue();
       for (_i = 0, _len = coordsArray.length; _i < _len; _i++) {
         coords = coordsArray[_i];
         foodPos = new TestGrid.Pair(coords[0], coords[1]);
@@ -59,10 +59,10 @@
     TestGrid.prototype.testRestarts = function() {
       this.game.restart();
       this.game._gameLoop();
-      this.game.foodItems.dequeue();
-      this.game.dropFood(new TestGrid.Pair(5, 5));
-      this.game.dropFood(new TestGrid.Pair(5, 6));
-      this.game.dropFood(new TestGrid.Pair(5, 6));
+      this.grid.foodItems.dequeue();
+      this.grid.dropFood(new TestGrid.Pair(5, 5));
+      this.grid.dropFood(new TestGrid.Pair(5, 6));
+      this.grid.dropFood(new TestGrid.Pair(5, 6));
       this.game._gameLoop();
       this.game.restart();
       this.game.restart();

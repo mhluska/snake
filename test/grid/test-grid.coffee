@@ -37,7 +37,7 @@ class window.TestGrid extends Test
 
         # Remove the first randomly-generated food item
         @game._gameLoop()
-        @game.foodItems.dequeue()
+        @grid.foodItems.dequeue()
 
         # Drop a few pieces of food
         for coords in coordsArray
@@ -50,10 +50,10 @@ class window.TestGrid extends Test
 
         @game.restart()
         @game._gameLoop()
-        @game.foodItems.dequeue()
-        @game.dropFood new TestGrid.Pair 5, 5
-        @game.dropFood new TestGrid.Pair 5, 6
-        @game.dropFood new TestGrid.Pair 5, 6
+        @grid.foodItems.dequeue()
+        @grid.dropFood new TestGrid.Pair 5, 5
+        @grid.dropFood new TestGrid.Pair 5, 6
+        @grid.dropFood new TestGrid.Pair 5, 6
         @game._gameLoop()
         @game.restart()
         @game.restart()

@@ -9,6 +9,10 @@ define ['pair', 'utils'], (Pair, Utils) ->
             @squareWidth = 15
             @squareHeight = 15
 
+            @foodCount = 0
+            @maxFood = 4
+            @foodItems = null
+
             @squareTypes = ['food', 'snake']
 
             @world = null
@@ -26,6 +30,25 @@ define ['pair', 'utils'], (Pair, Utils) ->
 
         _unregisterAllTypesAt: (pos) ->
             @unregisterSquareAt pos, type for type in @squareTypes
+
+        visibleFood: ->
+
+            # TODO: This is kind of cheating: accessing the array 
+            # implementation underneath the queue. Use the more general linked 
+            # list as an implementation so that you can iterate it and still 
+            # have O(1) enqueue and dequeue
+            foodPositions = []
+            for foodPos in @foodItems._queue
+                if @graphics.entityIsVisible @squareAt(foodPos).food
+                    foodPositions.push foodPos
+            
+            foodPositions
+
+        dropFood: (pos) =>
+
+            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
+            @foodItems.enqueue pos
+            @foodItems.dequeue() if @foodCount > @maxFood
 
         makeWorld: ->
             @eachSquare (pos) => @_unregisterAllTypesAt pos

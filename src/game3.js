@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['game', 'cube', 'utils', 'graphics3'], function(Game, Cube, Utils, Graphics3) {
+  define(['game', 'cube', 'graphics3'], function(Game, Cube, Graphics3) {
     var Game3;
     return Game3 = (function(_super) {
 
@@ -14,18 +14,10 @@
           settings = {};
         }
         Game3.__super__.constructor.call(this, selector, settings);
-        this.cube = new Cube(this);
-        this.maxFood = 24;
-        this.foodItems = null;
-        this.graphics = new Graphics3(this, this.cube);
+        this.grid = new Cube(this);
+        this.graphics = new Graphics3(this, this.grid);
         this._startGame();
       }
-
-      Game3.prototype.dropFood = function() {
-        var index;
-        index = Utils.randInt(0, 5);
-        return this.cube.faces[index].dropFood();
-      };
 
       return Game3;
 
