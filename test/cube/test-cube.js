@@ -33,9 +33,21 @@
 
     TestCube.prototype.testMakeCube = function() {
       var game;
-      return game = new TestCube.Game('#game', {
+      game = new TestCube.Game('#game', {
         debugStep: true
       });
+      this.show(game.grid.faces, 'Faces:');
+      this.assert(game.grid.faces);
+      this.show(game.grid.cubeGraph, 'Face graph:');
+      return this.assert(game.grid.cubeGraph);
+    };
+
+    TestCube.prototype.testGameStep = function() {
+      var game;
+      game = new TestCube.Game('#game', {
+        debugStep: true
+      });
+      return game._gameLoop();
     };
 
     return TestCube;

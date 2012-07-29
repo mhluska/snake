@@ -2,9 +2,10 @@ define [
     
     'game'
     'grid'
+    'utils'
     'graphics2'
 
-    ], (Game, Grid, Graphics2) ->
+    ], (Game, Grid, Utils, Graphics2) ->
 
     class Game2 extends Game
 
@@ -14,6 +15,17 @@ define [
             
             # TODO: Load stylesheet only if were using DOM
             @grid = new Grid @
+
+            @maxFood = 4
+            @foodItems = null
+
             @graphics = new Graphics2 @, @grid, $(selector).eq(0)
             @_startGame()
+
+        dropFood: (pos) =>
+
+            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
+            @foodItems.enqueue pos
+            @foodItems.dequeue() if @foodCount > @maxFood
+
 

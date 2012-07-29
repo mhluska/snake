@@ -14,8 +14,12 @@
         this._gameLoop = __bind(this._gameLoop, this);
 
         this.stepCount = 0;
+        this.foodCount = 0;
         this.stepsPerFood = 20;
         this.timeStepRate = 100;
+        this.grid = null;
+        this.graphics = null;
+        this.foodItems = null;
         this.gameIntervalID = null;
         defaults = {
           debugPrint: false,
@@ -32,8 +36,8 @@
       }
 
       Game.prototype._startGame = function() {
-        this.grid.foodCount = 0;
-        this.grid.foodItems = new FoodQueue(this.grid);
+        this.foodCount = 0;
+        this.foodItems = new FoodQueue(this.grid);
         this.snake.setup(this.grid);
         this.stepCount = 0;
         if (this.debugStep) {
@@ -51,6 +55,19 @@
         this.snake.move();
         this.graphics.update();
         return this.stepCount += 1;
+      };
+
+      Game.prototype.visibleFood = function() {
+        var foodPos, foodPositions, _i, _len, _ref;
+        foodPositions = [];
+        _ref = this.foodItems._queue;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          foodPos = _ref[_i];
+          if (this.graphics.entityIsVisible(this.grid.squareAt(foodPos).food)) {
+            foodPositions.push(foodPos);
+          }
+        }
+        return foodPositions;
       };
 
       Game.prototype.restart = function() {

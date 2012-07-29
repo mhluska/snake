@@ -11,10 +11,6 @@ define ['pair', 'utils'], (Pair, Utils) ->
 
             @squareTypes = ['food', 'snake']
 
-            @maxFood = 4
-            @foodCount = 0
-            @foodItems = null
-
             @world = null
 
         _squareToEdges: (pos) =>
@@ -118,25 +114,6 @@ define ['pair', 'utils'], (Pair, Utils) ->
             @squareAt start, type, null
 
         squareHasType: (type, pos) -> (@squareAt pos, type)?
-
-        visibleFood: ->
-
-            # TODO: This is kind of cheating: accessing the array implementation
-            # underneath the queue. Use the more general linked list as an
-            # implementation so that you can iterate it and still have O(1) enqueue
-            # and dequeue
-            foodPositions = []
-            for foodPos in @foodItems._queue
-                if @graphics.entityIsVisible @squareAt(foodPos).food
-                    foodPositions.push foodPos
-            
-            foodPositions
-
-        dropFood: (pos) =>
-
-            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
-            @foodItems.enqueue pos
-            @foodItems.dequeue() if @foodCount > @maxFood
 
         toGraph: ->
 

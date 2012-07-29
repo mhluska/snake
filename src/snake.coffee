@@ -103,7 +103,7 @@ define ['queue', 'pair', 'graph'], (Queue, Pair, Graph) ->
 
         _findFoodPath: ->
 
-            foodPositions = @grid.visibleFood().map (food) -> food.toString()
+            foodPositions = @game.visibleFood().map (food) -> food.toString()
             return [] unless foodPositions.length
 
             graph = new Graph @grid.toGraph()

@@ -20,5 +20,14 @@ class window.TestCube extends Test
     testMakeCube: ->
 
         game = new TestCube.Game '#game', debugStep: true
-        # @show game.grid.faces, 'Faces:'
 
+        @show game.grid.faces, 'Faces:'
+        @assert game.grid.faces
+
+        @show game.grid.cubeGraph, 'Face graph:'
+        @assert game.grid.cubeGraph
+
+    testGameStep: ->
+
+        game = new TestCube.Game '#game', debugStep: true
+        game._gameLoop()
