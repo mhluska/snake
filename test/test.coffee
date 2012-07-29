@@ -132,10 +132,11 @@ class window.Test
         results.innerHTML = @_outputBuffer.join ''
         document.body.appendChild results
 
-        # setTimeout of 0ms works around not scrolling to bottom
+        # TODO: Find a way to do this without setTimeout
+        # setTimeout works around not scrolling to bottom
         setTimeout ->
             window.scroll 0, document.body.scrollHeight
-        , 0
+        , 1
 
         @_outputBuffer = []
 

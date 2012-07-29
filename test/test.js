@@ -179,7 +179,7 @@
       document.body.appendChild(results);
       setTimeout(function() {
         return window.scroll(0, document.body.scrollHeight);
-      }, 0);
+      }, 1);
       return this._outputBuffer = [];
     };
 
