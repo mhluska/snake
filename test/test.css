@@ -25,3 +25,7 @@
     font-size: 0.9em;
     margin: 0 0 10px 0;
 }
+
+.test-results .error {
+    color: #e70d0d;
+}

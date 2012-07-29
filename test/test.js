@@ -124,12 +124,18 @@
           if (prop.substring(0, 4) === 'test' && typeof _this[prop] === 'function') {
             _this._writeTestName("Running test: " + (_this._formatTestName(prop)));
             console.warn("Running test: " + (_this._formatTestName(prop)));
-            if (typeof _this.before === "function") {
-              _this.before();
-            }
-            _this[prop]();
-            if (typeof _this.after === "function") {
-              _this.after();
+            try {
+              if (typeof _this.before === "function") {
+                _this.before();
+              }
+              _this[prop]();
+              if (typeof _this.after === "function") {
+                _this.after();
+              }
+            } catch (error) {
+              _this._writeError(error.message);
+              _this._flushBuffer();
+              throw error;
             }
             console.log('');
           }
@@ -171,6 +177,9 @@
       results.className = 'test-results';
       results.innerHTML = this._outputBuffer.join('');
       document.body.appendChild(results);
+      setTimeout(function() {
+        return window.scroll(0, document.body.scrollHeight);
+      }, 0);
       return this._outputBuffer = [];
     };
 

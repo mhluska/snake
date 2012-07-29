@@ -94,9 +94,17 @@ class window.Test
                 if prop.substring(0, 4) is 'test' and typeof @[prop] is 'function'
                     @_writeTestName "Running test: #{@_formatTestName prop}"
                     console.warn "Running test: #{@_formatTestName prop}"
-                    @.before?()
-                    @[prop]()
-                    @.after?()
+
+                    try
+                        @.before?()
+                        @[prop]()
+                        @.after?()
+
+                    catch error
+                        @_writeError error.message
+                        @_flushBuffer()
+                        throw error
+
                     console.log ''
 
             @.class.after =>
@@ -123,6 +131,12 @@ class window.Test
         results.className = 'test-results'
         results.innerHTML = @_outputBuffer.join ''
         document.body.appendChild results
+
+        # setTimeout of 0ms works around not scrolling to bottom
+        setTimeout ->
+            window.scroll 0, document.body.scrollHeight
+        , 0
+
         @_outputBuffer = []
 
     show: (value, message) ->
