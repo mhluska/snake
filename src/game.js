@@ -50,7 +50,7 @@
 
       Game.prototype._gameLoop = function() {
         if ((this.stepCount % this.stepsPerFood) === 0) {
-          this.grid.dropFood();
+          this.dropFood();
         }
         this.snake.move();
         this.graphics.update();

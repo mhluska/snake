@@ -26,7 +26,7 @@
 
       Game2.prototype.dropFood = function(pos) {
         if (pos == null) {
-          pos = Utils.randPair(this.squaresX - 1, this.squaresY - 1);
+          pos = Utils.randPair(this.grid.squaresX - 1, this.grid.squaresY - 1);
         }
         this.foodItems.enqueue(pos);
         if (this.foodCount > this.maxFood) {

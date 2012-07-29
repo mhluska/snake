@@ -24,7 +24,7 @@ define [
 
         dropFood: (pos) =>
 
-            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
+            pos ?= Utils.randPair @grid.squaresX - 1, @grid.squaresY - 1
             @foodItems.enqueue pos
             @foodItems.dequeue() if @foodCount > @maxFood
 

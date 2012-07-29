@@ -53,7 +53,7 @@ define [
 
         _gameLoop: =>
 
-            @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
+            @dropFood() if (@stepCount % @stepsPerFood) is 0
 
             @snake.move()
             @graphics.update()
