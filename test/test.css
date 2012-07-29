@@ -1,24 +1,27 @@
 .test-results {
-    margin-bottom: 40px;
+    font-family: 'Open Sans', Arial, sans-serif;
+    padding: 40px;
+    color: #111;
+    border-bottom: 8px solid #eee;
+}
+
+.test-results:last-child {
+    border: none;
 }
 
 .test-results h1 {
+    margin-top: 0;
+    padding-top: 0;
     font-size: 1.7em;
+    font-weight: 700;
 }
 
 .test-results h2 {
-    font-size: 1.2em;
+    font-size: 1.1em;
+    font-weight: 600;
 }
 
 .test-results p {
     font-size: 0.9em;
     margin: 0 0 10px 0;
-}
-
-.test-results {
-    font-family: Arial, sans-serif;
-    color: #111;
-}
-
-.test-results #tmpl-module-title {
 }

@@ -15,7 +15,7 @@
 
     TestCube.before = function(start) {
       var _this = this;
-      return require(['src/game'], function(Game) {
+      return require(['src/game3'], function(Game) {
         var linkHtml;
         _this.Game = Game;
         linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />';

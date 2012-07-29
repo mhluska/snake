@@ -107,6 +107,7 @@ touch config.js
 read -d '' HTML << EOF
 <!DOCTYPE html>
     <head>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="test.css" />
         <script src='mustache-min.js'></script>
         $(build_dependency_html "${DEPENDENCIES}")
