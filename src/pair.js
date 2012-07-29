@@ -5,19 +5,16 @@
     var Pair;
     return Pair = (function() {
 
-      function Pair(x, y) {
+      function Pair(x, y, faceIndex) {
         var _ref;
-        if (x == null) {
-          x = 0;
-        }
-        if (y == null) {
-          y = 0;
-        }
-        if (arguments.length === 2) {
+        this.x = x != null ? x : 0;
+        this.y = y != null ? y : 0;
+        this.faceIndex = faceIndex != null ? faceIndex : 0;
+        if (arguments.length > 1) {
           _ref = [x, y], this.x = _ref[0], this.y = _ref[1];
-          return;
+        } else if (arguments.length === 1) {
+          this._parsePairString(x);
         }
-        this._parsePairString(x);
       }
 
       Pair.prototype._parsePairString = function(string) {
@@ -28,26 +25,26 @@
       };
 
       Pair.prototype.clone = function() {
-        return new Pair(this.x, this.y);
+        return new Pair(this.x, this.y, this.faceIndex);
       };
 
       Pair.prototype.copy = function(pair) {
+        var _ref;
         if (!pair) {
           return;
         }
-        this.x = pair.x;
-        return this.y = pair.y;
+        return _ref = [pair.x, pair.y, pair.faceIndex], this.x = _ref[0], this.y = _ref[1], this.faceIndex = _ref[2], _ref;
       };
 
       Pair.prototype.equals = function(pair) {
         if (!pair) {
           return false;
         }
-        return this.x === pair.x && this.y === pair.y;
+        return this.x === pair.x && this.y === pair.y && this.faceIndex === pair.faceIndex;
       };
 
       Pair.prototype.toString = function() {
-        return "(" + this.x + ", " + this.y + ")";
+        return "(" + this.x + ", " + this.y + ") [" + this.faceIndex + "]";
       };
 
       Pair.prototype.length = function() {

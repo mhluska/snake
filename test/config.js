@@ -5,6 +5,7 @@
     baseUrl: '../',
     map: {
       '*': {
+        world: 'src/world',
         game: 'src/game',
         game2: 'src/game2',
         game3: 'src/game3',

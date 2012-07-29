@@ -40,7 +40,8 @@ define ['queue', 'pair', 'graph'], (Queue, Pair, Graph) ->
 
             @_avoidDeathOnPosition nextPos, position
 
-        # Attempts to find another position if the next position results in death
+        # Attempts to find another position if the next position results in 
+        # death
         _avoidDeathOnPosition: (nextPosition, position) ->
 
             return nextPosition unless @grid.squareHasType 'snake', nextPosition

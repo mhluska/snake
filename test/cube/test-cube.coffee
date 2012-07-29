@@ -21,8 +21,8 @@ class window.TestCube extends Test
 
         game = new TestCube.Game '#game', debugStep: true
 
-        @show game.grid.faces, 'Faces:'
-        @assert game.grid.faces
+        @show game.grid._world, 'Faces:'
+        @assert game.grid._world
 
         @show game.grid.cubeGraph, 'Face graph:'
         @assert game.grid.cubeGraph

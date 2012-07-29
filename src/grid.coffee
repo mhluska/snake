@@ -1,6 +1,6 @@
-define ['pair', 'utils'], (Pair, Utils) ->
+define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
 
-    class Grid
+    class Grid extends World
 
         constructor: (@game, @squaresX = 25, @squaresY = 15) ->
 
@@ -13,7 +13,7 @@ define ['pair', 'utils'], (Pair, Utils) ->
 
             @squareTypes = ['food', 'snake']
 
-            @world = null
+            @_world = null
 
         _squareToEdges: (pos) =>
 
@@ -37,7 +37,7 @@ define ['pair', 'utils'], (Pair, Utils) ->
 
         makeWorld: ->
             @eachSquare (pos) => @_unregisterAllTypesAt pos
-            @world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
+            @_world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
         # Handles wrap around of pair coordinates on the game world
         moduloBoundaries: (pair) ->
@@ -51,9 +51,9 @@ define ['pair', 'utils'], (Pair, Utils) ->
 
         eachSquare: (callback) ->
 
-            return unless @world
+            return unless @_world
 
-            for column, x in @world
+            for column, x in @_world
                 for square, y in column
                     pos = new Pair x, y
                     callback pos, square
@@ -71,11 +71,16 @@ define ['pair', 'utils'], (Pair, Utils) ->
                 normalizedPos = @moduloBoundaries adjacentPos
                 return if false is callback normalizedPos, direction
 
+        # squareAt(pos) returns key/value pairs of all the squares at pos.
+        # squareAt(pos, type) returns the square at pos with type type.
+        # squareAt(pos, type, value) sets the value of the square at pos with
+        # type type.
+        # Returns undefined if pos is out of bounds of the game world.
         squareAt: (pos, type, value) ->
 
-          return @world[pos.x][pos.y] if arguments.length is 1
-          return @world[pos.x][pos.y][type] if arguments.length is 2
-          @world[pos.x][pos.y][type] = value
+          return @_world[pos.x][pos.y] if arguments.length is 1
+          return @_world[pos.x][pos.y][type] if arguments.length is 2
+          @_world[pos.x][pos.y][type] = value
 
         setup: (graphics) ->
             @graphics = graphics
@@ -86,42 +91,10 @@ define ['pair', 'utils'], (Pair, Utils) ->
                 return false if square[type]
             true
 
-        registerFoodAt: (pos) ->
-            return false unless @registerSquareAt pos, 'food'
-            @game.foodCount += 1
-            true
-
-        unregisterFoodAt: (pos) ->
-            return false unless @unregisterSquareAt pos, 'food'
-            @game.foodCount -= 1
-            true
-
-        registerSquareAt: (pos, type) ->
-            return false if @squareAt pos, type
-            @squareAt pos, type, true
-            true
-
-        unregisterSquareAt: (pos, type) ->
-
-            return false unless @squareHasType type, pos
-            # The square will float around invisible until the graphics module
-            # decides to clean it up
-            # TODO: Make a queue to keep track of these hidden nodes and garbage 
-            # collect them after a while or after game over
-            @graphics.hideEntity @squareAt pos, type
-            @squareAt pos, type, null
-            true
-
-        squareHasFood: (pos) ->
-            return false unless pos
-            @squareHasType 'food', pos
-
         moveSquare: (start, end, type) ->
 
             @squareAt end, type, @squareAt start, type
             @squareAt start, type, null
-
-        squareHasType: (type, pos) -> (@squareAt pos, type)?
 
         toGraph: ->
 
