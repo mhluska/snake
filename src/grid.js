@@ -17,8 +17,6 @@
         this.graphics = null;
         this.squareWidth = 15;
         this.squareHeight = 15;
-        this.foodCount = 0;
-        this.maxFood = 4;
         this.foodItems = null;
         this.squareTypes = ['food', 'snake'];
         this.world = null;
@@ -51,26 +49,13 @@
         return _results;
       };
 
-      Grid.prototype.visibleFood = function() {
-        var foodPos, foodPositions, _i, _len, _ref;
-        foodPositions = [];
-        _ref = this.foodItems._queue;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          foodPos = _ref[_i];
-          if (this.graphics.entityIsVisible(this.squareAt(foodPos).food)) {
-            foodPositions.push(foodPos);
-          }
-        }
-        return foodPositions;
-      };
-
       Grid.prototype.dropFood = function(pos) {
         if (pos == null) {
           pos = Utils.randPair(this.squaresX - 1, this.squaresY - 1);
         }
-        this.foodItems.enqueue(pos);
+        this.game.foodItems.enqueue(pos);
         if (this.foodCount > this.maxFood) {
-          return this.foodItems.dequeue();
+          return this.game.foodItems.dequeue();
         }
       };
 
@@ -178,7 +163,7 @@
         if (!this.registerSquareAt(pos, 'food')) {
           return false;
         }
-        this.foodCount += 1;
+        this.game.foodCount += 1;
         return true;
       };
 
@@ -186,7 +171,7 @@
         if (!this.unregisterSquareAt(pos, 'food')) {
           return false;
         }
-        this.foodCount -= 1;
+        this.game.foodCount -= 1;
         return true;
       };
 

@@ -11,6 +11,8 @@ define [
         constructor: (selector, settings = {}) ->
 
             super selector, settings
+
+            @maxFood = 24
             
             @grid = new Cube @
 

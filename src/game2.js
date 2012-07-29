@@ -14,6 +14,7 @@
           settings = {};
         }
         Game2.__super__.constructor.call(this, selector, settings);
+        this.maxFood = 4;
         this.grid = new Grid(this);
         this.graphics = new Graphics2(this, this.grid, $(selector).eq(0));
         this._startGame();

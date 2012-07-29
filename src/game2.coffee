@@ -12,6 +12,8 @@ define [
 
             super selector, settings
             
+            @maxFood = 4
+
             # TODO: Load stylesheet only if were using DOM
             @grid = new Grid @
 

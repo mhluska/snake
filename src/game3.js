@@ -14,6 +14,7 @@
           settings = {};
         }
         Game3.__super__.constructor.call(this, selector, settings);
+        this.maxFood = 24;
         this.grid = new Cube(this);
         this.graphics = new Graphics3(this, this.grid);
         this._startGame();
