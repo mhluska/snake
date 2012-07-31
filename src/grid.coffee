@@ -9,8 +9,6 @@ define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
             @squareWidth = 15
             @squareHeight = 15
 
-            @foodItems = null
-
             @squareTypes = ['food', 'snake']
 
             @_world = null
@@ -39,15 +37,9 @@ define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
             @eachSquare (pos) => @_unregisterAllTypesAt pos
             @_world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
 
-        # Handles wrap around of pair coordinates on the game world
         moduloBoundaries: (pair) ->
 
-            pair.x %= @squaresX
-            pair.y %= @squaresY
-            pair.x = @squaresX - 1 if pair.x < 0
-            pair.y = @squaresY - 1 if pair.y < 0
-
-            pair
+            super pair
 
         eachSquare: (callback) ->
 
@@ -58,19 +50,6 @@ define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
                     pos = new Pair x, y
                     callback pos, square
 
-        # Iterate over adjacent positions, taking into account wrap around
-        eachAdjacentPosition: (pos, callback) ->
-
-            positions =
-                down:   new Pair pos.x, pos.y + 1
-                right:  new Pair pos.x + 1, pos.y
-                up:     new Pair pos.x, pos.y - 1
-                left:   new Pair pos.x - 1, pos.y
-
-            for direction, adjacentPos of positions
-                normalizedPos = @moduloBoundaries adjacentPos
-                return if false is callback normalizedPos, direction
-
         # squareAt(pos) returns key/value pairs of all the squares at pos.
         # squareAt(pos, type) returns the square at pos with type type.
         # squareAt(pos, type, value) sets the value of the square at pos with
@@ -78,8 +57,8 @@ define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
         # Returns undefined if pos is out of bounds of the game world.
         squareAt: (pos, type, value) ->
 
-          return @_world[pos.x][pos.y] if arguments.length is 1
-          return @_world[pos.x][pos.y][type] if arguments.length is 2
+          return @_world[pos.x][pos.y] if type is undefined
+          return @_world[pos.x][pos.y][type] if value is undefined 
           @_world[pos.x][pos.y][type] = value
 
         setup: (graphics) ->

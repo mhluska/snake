@@ -13,7 +13,6 @@
         this.game = game;
         this.grid = grid;
         Graphics2.__super__.constructor.call(this, this.game, this.grid);
-        this.grid.makeWorld();
         this.buildDOM(gridNode);
         this.nodeRemoveQueue = [];
       }

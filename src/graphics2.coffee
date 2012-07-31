@@ -6,7 +6,6 @@ define ['graphics'], (Graphics) ->
 
             super @game, @grid
 
-            @grid.makeWorld()
             @buildDOM gridNode
             @nodeRemoveQueue = []
 

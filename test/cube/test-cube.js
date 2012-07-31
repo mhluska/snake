@@ -36,8 +36,8 @@
       game = new TestCube.Game('#game', {
         debugStep: true
       });
-      this.show(game.grid._world, 'Faces:');
-      this.assert(game.grid._world);
+      this.show(game.grid._faces, 'Faces:');
+      this.assert(game.grid._faces);
       this.show(game.grid.cubeGraph, 'Face graph:');
       return this.assert(game.grid.cubeGraph);
     };

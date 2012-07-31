@@ -2,7 +2,7 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  define(['snake', 'grid', 'foodqueue'], function(Snake, Grid, FoodQueue) {
+  define(['snake', 'foodqueue'], function(Snake, FoodQueue) {
     var Game;
     return Game = (function() {
 
@@ -35,6 +35,7 @@
       }
 
       Game.prototype._startGame = function() {
+        this.grid.makeWorld();
         this.foodCount = 0;
         this.foodItems = new FoodQueue(this.grid);
         this.snake.setup(this.grid);

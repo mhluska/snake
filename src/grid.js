@@ -21,7 +21,6 @@
         this.graphics = null;
         this.squareWidth = 15;
         this.squareHeight = 15;
-        this.foodItems = null;
         this.squareTypes = ['food', 'snake'];
         this._world = null;
       }
@@ -86,15 +85,7 @@
       };
 
       Grid.prototype.moduloBoundaries = function(pair) {
-        pair.x %= this.squaresX;
-        pair.y %= this.squaresY;
-        if (pair.x < 0) {
-          pair.x = this.squaresX - 1;
-        }
-        if (pair.y < 0) {
-          pair.y = this.squaresY - 1;
-        }
-        return pair;
+        return Grid.__super__.moduloBoundaries.call(this, pair);
       };
 
       Grid.prototype.eachSquare = function(callback) {
@@ -120,28 +111,11 @@
         return _results;
       };
 
-      Grid.prototype.eachAdjacentPosition = function(pos, callback) {
-        var adjacentPos, direction, normalizedPos, positions;
-        positions = {
-          down: new Pair(pos.x, pos.y + 1),
-          right: new Pair(pos.x + 1, pos.y),
-          up: new Pair(pos.x, pos.y - 1),
-          left: new Pair(pos.x - 1, pos.y)
-        };
-        for (direction in positions) {
-          adjacentPos = positions[direction];
-          normalizedPos = this.moduloBoundaries(adjacentPos);
-          if (false === callback(normalizedPos, direction)) {
-            return;
-          }
-        }
-      };
-
       Grid.prototype.squareAt = function(pos, type, value) {
-        if (arguments.length === 1) {
+        if (type === void 0) {
           return this._world[pos.x][pos.y];
         }
-        if (arguments.length === 2) {
+        if (value === void 0) {
           return this._world[pos.x][pos.y][type];
         }
         return this._world[pos.x][pos.y][type] = value;

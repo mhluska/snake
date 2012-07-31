@@ -4,10 +4,9 @@
 define [
 
     'snake'
-    'grid'
     'foodqueue'
 
-    ], (Snake, Grid, FoodQueue) ->
+    ], (Snake, FoodQueue) ->
 
     class Game
 
@@ -35,6 +34,9 @@ define [
             @snake = new Snake @
 
         _startGame: ->
+
+            @grid.makeWorld()
+
             # Don't modify foodCount manually. This is handled by 
             # unregisterFoodAt and registerFoodAt in grid
             @foodCount = 0
