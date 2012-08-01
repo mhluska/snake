@@ -5,7 +5,6 @@ git submodule update --init --recursive
 mkdir -p lib
 
 cd src/jquery
-npm -g install grunt
 npm install
 grunt
 cd -
