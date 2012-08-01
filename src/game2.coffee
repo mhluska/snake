@@ -1,10 +1,11 @@
 define [
     
-    'game'
-    'grid'
-    'graphics2'
+    'jquery'
+    'src/game'
+    'src/grid'
+    'src/graphics2'
 
-    ], (Game, Grid, Graphics2) ->
+    ], ($, Game, Grid, Graphics2) ->
 
     class Game2 extends Game
 

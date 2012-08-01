@@ -1,6 +1,13 @@
 # TODO: Use private syntax for member variables
 
-define ['queue', 'pair', 'graph'], (Queue, Pair, Graph) ->
+define [
+    
+    'jquery'
+    'src/queue'
+    'src/pair'
+    'src/graph'
+
+    ], ($, Queue, Pair, Graph) ->
 
     class Snake
 

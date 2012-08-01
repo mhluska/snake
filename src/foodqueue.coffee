@@ -1,4 +1,4 @@
-define ['queue'], (Queue) ->
+define ['src/queue'], (Queue) ->
 
     class FoodQueue extends Queue
 

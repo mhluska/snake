@@ -1,4 +1,11 @@
-define ['grid', 'graph', 'utils', 'world'], (Grid, Graph, Utils, World) ->
+define [
+    
+    'src/grid'
+    'src/graph'
+    'src/utils'
+    'src/world'
+
+    ], (Grid, Graph, Utils, World) ->
 
     class Cube extends World
 

@@ -1,5 +1,6 @@
-requirejs.config
-    baseUrl: 'src'
+require.config
+    paths:
+        'jquery': 'lib/jquery'
 
-require ['game2'], (Game2) ->
+require ['jquery', 'src/game2'], ($, Game2) ->
     new Game2 '#game'

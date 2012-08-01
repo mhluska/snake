@@ -1,6 +1,6 @@
 # Common functions between Cube and Grid
 
-define ['pair'], (Pair) ->
+define ['src/pair'], (Pair) ->
 
     class World
 

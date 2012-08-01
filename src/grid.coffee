@@ -1,4 +1,10 @@
-define ['pair', 'utils', 'world'], (Pair, Utils, World) ->
+define [
+    
+    'src/pair'
+    'src/utils'
+    'src/world'
+
+    ], (Pair, Utils, World) ->
 
     class Grid extends World
 

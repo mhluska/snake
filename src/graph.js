@@ -2,7 +2,7 @@
 (function() {
   var __slice = [].slice;
 
-  define(['utils'], function(Utils) {
+  define(['src/utils'], function(Utils) {
     var Graph;
     return Graph = (function() {
 

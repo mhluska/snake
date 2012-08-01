@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['game', 'grid', 'graphics2'], function(Game, Grid, Graphics2) {
+  define(['jquery', 'src/game', 'src/grid', 'src/graphics2'], function($, Game, Grid, Graphics2) {
     var Game2;
     return Game2 = (function(_super) {
 

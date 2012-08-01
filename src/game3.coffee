@@ -1,8 +1,8 @@
 define [
     
-    'game'
-    'cube'
-    'graphics3'
+    'src/game'
+    'src/cube'
+    'src/graphics3'
 
     ], (Game, Cube, Graphics3) ->
 

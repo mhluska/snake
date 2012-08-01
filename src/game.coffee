@@ -3,11 +3,11 @@
 
 define [
 
-    'snake'
-    'foodqueue'
-    'lib/jquery
+    'jquery'
+    'src/snake'
+    'src/foodqueue'
 
-    ], (Snake, FoodQueue) ->
+    ], ($, Snake, FoodQueue) ->
 
     class Game
 

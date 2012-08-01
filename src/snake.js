@@ -2,7 +2,7 @@
 (function() {
   var __slice = [].slice;
 
-  define(['queue', 'pair', 'graph'], function(Queue, Pair, Graph) {
+  define(['jquery', 'src/queue', 'src/pair', 'src/graph'], function($, Queue, Pair, Graph) {
     var Snake;
     return Snake = (function() {
 

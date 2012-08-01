@@ -19,7 +19,7 @@
 #   ...
 # ]
 
-define ['utils'], (Utils) ->
+define ['src/utils'], (Utils) ->
 
     class Graph
 

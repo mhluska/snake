@@ -2,7 +2,7 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  define(['snake', 'foodqueue'], function(Snake, FoodQueue) {
+  define(['jquery', 'src/snake', 'src/foodqueue'], function($, Snake, FoodQueue) {
     var Game;
     return Game = (function() {
 

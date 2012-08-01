@@ -1,4 +1,4 @@
-define ['graphics'], (Graphics) ->
+define ['src/graphics'], (Graphics) ->
 
     class Graphics3 extends Graphics
 

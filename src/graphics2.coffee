@@ -1,4 +1,4 @@
-define ['graphics'], (Graphics) ->
+define ['jquery', 'src/graphics'], ($, Graphics) ->
 
     class Graphics2 extends Graphics
 
