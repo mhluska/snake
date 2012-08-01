@@ -67,9 +67,9 @@ build_dependency_html() {
             FILE="${module}"
         else
 
-            FILE="${MODULE_PATH}/${module}.js"
-            if [ ! -e ${FILE} ]; then
-                echo "File ${FILE} does not exist"
+            FILE=$(find "${MODULE_PATH}" -type f -name "${module}.js")
+            if [ -z ${FILE} ]; then
+                echo "Module ${module} does not exist"
                 exit 1
             fi
         fi
@@ -109,7 +109,7 @@ read -d '' HTML << EOF
     <head>
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="test.css" />
-        <script src='mustache-min.js'></script>
+        <script src='../lib/mustache.js'></script>
         $(build_dependency_html "${DEPENDENCIES}")
         <script src='config.js'></script>
         <script src='test.js'></script>

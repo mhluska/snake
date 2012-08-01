@@ -3,6 +3,9 @@
 
   require.config({
     baseUrl: '../',
+    paths: {
+      'jquery': 'lib/jquery'
+    },
     map: {
       '*': {
         world: 'src/world',

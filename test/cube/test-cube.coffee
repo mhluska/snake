@@ -1,10 +1,10 @@
-'import require-jquery'
+'import require'
 
 class window.TestCube extends Test
 
     @before: (start) ->
 
-        require ['src/game3'], (@Game) =>
+        require ['jquery', 'src/game3'], ($, @Game) =>
 
             linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
             $('head').append linkHtml

@@ -1,4 +1,4 @@
-'import require-jquery'
+'import require'
 
 class window.TestGrid extends Test
 
@@ -7,11 +7,12 @@ class window.TestGrid extends Test
 
         require [
 
+            'jquery'
             'src/grid'
             'src/game2'
             'src/pair'
 
-        ], (@Grid, @Game, @Pair) =>
+        ], ($, @Grid, @Game, @Pair) =>
 
             linkHtml = '<link rel="stylesheet" type="text/css" href="../snake.css" />'
             $('head').append linkHtml
