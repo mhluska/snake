@@ -4,9 +4,6 @@
 [submodule "src/three.js"]
 	path = src/three.js
 	url = https://github.com/mrdoob/three.js.git
-[submodule "src/require"]
-	path = src/require
-	url = https://github.com/marcuswestin/require.git
 [submodule "src/mustache.js"]
 	path = src/mustache.js
 	url = https://github.com/janl/mustache.js.git
