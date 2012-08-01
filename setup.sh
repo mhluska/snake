@@ -10,5 +10,8 @@ npm install
 grunt
 cd -
 
-ln -fs ../src/jquery/dist/jquery.min.js lib/jquery.min.js
+ln -fs ../src/jquery/dist/jquery.min.js lib
+ln -fs ../src/requirejs/require.js lib
+ln -fs ../src/mustache.js/mustache.js lib
+ln -fs ../src/three.js/build/Three.js lib
 
