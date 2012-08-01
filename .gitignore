@@ -1,3 +1,4 @@
+src/lib
 src/compile.sh
 test/test.html
 .*.sw*

@@ -5,6 +5,7 @@ define [
 
     'snake'
     'foodqueue'
+    'lib/jquery
 
     ], (Snake, FoodQueue) ->
 
