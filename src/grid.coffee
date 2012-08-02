@@ -29,12 +29,6 @@ define [
 
             edges
 
-        dropFood: (pos) =>
-
-            pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
-            @game.foodItems.enqueue pos
-            @game.foodItems.dequeue() if @foodCount > @maxFood
-
         destroyWorld: ->
 
             @eachSquare (pos, square) ->

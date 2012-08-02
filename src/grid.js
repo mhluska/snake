@@ -14,8 +14,6 @@
         this.game = game;
         this.squaresX = squaresX != null ? squaresX : 25;
         this.squaresY = squaresY != null ? squaresY : 15;
-        this.dropFood = __bind(this.dropFood, this);
-
         this._squareToEdges = __bind(this._squareToEdges, this);
 
         this.squareWidth = 15;
@@ -38,16 +36,6 @@
           return edges.push([pos.toString(), adjacentPos.toString()]);
         });
         return edges;
-      };
-
-      Grid.prototype.dropFood = function(pos) {
-        if (pos == null) {
-          pos = Utils.randPair(this.squaresX - 1, this.squaresY - 1);
-        }
-        this.game.foodItems.enqueue(pos);
-        if (this.foodCount > this.maxFood) {
-          return this.game.foodItems.dequeue();
-        }
       };
 
       Grid.prototype.destroyWorld = function() {

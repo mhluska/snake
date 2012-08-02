@@ -12,9 +12,9 @@ define [
 
             super selector, settings
 
-            @maxFood = 24
-            
             @grid = new Cube @
+            maxFood = 24
+            @foodItems = new FoodQueue @grid, maxFood
 
             @graphics = new Graphics3 @, @grid
             @_startGame()

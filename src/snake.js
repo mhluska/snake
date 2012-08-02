@@ -219,6 +219,7 @@
           return;
         }
         if (this.grid.squareHasType('food', this.head)) {
+          this.game.foodItems.foodCount -= 1;
           this.growUntil = this.game.stepCount + this.stepsPerGrowth;
         }
         if (this._eating()) {

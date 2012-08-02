@@ -147,6 +147,7 @@ define [
             return unless @direction
 
             if @grid.squareHasType 'food', @head
+                @game.foodItems.foodCount -= 1
                 @growUntil = @game.stepCount + @stepsPerGrowth
 
             @_grow() if @_eating()

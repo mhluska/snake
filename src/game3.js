@@ -10,12 +10,14 @@
       __extends(Game3, _super);
 
       function Game3(selector, settings) {
+        var maxFood;
         if (settings == null) {
           settings = {};
         }
         Game3.__super__.constructor.call(this, selector, settings);
-        this.maxFood = 24;
         this.grid = new Cube(this);
+        maxFood = 24;
+        this.foodItems = new FoodQueue(this.grid, maxFood);
         this.graphics = new Graphics3(this, this.grid);
         this._startGame();
       }

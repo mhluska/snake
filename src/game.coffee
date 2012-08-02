@@ -5,22 +5,18 @@ define [
 
     'jquery'
     'src/snake'
+    'src/utils'
     'src/foodqueue'
 
-    ], ($, Snake, FoodQueue) ->
+    ], ($, Snake, Utils, FoodQueue) ->
 
     class Game
 
         constructor: (selector, settings = {}) ->
             
-            @foodCount = 0
             @stepCount = 0
             @stepsPerFood = 20
             @timeStepRate = 100
-
-            # These are set by subclasses
-            @grid = null
-            @graphics = null
 
             @gameIntervalID = null
 
@@ -37,9 +33,6 @@ define [
             @grid.makeWorld()
             @snake = new Snake @, @grid
 
-            @foodCount = 0
-            @foodItems = new FoodQueue @grid
-
             @stepCount = 0
 
             return @setupGameStep() if @debugStep
@@ -49,16 +42,22 @@ define [
 
         _gameLoop: =>
 
-            @grid.dropFood() if (@stepCount % @stepsPerFood) is 0
+            @_dropFood() if (@stepCount % @stepsPerFood) is 0
 
             return unless @snake.move()
             @graphics.update()
 
             @stepCount += 1
 
+        _dropFood: (pos) =>
+
+            pos ?= Utils.randPair @grid.squaresX - 1, @grid.squaresY - 1
+            @foodItems.enqueue pos
+
         restart: ->
             clearInterval @gameIntervalID
             @snake = @grid.snake = new Snake @, @grid
+            @foodItems.foodCount = 0
             @grid.destroyWorld()
             @graphics.update()
             @_startGame()

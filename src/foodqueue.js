@@ -9,14 +9,21 @@
 
       __extends(FoodQueue, _super);
 
-      function FoodQueue(grid, items) {
+      function FoodQueue(grid, maxFood, items) {
         this.grid = grid;
+        this.maxFood = maxFood;
         FoodQueue.__super__.constructor.call(this, items);
       }
 
+      FoodQueue.prototype.foodCount = 0;
+
       FoodQueue.prototype.enqueue = function(item) {
         FoodQueue.__super__.enqueue.call(this, item);
-        return this.grid.squareAt(item).food.show();
+        this.grid.squareAt(item).food.show();
+        this.foodCount += 1;
+        if (this.foodCount > this.maxFood) {
+          return this.dequeue();
+        }
       };
 
       FoodQueue.prototype.dequeue = function() {
@@ -25,7 +32,9 @@
           FoodQueue.__super__.dequeue.call(this);
         }
         foodPos = FoodQueue.__super__.dequeue.call(this);
-        return this.grid.squareAt(foodPos).food.hide();
+        this.grid.squareAt(foodPos).food.hide();
+        this.foodCount -= 1;
+        return foodPos;
       };
 
       return FoodQueue;

@@ -2,7 +2,7 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  define(['jquery', 'src/snake', 'src/foodqueue'], function($, Snake, FoodQueue) {
+  define(['jquery', 'src/snake', 'src/utils', 'src/foodqueue'], function($, Snake, Utils, FoodQueue) {
     var Game;
     return Game = (function() {
 
@@ -11,14 +11,13 @@
         if (settings == null) {
           settings = {};
         }
+        this._dropFood = __bind(this._dropFood, this);
+
         this._gameLoop = __bind(this._gameLoop, this);
 
-        this.foodCount = 0;
         this.stepCount = 0;
         this.stepsPerFood = 20;
         this.timeStepRate = 100;
-        this.grid = null;
-        this.graphics = null;
         this.gameIntervalID = null;
         defaults = {
           debugPrint: false,
@@ -36,8 +35,6 @@
       Game.prototype._startGame = function() {
         this.grid.makeWorld();
         this.snake = new Snake(this, this.grid);
-        this.foodCount = 0;
-        this.foodItems = new FoodQueue(this.grid);
         this.stepCount = 0;
         if (this.debugStep) {
           return this.setupGameStep();
@@ -48,7 +45,7 @@
 
       Game.prototype._gameLoop = function() {
         if ((this.stepCount % this.stepsPerFood) === 0) {
-          this.grid.dropFood();
+          this._dropFood();
         }
         if (!this.snake.move()) {
           return;
@@ -57,9 +54,17 @@
         return this.stepCount += 1;
       };
 
+      Game.prototype._dropFood = function(pos) {
+        if (pos == null) {
+          pos = Utils.randPair(this.grid.squaresX - 1, this.grid.squaresY - 1);
+        }
+        return this.foodItems.enqueue(pos);
+      };
+
       Game.prototype.restart = function() {
         clearInterval(this.gameIntervalID);
         this.snake = this.grid.snake = new Snake(this, this.grid);
+        this.foodItems.foodCount = 0;
         this.grid.destroyWorld();
         this.graphics.update();
         this._startGame();

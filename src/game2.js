@@ -3,19 +3,21 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['jquery', 'src/game', 'src/grid', 'src/graphics2'], function($, Game, Grid, Graphics2) {
+  define(['jquery', 'src/game', 'src/grid', 'src/foodqueue', 'src/graphics2'], function($, Game, Grid, FoodQueue, Graphics2) {
     var Game2;
     return Game2 = (function(_super) {
 
       __extends(Game2, _super);
 
       function Game2(selector, settings) {
+        var maxFood;
         if (settings == null) {
           settings = {};
         }
         Game2.__super__.constructor.call(this, selector, settings);
-        this.maxFood = 4;
         this.grid = new Grid(this);
+        maxFood = 4;
+        this.foodItems = new FoodQueue(this.grid, maxFood);
         this.graphics = new Graphics2(this, this.grid, $(selector).eq(0));
         this._startGame();
       }
