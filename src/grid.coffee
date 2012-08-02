@@ -1,21 +1,20 @@
 define [
     
+    'src/piece'
     'src/pair'
     'src/utils'
     'src/world'
 
-    ], (Pair, Utils, World) ->
+    ], (Piece, Pair, Utils, World) ->
 
     class Grid extends World
 
         constructor: (@game, @squaresX = 25, @squaresY = 15) ->
 
-            @graphics = null
-
             @squareWidth = 15
             @squareHeight = 15
 
-            @squareTypes = ['food', 'snake']
+            @pieceTypes = ['food', 'snake']
 
             @_world = null
 
@@ -30,18 +29,29 @@ define [
 
             edges
 
-        _unregisterAllTypesAt: (pos) ->
-            @unregisterSquareAt pos, type for type in @squareTypes
-
         dropFood: (pos) =>
 
             pos ?= Utils.randPair @squaresX - 1, @squaresY - 1
             @game.foodItems.enqueue pos
             @game.foodItems.dequeue() if @foodCount > @maxFood
 
+        destroyWorld: ->
+
+            @eachSquare (pos, square) ->
+                piece.hide() for key, piece of square
+
         makeWorld: ->
-            @eachSquare (pos) => @_unregisterAllTypesAt pos
-            @_world = ( ({} for [0...@squaresY]) for [0...@squaresX] )
+
+            @_world = []
+            for row in [0...@squaresX]
+
+                @_world[row] = []
+                for column in [0...@squaresY]
+
+                    @_world[row][column] = {}
+                    for type in @pieceTypes
+
+                        @_world[row][column][type] = new Piece null, type
 
         moduloBoundaries: (pair) ->
 
@@ -66,20 +76,6 @@ define [
           return @_world[pos.x][pos.y] if type is undefined
           return @_world[pos.x][pos.y][type] if value is undefined 
           @_world[pos.x][pos.y][type] = value
-
-        setup: (graphics) ->
-            @graphics = graphics
-
-        isEmptySquare: (square) ->
-
-            for type in @squareTypes
-                return false if square[type]
-            true
-
-        moveSquare: (start, end, type) ->
-
-            @squareAt end, type, @squareAt start, type
-            @squareAt start, type, null
 
         toGraph: ->
 

@@ -31,19 +31,17 @@
             this[option] = settings[option];
           }
         }
-        this.snake = new Snake(this);
       }
 
       Game.prototype._startGame = function() {
         this.grid.makeWorld();
+        this.snake = new Snake(this, this.grid);
         this.foodCount = 0;
         this.foodItems = new FoodQueue(this.grid);
-        this.snake.setup(this.grid);
         this.stepCount = 0;
         if (this.debugStep) {
           return this.setupGameStep();
         }
-        clearInterval(this.gameIntervalID);
         this.gameIntervalID = setInterval(this._gameLoop, this.timeStepRate);
         return this._gameLoop();
       };
@@ -52,28 +50,20 @@
         if ((this.stepCount % this.stepsPerFood) === 0) {
           this.grid.dropFood();
         }
-        this.snake.move();
+        if (!this.snake.move()) {
+          return;
+        }
         this.graphics.update();
         return this.stepCount += 1;
       };
 
-      Game.prototype.visibleFood = function() {
-        var foodPos, foodPositions, _i, _len, _ref;
-        foodPositions = [];
-        _ref = this.foodItems._queue;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          foodPos = _ref[_i];
-          if (this.graphics.entityIsVisible(this.grid.squareAt(foodPos).food)) {
-            foodPositions.push(foodPos);
-          }
-        }
-        return foodPositions;
-      };
-
       Game.prototype.restart = function() {
-        this.snake = this.grid.snake = new Snake(this);
-        this.grid.makeWorld();
-        return this._startGame();
+        clearInterval(this.gameIntervalID);
+        this.snake = this.grid.snake = new Snake(this, this.grid);
+        this.grid.destroyWorld();
+        this.graphics.update();
+        this._startGame();
+        return false;
       };
 
       Game.prototype.setupGameStep = function() {

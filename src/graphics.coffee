@@ -2,6 +2,5 @@ define ->
 
     class Graphics
 
-        constructor: (@game, @grid) ->
+        constructor: (@game) ->
 
-           @grid.setup @

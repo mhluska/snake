@@ -16,7 +16,7 @@
 
       FoodQueue.prototype.enqueue = function(item) {
         FoodQueue.__super__.enqueue.call(this, item);
-        return this.grid.registerFoodAt(item);
+        return this.grid.squareAt(item).food.show();
       };
 
       FoodQueue.prototype.dequeue = function() {
@@ -25,7 +25,7 @@
           FoodQueue.__super__.dequeue.call(this);
         }
         foodPos = FoodQueue.__super__.dequeue.call(this);
-        return this.grid.unregisterFoodAt(foodPos);
+        return this.grid.squareAt(foodPos).food.hide();
       };
 
       return FoodQueue;

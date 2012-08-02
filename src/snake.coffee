@@ -11,9 +11,8 @@ define [
 
     class Snake
 
-        constructor: (@game, @length = 5, @direction = 'down', @head = null) ->
+        constructor: (@game, @grid, @length = 5, @direction = 'down', @head = null) ->
 
-            @grid = null
             @lastTailPos = null
             @moves = new Queue
 
@@ -30,6 +29,7 @@ define [
 
             # The coordinates of the snake chain
             @chain = ( new Pair x, y - piece for piece in [0..@length - 1] )
+            @grid.squareAt(pair, 'snake').show() for pair in @chain
 
             @_setupControls()
 
@@ -106,12 +106,25 @@ define [
             return unless @lastTailPos
 
             @chain.push @lastTailPos
-            @grid.registerSquareAt @lastTailPos, 'snake'
-            @grid.unregisterFoodAt @chain[0]
+            @grid.squareAt(@lastTailPos, 'snake').show()
+            @grid.squareAt(@chain[0], 'food').hide()
+
+        _visibleFood: ->
+
+            # TODO: This is kind of cheating: accessing the array 
+            # implementation underneath the queue. Use the more general linked 
+            # list as an implementation so that you can iterate it and still 
+            # have O(1) enqueue and dequeue
+            foodPositions = []
+            for foodPos in @game.foodItems._queue
+                if @grid.squareAt(foodPos).food.visible()
+                    foodPositions.push foodPos
+            
+            foodPositions
 
         _findFoodPath: ->
 
-            foodPositions = @game.visibleFood().map (food) -> food.toString()
+            foodPositions = @_visibleFood().map (food) -> food.toString()
             return [] unless foodPositions.length
 
             graph = new Graph @grid.toGraph()
@@ -129,13 +142,6 @@ define [
 
         _eating: -> @game.stepCount < @growUntil
 
-        setup: (grid) ->
-
-            @grid = grid
-
-            # Snake registers itself on the grid
-            @grid.registerSquareAt pair, 'snake' for pair in @chain
-
         move: ->
 
             return unless @direction
@@ -151,11 +157,14 @@ define [
 
             @_updateMoves()
 
-            @game.restart() if @grid.squareHasType 'snake', @head
+            return @game.restart() if @grid.squareHasType 'snake', @head
 
             # Move the snake and update his chain of positions
             @lastTailPos = @chain[@chain.length - 1].clone()
-            @grid.moveSquare @lastTailPos, @head, 'snake'
+
+            @grid.squareAt(@lastTailPos).snake.hide()
+            @grid.squareAt(@head).snake.show()
+
             @chain.pop()
             @chain.unshift @head.clone()
 

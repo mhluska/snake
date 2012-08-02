@@ -49,8 +49,6 @@
         };
       })();
 
-      Cube.prototype.registerSquareAt = function() {};
-
       Cube.prototype.dropFood = function() {
         var index;
         index = Utils.randInt(0, 5);

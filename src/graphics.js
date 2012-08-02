@@ -5,10 +5,8 @@
     var Graphics;
     return Graphics = (function() {
 
-      function Graphics(game, grid) {
+      function Graphics(game) {
         this.game = game;
-        this.grid = grid;
-        this.grid.setup(this);
       }
 
       return Graphics;

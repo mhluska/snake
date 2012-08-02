@@ -12,100 +12,72 @@
       function Graphics2(game, grid, gridNode) {
         this.game = game;
         this.grid = grid;
-        Graphics2.__super__.constructor.call(this, this.game, this.grid);
-        this.buildDOM(gridNode);
-        this.nodeRemoveQueue = [];
+        this.gridNode = gridNode;
+        Graphics2.__super__.constructor.call(this, this.game);
+        this._buildDom();
       }
 
-      Graphics2.prototype.setNodePosition = function(node, pos) {
-        if (!node) {
-          return;
-        }
-        node.css({
-          top: pos.y * this.grid.squareHeight,
-          left: pos.x * this.grid.squareWidth
+      Graphics2.prototype._buildDom = function(gridNode) {
+        this.gridNode.css({
+          width: this.grid.squareWidth * this.grid.squaresX,
+          height: this.grid.squareHeight * this.grid.squaresY
         });
-        return node.show();
+        return $('body').prepend(this.gridNode);
       };
 
-      Graphics2.prototype.update = function() {
-        var _this = this;
-        return this.grid.eachSquare(function(pos, square) {
-          var type, _i, _len, _ref, _results;
-          _ref = _this.grid.squareTypes;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            type = _ref[_i];
-            if (square[type] === true) {
-              square[type] = _this.appendDOMNode(pos, type);
-            }
-            if (square[type]) {
-              _results.push(_this.setNodePosition(square[type], pos));
-            } else {
-              _results.push(void 0);
-            }
-          }
-          return _results;
-        });
-      };
-
-      Graphics2.prototype.buildDOMNode = function(pos, type) {
+      Graphics2.prototype._buildDomNode = function(pos, type) {
         var node;
         node = $("<div class='" + type + "'></div>");
         node.css({
           width: this.grid.squareWidth,
           height: this.grid.squareHeight
         });
-        this.setNodePosition(node, pos);
-        return node;
+        return node.hide();
       };
 
-      Graphics2.prototype.appendDOMNode = function(pos, type) {
+      Graphics2.prototype._setNodePosition = function(node, pos) {
+        return node.css({
+          top: pos.y * this.grid.squareHeight,
+          left: pos.x * this.grid.squareWidth
+        });
+      };
+
+      Graphics2.prototype._awaitingShow = function(piece) {
+        return piece.visible() && !$(piece.node).is(':visible');
+      };
+
+      Graphics2.prototype._awaitingHide = function(piece) {
+        return piece.hidden() && $(piece.node).is(':visible');
+      };
+
+      Graphics2.prototype._makeNode = function(pos, type) {
         var node;
-        node = this.buildDOMNode(pos, type);
-        return node.appendTo(this.dom.grid);
+        node = this._buildDomNode(pos, type);
+        this.gridNode.append(node);
+        return this._setNodePosition(node, pos);
       };
 
-      Graphics2.prototype.buildDOM = function(gridNode) {
+      Graphics2.prototype.update = function() {
         var _this = this;
-        this.dom = {};
-        this.dom.grid = gridNode;
-        this.dom.grid.css({
-          width: this.grid.squareWidth * this.grid.squaresX,
-          height: this.grid.squareHeight * this.grid.squaresY
-        });
-        $('body').prepend(this.dom.grid);
         return this.grid.eachSquare(function(pos, square) {
-          var type;
-          if (_this.grid.isEmptySquare(square)) {
-            return;
+          var piece, type, _results;
+          _results = [];
+          for (type in square) {
+            piece = square[type];
+            if (_this._awaitingShow(piece)) {
+              if (!piece.exists()) {
+                piece.node = _this._makeNode(pos, type);
+              }
+              $(piece.node).show();
+            }
+            if (_this._awaitingHide(piece)) {
+              _results.push($(piece.node).hide());
+            } else {
+              _results.push(void 0);
+            }
           }
-          if (square.snake) {
-            type = 'snake';
-          }
-          if (square.food) {
-            type = 'food';
-          }
-          return square[type] = _this.appendDOMNode(pos, type);
+          return _results;
         });
-      };
-
-      Graphics2.prototype.entityExists = function(entity) {
-        return entity && (entity instanceof jQuery);
-      };
-
-      Graphics2.prototype.entityIsVisible = function(entity) {
-        if (!this.entityExists(entity)) {
-          return false;
-        }
-        return $(entity).is(':visible');
-      };
-
-      Graphics2.prototype.hideEntity = function(entity) {
-        if (!this.entityExists(entity)) {
-          return;
-        }
-        return $(entity).hide();
       };
 
       return Graphics2;

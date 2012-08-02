@@ -2,77 +2,57 @@ define ['jquery', 'src/graphics'], ($, Graphics) ->
 
     class Graphics2 extends Graphics
 
-        constructor: (@game, @grid, gridNode) ->
+        constructor: (@game, @grid, @gridNode) ->
 
-            super @game, @grid
+            super @game
 
-            @buildDOM gridNode
-            @nodeRemoveQueue = []
+            @_buildDom()
 
-        setNodePosition: (node, pos) ->
+        _buildDom: (gridNode) ->
 
-            return unless node
-            
-            node.css
-                top: pos.y * @grid.squareHeight
-                left: pos.x * @grid.squareWidth
+            @gridNode.css
+                width: @grid.squareWidth * @grid.squaresX
+                height: @grid.squareHeight * @grid.squaresY
 
-            node.show()
+            $('body').prepend @gridNode
 
-        update: ->
-
-            @grid.eachSquare (pos, square) =>
-                for type in @grid.squareTypes
-
-                    # Create a new node for any nodes marked for creation
-                    square[type] = @appendDOMNode pos, type if square[type] is true
-                    @setNodePosition square[type], pos if square[type]
-
-        buildDOMNode: (pos, type) ->
+        _buildDomNode: (pos, type) ->
 
             node = $("<div class='#{type}'></div>")
             node.css
                 width: @grid.squareWidth
                 height: @grid.squareHeight
 
-            @setNodePosition node, pos
+            node.hide()
 
-            node
+        _setNodePosition: (node, pos) ->
 
-        appendDOMNode: (pos, type) ->
+            node.css
+                top: pos.y * @grid.squareHeight
+                left: pos.x * @grid.squareWidth
 
-            node = @buildDOMNode pos, type
-            node.appendTo @dom.grid
+        _awaitingShow: (piece) ->
 
-        buildDOM: (gridNode) ->
+            piece.visible() and not $(piece.node).is ':visible'
 
-            @dom = {}
-            @dom.grid = gridNode
-            @dom.grid.css
-                width: @grid.squareWidth * @grid.squaresX
-                height: @grid.squareHeight * @grid.squaresY
+        _awaitingHide: (piece) ->
 
-            $('body').prepend @dom.grid
+            piece.hidden() and $(piece.node).is ':visible'
+
+        _makeNode: (pos, type) ->
+
+            node = @_buildDomNode pos, type
+            @gridNode.append node
+            @_setNodePosition node, pos
+
+        update: ->
 
             @grid.eachSquare (pos, square) =>
 
-                return if @grid.isEmptySquare square
+                for type, piece of square
+                    
+                    if @_awaitingShow piece
+                        piece.node = @_makeNode(pos, type) unless piece.exists()
+                        $(piece.node).show()
 
-                type = 'snake' if square.snake
-                type = 'food' if square.food
-
-                # Set a reference to the DOM node in the world data
-                square[type] = @appendDOMNode pos, type
-
-        # TODO: These functions should belong to an Entity class (snake piece,
-        # food, etc.)
-        entityExists: (entity) ->
-            entity and (entity instanceof jQuery)
-
-        entityIsVisible: (entity) ->
-            return false unless @entityExists entity
-            $(entity).is ':visible'
-
-        hideEntity: (entity) ->
-            return unless @entityExists entity
-            $(entity).hide()
+                    $(piece.node).hide() if @_awaitingHide piece

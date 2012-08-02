@@ -7,41 +7,8 @@
 
       function World() {}
 
-      World.prototype.registerSquareAt = function(pos, type) {
-        if (this.squareAt(pos, type)) {
-          return false;
-        }
-        this.squareAt(pos, type, true);
-        return true;
-      };
-
-      World.prototype.unregisterSquareAt = function(pos, type) {
-        if (!this.squareHasType(type, pos)) {
-          return false;
-        }
-        this.graphics.hideEntity(this.squareAt(pos, type));
-        this.squareAt(pos, type, null);
-        return true;
-      };
-
       World.prototype.squareHasType = function(type, pos) {
-        return (this.squareAt(pos, type)) != null;
-      };
-
-      World.prototype.registerFoodAt = function(pos) {
-        if (!this.registerSquareAt(pos, 'food')) {
-          return false;
-        }
-        this.game.foodCount += 1;
-        return true;
-      };
-
-      World.prototype.unregisterFoodAt = function(pos) {
-        if (!this.unregisterSquareAt(pos, 'food')) {
-          return false;
-        }
-        this.game.foodCount -= 1;
-        return true;
+        return (this.squareAt(pos, type)).visible();
       };
 
       World.prototype.squareHasFood = function(pos) {

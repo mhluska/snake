@@ -4,7 +4,6 @@ body {
 
 .food, .snake {
     position: absolute;
-    display: none;
 }
 
 .snake {
@@ -14,7 +13,6 @@ body {
 
 .food {
     background-color: #9afc77;
-    display: none;
     z-index: 0;
 }
 

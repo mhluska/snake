@@ -49,8 +49,6 @@ define [
                 'down':  neighbours[2]
                 'left':  neighbours[3]
 
-        registerSquareAt: ->
-
         dropFood: ->
 
             # Drop the food on a random face
