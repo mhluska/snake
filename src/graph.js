@@ -10,86 +10,75 @@
         if (tuples == null) {
           tuples = [];
         }
-        this._edgeWeights = this._assignLabels(tuples);
-        this._idMap = this._makeIdMap(tuples);
-        this._distanceBetween = this._getDistanceBetween();
-        this._neighbours = this._getNeighbours();
+        this._edgeWeights = [];
+        this._assignLabels(tuples);
+        this._idMap = {};
+        this._makeIdMap(tuples);
+        this._distanceBetween = {};
+        this._getDistanceBetween();
+        this._neighbours = {};
+        this._getNeighbours();
       }
 
-      Graph.prototype._getDistanceBetween = function() {
-        var isWeightless;
-        isWeightless = this._weightlessGraph();
-        return this._eachTupleMakeObject(this._edgeWeights, function(obj, vertex1, vertex2, weight) {
-          var _ref, _ref1;
-          if (isWeightless) {
-            weight = 1;
-          }
-          if ((_ref = obj[vertex1]) == null) {
-            obj[vertex1] = {};
-          }
-          if ((_ref1 = obj[vertex2]) == null) {
-            obj[vertex2] = {};
-          }
-          obj[vertex1][vertex2] = weight;
-          return obj[vertex2][vertex1] = weight;
-        });
-      };
-
-      Graph.prototype._getNeighbours = function() {
-        return this._eachTupleMakeObject(this._edgeWeights, function(obj, vertex1, vertex2) {
-          var _ref, _ref1;
-          if ((_ref = obj[vertex1]) == null) {
-            obj[vertex1] = [];
-          }
-          if ((_ref1 = obj[vertex2]) == null) {
-            obj[vertex2] = [];
-          }
-          if (vertex1 !== vertex2) {
-            obj[vertex1].push(vertex2);
-            return obj[vertex2].push(vertex1);
-          }
-        });
-      };
-
-      Graph.prototype._makeIdMap = function(tuples) {
-        var _this = this;
-        return this._eachTupleMakeObject(tuples, function(obj, vertex1, vertex2) {
-          obj[_this._toId(vertex1)] = vertex1;
-          return obj[_this._toId(vertex2)] = vertex2;
-        });
-      };
-
-      Graph.prototype._toId = function(datum) {
-        return (Utils.equivalenceId(datum)).toString();
-      };
-
       Graph.prototype._assignLabels = function(tuples) {
-        var edgeWeights,
-          _this = this;
-        edgeWeights = [];
-        this._eachTuple(tuples, function(vertex1, vertex2, weight) {
+        var _this = this;
+        return this._eachTuple(tuples, function(vertex1, vertex2, weight) {
           var tuple;
           tuple = [_this._toId(vertex1), _this._toId(vertex2)];
           if (weight) {
             tuple.push(weight);
           }
-          return edgeWeights.push(tuple);
+          return _this._edgeWeights.push(tuple);
         });
-        return edgeWeights;
       };
 
-      Graph.prototype._eachTupleMakeObject = function(tuples, callback, obj) {
-        var tuple, _i, _len;
-        if (obj == null) {
-          obj = {};
-        }
-        for (_i = 0, _len = tuples.length; _i < _len; _i++) {
-          tuple = tuples[_i];
-          if (false === callback.apply(null, [obj].concat(__slice.call(tuple)))) {
-            return;
+      Graph.prototype._makeIdMap = function(tuples) {
+        var _this = this;
+        return this._eachTuple(tuples, function(vertex1, vertex2) {
+          _this._idMap[_this._toId(vertex1)] = vertex1;
+          return _this._idMap[_this._toId(vertex2)] = vertex2;
+        });
+      };
+
+      Graph.prototype._getDistanceBetween = function() {
+        var isWeightless,
+          _this = this;
+        isWeightless = this._weightlessGraph();
+        return this._eachTuple(this._edgeWeights, function(vertex1, vertex2, weight) {
+          var _base, _base1, _ref, _ref1;
+          if (isWeightless) {
+            weight = 1;
           }
-        }
-        return obj;
+          if ((_ref = (_base = _this._distanceBetween)[vertex1]) == null) {
+            _base[vertex1] = {};
+          }
+          if ((_ref1 = (_base1 = _this._distanceBetween)[vertex2]) == null) {
+            _base1[vertex2] = {};
+          }
+          _this._distanceBetween[vertex1][vertex2] = weight;
+          return _this._distanceBetween[vertex2][vertex1] = weight;
+        });
+      };
+
+      Graph.prototype._getNeighbours = function() {
+        var _this = this;
+        return this._eachTuple(this._edgeWeights, function(vertex1, vertex2) {
+          var _base, _base1, _ref, _ref1;
+          if ((_ref = (_base = _this._neighbours)[vertex1]) == null) {
+            _base[vertex1] = [];
+          }
+          if ((_ref1 = (_base1 = _this._neighbours)[vertex2]) == null) {
+            _base1[vertex2] = [];
+          }
+          if (vertex1 !== vertex2) {
+            _this._neighbours[vertex1].push(vertex2);
+            return _this._neighbours[vertex2].push(vertex1);
+          }
+        });
+      };
+
+      Graph.prototype._toId = function(datum) {
+        return (Utils.equivalenceId(datum)).toString();
       };
 
       Graph.prototype._eachTuple = function(tuples, callback) {

@@ -26,62 +26,57 @@ define ['src/utils'], (Utils) ->
         constructor: (tuples = []) ->
 
             # Replace any objects passed to the graph with unique IDs
-            @_edgeWeights = @_assignLabels tuples
+            @_edgeWeights = []
+            @_assignLabels tuples
 
             # Map those unique IDs to the original objects for retrieval later
-            @_idMap = @_makeIdMap tuples
+            @_idMap = {}
+            @_makeIdMap tuples
 
             # Setup neighbour arrays and bi-directional distances between 
             # vertices
-            @_distanceBetween = @_getDistanceBetween()
-            @_neighbours = @_getNeighbours()
-
-        _getDistanceBetween: ->
-            
-            isWeightless = @_weightlessGraph()
-            @_eachTupleMakeObject @_edgeWeights, (obj, vertex1, vertex2, weight) ->
-
-                weight = 1 if isWeightless
-                obj[vertex1] ?= {}
-                obj[vertex2] ?= {}
-                obj[vertex1][vertex2] = weight
-                obj[vertex2][vertex1] = weight
-
-        _getNeighbours: ->
-
-            @_eachTupleMakeObject @_edgeWeights, (obj, vertex1, vertex2) ->
-                obj[vertex1] ?= []
-                obj[vertex2] ?= []
-
-                unless vertex1 is vertex2
-                    obj[vertex1].push vertex2
-                    obj[vertex2].push vertex1
-
-        _makeIdMap: (tuples) ->
-
-            @_eachTupleMakeObject tuples, (obj, vertex1, vertex2) =>
-
-                obj[@_toId vertex1] = vertex1
-                obj[@_toId vertex2] = vertex2
-
-
-        _toId: (datum) -> (Utils.equivalenceId datum).toString()
+            @_distanceBetween = {}
+            @_getDistanceBetween()
+            @_neighbours = {}
+            @_getNeighbours()
 
         _assignLabels: (tuples) ->
             
-            edgeWeights = []
             @_eachTuple tuples, (vertex1, vertex2, weight) =>
 
                 tuple = [@_toId(vertex1), @_toId(vertex2)]
                 tuple.push weight if weight
-                edgeWeights.push tuple
+                @_edgeWeights.push tuple
 
-            edgeWeights
+        _makeIdMap: (tuples) ->
 
-        _eachTupleMakeObject: (tuples, callback, obj = {}) ->
-            for tuple in tuples
-                return if false is callback obj, tuple...
-            obj
+            @_eachTuple tuples, (vertex1, vertex2) =>
+
+                @_idMap[@_toId vertex1] = vertex1
+                @_idMap[@_toId vertex2] = vertex2
+
+        _getDistanceBetween: ->
+            
+            isWeightless = @_weightlessGraph()
+            @_eachTuple @_edgeWeights, (vertex1, vertex2, weight) =>
+
+                weight = 1 if isWeightless
+                @_distanceBetween[vertex1] ?= {}
+                @_distanceBetween[vertex2] ?= {}
+                @_distanceBetween[vertex1][vertex2] = weight
+                @_distanceBetween[vertex2][vertex1] = weight
+
+        _getNeighbours: ->
+
+            @_eachTuple @_edgeWeights, (vertex1, vertex2) =>
+                @_neighbours[vertex1] ?= []
+                @_neighbours[vertex2] ?= []
+
+                unless vertex1 is vertex2
+                    @_neighbours[vertex1].push vertex2
+                    @_neighbours[vertex2].push vertex1
+
+        _toId: (datum) -> (Utils.equivalenceId datum).toString()
 
         _eachTuple: (tuples, callback) ->
 
