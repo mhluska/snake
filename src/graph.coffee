@@ -121,7 +121,7 @@ define ['src/utils'], (Utils) ->
                 for neighbour in @_neighbours[closest]
                     # TODO: Avoid this linear time operation by working with a 
                     # copy of @neighbours
-                    continue if vertices.indexOf(neighbour) is -1
+                    continue if neighbours isnt in vertices
 
                     # The length of the path from source to neighbour if it 
                     # goes through closest

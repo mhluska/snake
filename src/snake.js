@@ -173,7 +173,7 @@
       };
 
       Snake.prototype._findFoodPath = function() {
-        var foodPositions, graph, pairs;
+        var foodPositions, graph, pair, pairs;
         foodPositions = this._visibleFood().map(function(food) {
           return food.toString();
         });
@@ -182,10 +182,15 @@
         }
         graph = new Graph(this.grid.toGraph());
         pairs = graph.dijkstras.apply(graph, [this.head.toString()].concat(__slice.call(foodPositions)));
-        pairs = pairs.map(function(pair) {
-          return new Pair(pair);
-        });
-        return pairs;
+        return pairs = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = pairs.length; _i < _len; _i++) {
+            pair = pairs[_i];
+            _results.push(new Pair(pair));
+          }
+          return _results;
+        })();
       };
 
       Snake.prototype._updateMoves = function() {

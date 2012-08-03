@@ -18,17 +18,6 @@ define [
 
             @_world = null
 
-        _squareToEdges: (pos) =>
-
-            return if @squareHasType 'snake', pos
-
-            edges = []
-            @eachAdjacentPosition pos, (adjacentPos, direction) =>
-                return if @squareHasType 'snake', adjacentPos
-                edges.push [ pos.toString(), adjacentPos.toString() ]
-
-            edges
-
         destroyWorld: ->
 
             @eachSquare (pos, square) ->
@@ -72,11 +61,22 @@ define [
           @_world[pos.x][pos.y][type] = value
 
         toGraph: ->
-            # start = Date.now()
+
             graphEdges = []
+            visited = {}
 
             # TODO: Our graphEdges data structure has duplicate edges but it 
             # doesn't matter for now
-            @eachSquare (pos) => Utils.concat graphEdges, @_squareToEdges pos
-            # console.log "time to build graph: #{Date.now() - start}ms"
+            @eachSquare (pos) =>
+
+                return if @squareHasType 'snake', pos
+
+                visited[pos] = true
+
+                @eachAdjacentPosition pos, (adjPos, direction) =>
+
+                    unless visited[adjPos] or @squareHasType 'snake', adjPos
+
+                        graphEdges.push [ pos.toString(), adjPos.toString() ]
+
             graphEdges
