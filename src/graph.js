@@ -6,59 +6,16 @@
     var Graph;
     return Graph = (function() {
 
-      function Graph(tuples) {
-        if (tuples == null) {
-          tuples = [];
-        }
-        this._edgeWeights = [];
-        this._assignLabels(tuples);
-        this._idMap = {};
-        this._makeIdMap(tuples);
-        this._distanceBetween = {};
-        this._getDistanceBetween();
+      function Graph(_edgeWeights) {
+        this._edgeWeights = _edgeWeights != null ? _edgeWeights : [];
         this._neighbours = {};
         this._getNeighbours();
+        this._weightless = this._isWeightlessGraph();
+        if (!this._weightless) {
+          this._distanceBetween = {};
+          this._getDistanceBetween();
+        }
       }
-
-      Graph.prototype._assignLabels = function(tuples) {
-        var _this = this;
-        return this._eachTuple(tuples, function(vertex1, vertex2, weight) {
-          var tuple;
-          tuple = [_this._toId(vertex1), _this._toId(vertex2)];
-          if (weight) {
-            tuple.push(weight);
-          }
-          return _this._edgeWeights.push(tuple);
-        });
-      };
-
-      Graph.prototype._makeIdMap = function(tuples) {
-        var _this = this;
-        return this._eachTuple(tuples, function(vertex1, vertex2) {
-          _this._idMap[_this._toId(vertex1)] = vertex1;
-          return _this._idMap[_this._toId(vertex2)] = vertex2;
-        });
-      };
-
-      Graph.prototype._getDistanceBetween = function() {
-        var isWeightless,
-          _this = this;
-        isWeightless = this._weightlessGraph();
-        return this._eachTuple(this._edgeWeights, function(vertex1, vertex2, weight) {
-          var _base, _base1, _ref, _ref1;
-          if (isWeightless) {
-            weight = 1;
-          }
-          if ((_ref = (_base = _this._distanceBetween)[vertex1]) == null) {
-            _base[vertex1] = {};
-          }
-          if ((_ref1 = (_base1 = _this._distanceBetween)[vertex2]) == null) {
-            _base1[vertex2] = {};
-          }
-          _this._distanceBetween[vertex1][vertex2] = weight;
-          return _this._distanceBetween[vertex2][vertex1] = weight;
-        });
-      };
 
       Graph.prototype._getNeighbours = function() {
         var _this = this;
@@ -77,10 +34,6 @@
         });
       };
 
-      Graph.prototype._toId = function(datum) {
-        return (Utils.equivalenceId(datum)).toString();
-      };
-
       Graph.prototype._eachTuple = function(tuples, callback) {
         var tuple, _i, _len;
         for (_i = 0, _len = tuples.length; _i < _len; _i++) {
@@ -91,7 +44,7 @@
         }
       };
 
-      Graph.prototype._weightlessGraph = function() {
+      Graph.prototype._isWeightlessGraph = function() {
         var pair, _i, _len, _ref;
         _ref = this._edgeWeights;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -107,22 +60,34 @@
         var path;
         path = [];
         while (previous[target]) {
-          path.unshift(this._idMap[target]);
+          path.unshift(target);
           target = previous[target];
         }
         return path;
       };
 
-      Graph.prototype._keysToData = function(dict) {
-        var key, newDict;
-        newDict = {};
-        for (key in dict) {
-          newDict[this._idMap[key]] = key;
-        }
-        return newDict;
+      Graph.prototype._getDistanceBetween = function() {
+        var _this = this;
+        return this._eachTuple(this._edgeWeights, function(vertex1, vertex2, weight) {
+          var _base, _base1, _ref, _ref1;
+          if (isWeightless) {
+            weight = 1;
+          }
+          if ((_ref = (_base = _this._distanceBetween)[vertex1]) == null) {
+            _base[vertex1] = {};
+          }
+          if ((_ref1 = (_base1 = _this._distanceBetween)[vertex2]) == null) {
+            _base1[vertex2] = {};
+          }
+          _this._distanceBetween[vertex1][vertex2] = weight;
+          return _this._distanceBetween[vertex2][vertex1] = weight;
+        });
       };
 
       Graph.prototype.distanceBetween = function(vertex1, vertex2) {
+        if (this._weightless) {
+          return 1;
+        }
         return this._distanceBetween[vertex1][vertex2] || Infinity;
       };
 
@@ -136,16 +101,11 @@
       };
 
       Graph.prototype.dijkstras = function() {
-        var alt, closest, distance, minDistance, neighbour, pathDistances, previous, source, targetIndex, targets, vertex, vertices, _i, _j, _k, _len, _len1, _len2, _ref, _ref1,
-          _this = this;
+        var alt, closest, distance, minDistance, neighbour, pathDistances, previous, source, targetIndex, targets, vertex, vertices, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
         source = arguments[0], targets = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
         if (!source) {
           return;
         }
-        source = this._toId(source);
-        targets = targets.map(function(target) {
-          return _this._toId(target);
-        });
         vertices = this.vertices();
         distance = {};
         previous = {};
@@ -182,7 +142,7 @@
           }
         }
         if (!targets.length) {
-          return this._keysToData(distance);
+          return distance;
         }
         pathDistances = targets.map(function(target) {
           return distance[target];

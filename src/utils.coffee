@@ -33,26 +33,3 @@ define ['src/pair'], (Pair) ->
             lengths = args.map (array) -> array.length
             minLength = Math.min.apply null, lengths
             args[lengths.indexOf minLength]
-
-        # Returns an ID classifying a datum by strict equality to any other 
-        # datum. The datum can be an object or primitive. E.g. passing in the 
-        # integer 1 will always return an ID x, while passing in an object {} 
-        # will return IDs xi, xi+1, xi+2, ... since object equality is based on
-        # memory address while primitive equality is based on evaluation.
-        @equivalenceId: do ->
-
-            id = 0
-            dataIds = []
-            dataAdded = []
-
-            (datum) ->
-
-                index = dataAdded.indexOf datum
-
-                if index is -1
-
-                    dataAdded.push datum
-                    dataIds.push id
-                    return id++
-
-                dataIds[index]

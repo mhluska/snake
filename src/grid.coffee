@@ -72,10 +72,11 @@ define [
           @_world[pos.x][pos.y][type] = value
 
         toGraph: ->
-
+            # start = Date.now()
             graphEdges = []
 
             # TODO: Our graphEdges data structure has duplicate edges but it 
             # doesn't matter for now
             @eachSquare (pos) => Utils.concat graphEdges, @_squareToEdges pos
+            # console.log "time to build graph: #{Date.now() - start}ms"
             graphEdges

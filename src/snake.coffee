@@ -127,10 +127,14 @@ define [
             foodPositions = @_visibleFood().map (food) -> food.toString()
             return [] unless foodPositions.length
 
+            # start = Date.now()
             graph = new Graph @grid.toGraph()
+            # console.log "time to construct graph: #{Date.now() - start}ms"
 
+            # start = Date.now()
             pairs = graph.dijkstras @head.toString(), foodPositions...
             pairs = pairs.map (pair) -> new Pair pair
+            # console.log "time to run algo: #{Date.now() - start}ms"
             pairs
 
         _updateMoves: ->

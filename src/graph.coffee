@@ -23,48 +23,16 @@ define ['src/utils'], (Utils) ->
 
     class Graph
 
-        constructor: (tuples = []) ->
+        constructor: (@_edgeWeights = []) ->
 
-            # Replace any objects passed to the graph with unique IDs
-            @_edgeWeights = []
-            @_assignLabels tuples
-
-            # Map those unique IDs to the original objects for retrieval later
-            @_idMap = {}
-            @_makeIdMap tuples
-
-            # Setup neighbour arrays and bi-directional distances between 
-            # vertices
-            @_distanceBetween = {}
-            @_getDistanceBetween()
             @_neighbours = {}
             @_getNeighbours()
 
-        _assignLabels: (tuples) ->
-            
-            @_eachTuple tuples, (vertex1, vertex2, weight) =>
+            @_weightless = @_isWeightlessGraph()
 
-                tuple = [@_toId(vertex1), @_toId(vertex2)]
-                tuple.push weight if weight
-                @_edgeWeights.push tuple
-
-        _makeIdMap: (tuples) ->
-
-            @_eachTuple tuples, (vertex1, vertex2) =>
-
-                @_idMap[@_toId vertex1] = vertex1
-                @_idMap[@_toId vertex2] = vertex2
-
-        _getDistanceBetween: ->
-            
-            isWeightless = @_weightlessGraph()
-            @_eachTuple @_edgeWeights, (vertex1, vertex2, weight) =>
-
-                weight = 1 if isWeightless
-                @_distanceBetween[vertex1] ?= {}
-                @_distanceBetween[vertex2] ?= {}
-                @_distanceBetween[vertex1][vertex2] = weight
-                @_distanceBetween[vertex2][vertex1] = weight
+            unless @_weightless
+                @_distanceBetween = {}
+                @_getDistanceBetween()
 
         _getNeighbours: ->
 
@@ -76,14 +44,12 @@ define ['src/utils'], (Utils) ->
                     @_neighbours[vertex1].push vertex2
                     @_neighbours[vertex2].push vertex1
 
-        _toId: (datum) -> (Utils.equivalenceId datum).toString()
-
         _eachTuple: (tuples, callback) ->
 
             for tuple in tuples
                 return if false is callback tuple...
 
-        _weightlessGraph: ->
+        _isWeightlessGraph: ->
 
             for pair in @_edgeWeights
                 return false if pair.length isnt 2
@@ -95,18 +61,24 @@ define ['src/utils'], (Utils) ->
 
             path = []
             while previous[target]
-                path.unshift @_idMap[target]
+                path.unshift target
                 target = previous[target]
 
             path
 
-        _keysToData: (dict) ->
+        _getDistanceBetween: ->
+            
+            @_eachTuple @_edgeWeights, (vertex1, vertex2, weight) =>
 
-            newDict = {}
-            newDict[ @_idMap[key] ] = key for key of dict
-            newDict
+                weight = 1 if isWeightless
+                @_distanceBetween[vertex1] ?= {}
+                @_distanceBetween[vertex2] ?= {}
+                @_distanceBetween[vertex1][vertex2] = weight
+                @_distanceBetween[vertex2][vertex1] = weight
 
         distanceBetween: (vertex1, vertex2) ->
+            
+            return 1 if @_weightless
 
             @_distanceBetween[vertex1][vertex2] or Infinity
 
@@ -121,8 +93,6 @@ define ['src/utils'], (Utils) ->
 
             return unless source
 
-            source = @_toId source
-            targets = targets.map (target) => @_toId target
             vertices = @vertices()
 
             # Initialize distance and previous
@@ -161,10 +131,11 @@ define ['src/utils'], (Utils) ->
                         distance[neighbour] = alt
                         previous[neighbour] = closest
                         
-            return @_keysToData distance unless targets.length
+            return distance unless targets.length
 
             pathDistances = targets.map (target) -> distance[target]
             minDistance = Math.min.apply null, pathDistances
             targetIndex = pathDistances.indexOf minDistance
 
             @_shortestPath previous, source, targets[targetIndex]
+
