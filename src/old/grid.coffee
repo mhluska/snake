@@ -11,6 +11,9 @@ define [
 
         constructor: (@game, @squaresX = 25, @squaresY = 15) ->
 
+            # TODO: Change this so that the user provides grid dimensions and
+            # the square dimensions are hard coded. SquaresX and squaresY will
+            # be calculated.
             @squareWidth = 15
             @squareHeight = 15
 
@@ -36,18 +39,14 @@ define [
 
                         @_world[row][column][type] = new Piece null, type
 
-        moduloBoundaries: (pair) ->
-
-            super pair
-
-        eachSquare: (callback) ->
+        eachSquare: (callback, faceIndex = 0) ->
 
             return unless @_world
 
             for column, x in @_world
                 for square, y in column
-                    pos = new Pair x, y
-                    callback pos, square
+                    pos = new Pair x, y, faceIndex
+                    return false if false is callback pos, square
 
         # squareAt(pos) returns key/value pairs of all the squares at pos.
         # squareAt(pos, type) returns the square at pos with type type.

@@ -5,58 +5,17 @@
     var Pair;
     return Pair = (function() {
 
-      function Pair(x, y, faceIndex) {
-        var _ref;
-        this.x = x != null ? x : 0;
-        this.y = y != null ? y : 0;
-        this.faceIndex = faceIndex != null ? faceIndex : 0;
-        if (arguments.length > 1) {
-          _ref = [x, y], this.x = _ref[0], this.y = _ref[1];
-        } else if (arguments.length === 1) {
-          this._parsePairString(x);
-        }
+      function Pair(x, y) {
+        this.x = x;
+        this.y = y;
       }
 
-      Pair.prototype._parsePairString = function(string) {
-        var matches, regex, _ref;
-        regex = /\((\d+), ?(\d+)\)/g;
-        matches = regex.exec(string);
-        return _ref = [parseInt(matches[1]), parseInt(matches[2])], this.x = _ref[0], this.y = _ref[1], _ref;
-      };
-
-      Pair.prototype.clone = function() {
-        return new Pair(this.x, this.y, this.faceIndex);
-      };
-
-      Pair.prototype.copy = function(pair) {
-        var _ref;
-        if (!pair) {
-          return;
-        }
-        return _ref = [pair.x, pair.y, pair.faceIndex], this.x = _ref[0], this.y = _ref[1], this.faceIndex = _ref[2], _ref;
-      };
-
-      Pair.prototype.equals = function(pair) {
-        if (!pair) {
-          return false;
-        }
-        return this.x === pair.x && this.y === pair.y && this.faceIndex === pair.faceIndex;
+      Pair.prototype.multiply = function(val) {
+        return new Pair(this.x * val, this.y * val);
       };
 
       Pair.prototype.toString = function() {
-        return "(" + this.x + ", " + this.y + ") [" + this.faceIndex + "]";
-      };
-
-      Pair.prototype.length = function() {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
-      };
-
-      Pair.prototype.subtract = function(pair) {
-        return new Pair(this.x - pair.x, this.y - pair.y);
-      };
-
-      Pair.prototype.distanceTo = function(pair) {
-        return this.subtract(pair).length();
+        return "(" + this.x + ", " + this.y + ")";
       };
 
       return Pair;

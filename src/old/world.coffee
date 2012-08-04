@@ -11,14 +11,12 @@ define ['src/pair'], (Pair) ->
             @squareHasType 'food', pos
 
         # Handles wrap around of pair coordinates on the game world
-        moduloBoundaries: (pair, squaresX, squaresY) ->
+        moduloBoundaries: (pair) ->
 
             pair.x %= @squaresX
             pair.y %= @squaresY
             pair.x = @squaresX - 1 if pair.x < 0
             pair.y = @squaresY - 1 if pair.y < 0
-
-            pair
 
         # Iterate over adjacent positions, taking into account wrap around
         eachAdjacentPosition: (pos, callback) ->

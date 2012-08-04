@@ -4,11 +4,19 @@
   require.config({
     paths: {
       'jquery': 'lib/jquery'
+    },
+    shim: {
+      'lib/Three.js': {
+        'exports': 'THREE'
+      }
     }
   });
 
-  require(['jquery', 'src/game2'], function($, Game2) {
-    return new Game2('#game');
+  require(['src/game'], function(Game) {
+    var game, gameWrapper;
+    gameWrapper = document.getElementById('game');
+    game = new Game(gameWrapper);
+    return game.run();
   });
 
 }).call(this);

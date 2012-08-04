@@ -21,7 +21,7 @@ define [
             @growUntil = 0
 
             # Whether the AI has set the snake to find food
-            @autoPlay = true
+            @autoPlay = false
 
             @head ?= new Pair 0, 4
             x = @head.x
@@ -41,7 +41,7 @@ define [
                 when 'down'  then nextPos.y += 1
                 when 'left'  then nextPos.x -= 1
 
-            nextPos = @grid.moduloBoundaries nextPos
+            @grid.moduloBoundaries nextPos
 
             return nextPos unless @autoPlay
 
@@ -122,10 +122,9 @@ define [
             
             foodPositions
 
+        # TODO: The snake should adjust its path if a food item spawns
+        # closer to it
         _findFoodPath: ->
-
-            # TODO: The snake should adjust its path if a food item spawns
-            # closer to it
 
             foodPositions = @_visibleFood().map (food) -> food.toString()
             return [] unless foodPositions.length
@@ -157,6 +156,8 @@ define [
             nextHead = @_getNextHead()
             @direction = @_nextDirection nextHead
             @head = nextHead
+
+            console.log "in drawPiece: #{@head.toString()}"
 
             @_updateMoves()
 

@@ -2,5 +2,11 @@ require.config
     paths:
         'jquery': 'lib/jquery'
 
-require ['jquery', 'src/game2'], ($, Game2) ->
-    new Game2 '#game'
+    shim:
+        'lib/Three.js': 'exports': 'THREE'
+
+require ['src/game'], (Game) ->
+
+    gameWrapper = document.getElementById 'game'
+    game = new Game gameWrapper
+    game.run()

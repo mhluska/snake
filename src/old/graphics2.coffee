@@ -4,8 +4,6 @@ define ['jquery', 'src/graphics'], ($, Graphics) ->
 
         constructor: (@game, @grid, @gridNode) ->
 
-            super @game
-
             @_buildDom()
 
         _buildDom: (gridNode) ->
@@ -13,8 +11,6 @@ define ['jquery', 'src/graphics'], ($, Graphics) ->
             @gridNode.css
                 width: @grid.squareWidth * @grid.squaresX
                 height: @grid.squareHeight * @grid.squaresY
-
-            $('body').prepend @gridNode
 
         _buildDomNode: (pos, type) ->
 
@@ -39,20 +35,12 @@ define ['jquery', 'src/graphics'], ($, Graphics) ->
 
             piece.hidden() and $(piece.node).is ':visible'
 
-        _makeNode: (pos, type) ->
+        _showPiece: (piece) -> $(piece.node).show()
+
+        _hidePiece: (piece) -> $(piece.node).hide()
+
+        _drawPiece: (pos, type) ->
 
             node = @_buildDomNode pos, type
             @gridNode.append node
             @_setNodePosition node, pos
-
-        update: ->
-
-            @grid.eachSquare (pos, square) =>
-
-                for type, piece of square
-                    
-                    if @_awaitingShow piece
-                        piece.node = @_makeNode(pos, type) unless piece.exists()
-                        $(piece.node).show()
-
-                    $(piece.node).hide() if @_awaitingHide piece

@@ -9,22 +9,16 @@ define [
 
     class Cube extends World
 
-        constructor: (@game, length = 15) ->
+        constructor: (@game, squares = 15) ->
 
-            @squaresX = @squaresY = length
+            @squaresX = @squaresY = squares
 
-            @_faces = (new Grid(game, length, length) for index in [0..5])
+            # TODO: Change this so that the user provides a cube dimension and
+            # the square size is hard coded. SquaresX and squaresY will be 
+            # calculated.
+            @squareSize = 15
 
-            # Create a graph to model face connections
-            # TODO: Possibly don't need this
-            @cubeGraph = new Graph [
-
-                [@_faces[2], @_faces[0]]
-                [@_faces[2], @_faces[1]]
-                [@_faces[2], @_faces[3]]
-                [@_faces[2], @_faces[5]]
-                [@_faces[3], @_faces[4]]
-            ]
+            @_faces = (new Grid(game, squares, squares) for index in [0..5])
 
         # Define directions for traversing the cube
         _adjacentFaces: do ->
@@ -33,21 +27,26 @@ define [
             # startIndex: [up, right, down, left]
             orientation =
 
-                0: [4, 3, 2, 1]
-                1: [0, 2, 5, 4]
-                2: [0, 3, 5, 1]
-                3: [0, 4, 5, 2]
-                4: [0, 1, 5, 3]
-                5: [2, 3, 4, 1]
+                0: [2, 3, 4, 1]
+                1: [4, 0, 2, 5]
+                2: [1, 5, 3, 0]
+                3: [2, 5, 5, 2]
+                4: [3, 5, 0, 1]
+                5: [2, 1, 4, 3]
 
             (index) ->
 
                 neighbours = orientation[index]
 
-                'up':    neighbours[0]
+                'up':    neighbours[2]
                 'right': neighbours[1]
-                'down':  neighbours[2]
+                'down':  neighbours[0]
                 'left':  neighbours[3]
+
+        eachSquare: (callback) ->
+
+            for grid, index in @_faces
+                return false if false is grid.eachSquare callback, index
 
         dropFood: ->
 
@@ -60,29 +59,30 @@ define [
 
             @_faces[pos.faceIndex].squareAt pos, type, value
 
+        toGraph: ->
+
         makeWorld: ->
 
             grid.makeWorld() for grid in @_faces
 
         moduloBoundaries: (pair) ->
 
-            pair = super pair
             pair.faceIndex =
 
                 # The snake can move in only one direction at a time, so at most
                 # one of these cases will be true:
                 if pair.y < 0
-                    @_adjacentFaces(pair.faceIndex).up
+                    @_adjacentFaces(pair.faceIndex).down
 
-                else if pair.x > @length
+                else if pair.x >= @squaresX
                     @_adjacentFaces(pair.faceIndex).right
 
-                else if pair.y > @length
-                    @_adjacentFaces(pair.faceIndex).down
+                else if pair.y >= @squaresY
+                    @_adjacentFaces(pair.faceIndex).up
 
                 else if pair.x < 0
                     @_adjacentFaces(pair.faceIndex).left
 
                 else pair.faceIndex
 
-            pair
+            super pair
