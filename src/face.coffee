@@ -1,12 +1,12 @@
-define ['src/square'], (Square) ->
+define ['src/square', 'src/constants'], (Square, Const) ->
 
     class Face
 
         constructor: (@normal, @offset = false) ->
 
-            @_squareCount = 15
-            @_squareSideLength = 15
-            @_sideLength = @_squareCount * @_squareSideLength
+            Const.squareCount = 15
+            Const.squareSize = 15
+            @_sideLength = Const.squareCount * Const.squareSize
 
             @_buildFace()
             @_connectSquares()
@@ -79,16 +79,18 @@ define ['src/square'], (Square) ->
                 square.connect otherEdge[index], direction
 
         topEdge: ->
-            @squares[index][@_squareCount - 1] for index in [0...@_squareCount]
+            for index in [0...Const.squareCount]
+                @squares[index][Const.squareCount - 1]
 
         rightEdge: ->
-            @squares[@_squareCount - 1][index] for index in [0...@_squareCount]
+            for index in [0...Const.squareCount]
+                @squares[Const.squareCount - 1][index]
 
         bottomEdge: ->
-            @squares[index][0] for index in [0...@_squareCount]
+            @squares[index][0] for index in [0...Const.squareCount]
 
         leftEdge: ->
-            @squares[0][index] for index in [0...@_squareCount]
+            @squares[0][index] for index in [0...Const.squareCount]
 
         _getEdge: (direction) ->
 
@@ -115,29 +117,29 @@ define ['src/square'], (Square) ->
         _buildFace: ->
 
             @squares = []
-            for x in [0...@_squareCount]
+            for x in [0...Const.squareCount]
 
                 @squares[x] = []
-                for y in [0...@_squareCount]
+                for y in [0...Const.squareCount]
 
-                    posX = x * @_squareSideLength
-                    posY = y * @_squareSideLength
+                    posX = x * Const.squareSize
+                    posY = y * Const.squareSize
 
                     @squares[x][y] = new Square @_orderArgs(posX, posY)...
 
         _adjacentPositions: (x, y) ->
 
             directions = {}
-            directions.up =    [x, y + 1] if y < @_squareCount - 1
-            directions.right = [x + 1, y] if x < @_squareCount - 1
+            directions.up =    [x, y + 1] if y < Const.squareCount - 1
+            directions.right = [x + 1, y] if x < Const.squareCount - 1
             directions.down =  [x, y - 1] if y > 0
             directions.left =  [x - 1, y] if x > 0
             directions
 
         _connectSquares: ->
 
-            for x in [0...@_squareCount]
-                for y in [0...@_squareCount]
+            for x in [0...Const.squareCount]
+                for y in [0...Const.squareCount]
 
                     for direction, pos of @_adjacentPositions x, y
 

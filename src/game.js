@@ -8,8 +8,8 @@
       function Game(container) {
         this._timeStepRate = 100;
         this._buildCube();
-        this._snake = new Snake;
-        this._graphics = new Graphics3(this.faces);
+        this._snake = new Snake(this.faces);
+        this._graphics = new Graphics3(this.faces, container);
         console.log('constructed');
         window.game = this;
       }

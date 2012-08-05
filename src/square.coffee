@@ -6,6 +6,8 @@ define ['src/utils'], (Utils) ->
         constructor: (@x, @y, @z) ->
 
             @neighbours = {}
+            @pieces = []
+            @status = 'off'
             @node = null
 
         @sideLength: 15

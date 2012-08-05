@@ -14,8 +14,8 @@ define [
 
             @_buildCube()
 
-            @_snake = new Snake
-            @_graphics = new Graphics3 @faces
+            @_snake = new Snake @faces
+            @_graphics = new Graphics3 @faces, container
 
             console.log 'constructed'
             window.game = @

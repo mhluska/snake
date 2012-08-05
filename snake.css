@@ -20,4 +20,6 @@ body {
     background-color: #dfe4f9;
     position: relative;
     margin: 0 auto;
+    width: 800px;
+    height: 600px;
 }
