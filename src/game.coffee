@@ -1,27 +1,45 @@
-define ['src/face'], (Face) ->
+define [
+    
+    'src/face'
+    'src/snake'
+    'src/graphics3'
+
+    ], (Face, Snake, Graphics3) ->
     
     class Game
 
-        constructor: ->
+        constructor: (container) ->
+
+            @_timeStepRate = 100
 
             @_buildCube()
+
+            @_snake = new Snake
+            @_graphics = new Graphics3 @faces
 
             console.log 'constructed'
             window.game = @
 
         run: ->
 
+            setInterval =>
+
+                @_snake.move()
+                @_graphics.update()
+
+            , @_timeStepRate
+
         _buildCube: ->
 
-            @cubeFaces = []
+            @faces = []
 
-            @cubeFaces.push new Face 'x', true
-            @cubeFaces.push new Face 'y', true
-            @cubeFaces.push new Face 'z', true
-            @cubeFaces.push new Face 'x'
-            @cubeFaces.push new Face 'y'
-            @cubeFaces.push new Face 'z'
+            @faces.push new Face 'x', true
+            @faces.push new Face 'y', true
+            @faces.push new Face 'z', true
+            @faces.push new Face 'x'
+            @faces.push new Face 'y'
+            @faces.push new Face 'z'
 
-            for face, index in @cubeFaces
-                for otherFace, index2 in @cubeFaces when index2 > index
+            for face, index in @faces
+                for otherFace, index2 in @faces when index2 > index
                     face.connect otherFace
