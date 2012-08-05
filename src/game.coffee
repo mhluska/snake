@@ -15,11 +15,13 @@ define ['src/face'], (Face) ->
 
             @cubeFaces = []
 
-            @cubeFaces.push new Face x: true
-            @cubeFaces.push new Face y: true
-            @cubeFaces.push new Face z: true
-            @cubeFaces.push new Face x: null
-            @cubeFaces.push new Face y: null
-            @cubeFaces.push new Face z: null
+            @cubeFaces.push new Face 'x', true
+            @cubeFaces.push new Face 'y', true
+            @cubeFaces.push new Face 'z', true
+            @cubeFaces.push new Face 'x'
+            @cubeFaces.push new Face 'y'
+            @cubeFaces.push new Face 'z'
 
-            console.log @cubeFaces[0].squares[0][6]
+            for face, index in @cubeFaces
+                for otherFace, index2 in @cubeFaces when index2 > index
+                    face.connect otherFace

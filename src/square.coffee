@@ -1,4 +1,4 @@
-define ->
+define ['src/utils'], (Utils) ->
 
     class Square
 
@@ -7,6 +7,11 @@ define ->
 
             @neighbours = {}
 
+        @sideLength: 15
+
         connect: (square, direction) ->
 
             @neighbours[direction] = square
+            square.neighbours[Utils.opposite direction] = @
+
+        toString: -> "(#{@x}, #{@y}, #{@z})"

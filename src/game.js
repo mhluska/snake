@@ -14,26 +14,32 @@
       Game.prototype.run = function() {};
 
       Game.prototype._buildCube = function() {
+        var face, index, index2, otherFace, _i, _len, _ref, _results;
         this.cubeFaces = [];
-        this.cubeFaces.push(new Face({
-          x: true
-        }));
-        this.cubeFaces.push(new Face({
-          y: true
-        }));
-        this.cubeFaces.push(new Face({
-          z: true
-        }));
-        this.cubeFaces.push(new Face({
-          x: null
-        }));
-        this.cubeFaces.push(new Face({
-          y: null
-        }));
-        this.cubeFaces.push(new Face({
-          z: null
-        }));
-        return console.log(this.cubeFaces[0].squares[0][6]);
+        this.cubeFaces.push(new Face('x', true));
+        this.cubeFaces.push(new Face('y', true));
+        this.cubeFaces.push(new Face('z', true));
+        this.cubeFaces.push(new Face('x'));
+        this.cubeFaces.push(new Face('y'));
+        this.cubeFaces.push(new Face('z'));
+        _ref = this.cubeFaces;
+        _results = [];
+        for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+          face = _ref[index];
+          _results.push((function() {
+            var _j, _len1, _ref1, _results1;
+            _ref1 = this.cubeFaces;
+            _results1 = [];
+            for (index2 = _j = 0, _len1 = _ref1.length; _j < _len1; index2 = ++_j) {
+              otherFace = _ref1[index2];
+              if (index2 > index) {
+                _results1.push(face.connect(otherFace));
+              }
+            }
+            return _results1;
+          }).call(this));
+        }
+        return _results;
       };
 
       return Game;
