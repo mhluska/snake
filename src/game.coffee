@@ -25,6 +25,7 @@ define [
             setInterval =>
 
                 # @_snake.move()
+                @_graphics.show @_snake.head.face if @_snake.onNewFace()
                 @_graphics.update()
 
             , @_timeStepRate

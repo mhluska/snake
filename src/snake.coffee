@@ -11,13 +11,18 @@ define ['jquery', 'src/utils'], ($, Utils) ->
             @_setupControls()
 
             @pieces = (@_faces[2].squares[0][index] for index in [0...@_length])
-            @head = @pieces[@pieces.length - 1]
+            @head = @pieces[@_length - 1]
+            @prevHead = @pieces[@_length - 2]
             @tail = @pieces[0]
 
             piece.status = 'on' for piece in @pieces
 
             $(window).keydown (event) =>
                 @move() if event.keyCode is 84
+
+        onNewFace: ->
+
+            not @head.adjacentTo @prevHead
 
         move: ->
 
@@ -29,12 +34,13 @@ define ['jquery', 'src/utils'], ($, Utils) ->
 
             @tail = @pieces[0]
 
-            # The snake has entered a new face.
-            if not @head.adjacentTo newHead
-                @_direction = Utils.opposite newHead.face.directionTo @head.face
-
+            @prevHead = @head
             @head = newHead
             @head.status = 'on'
+
+            # The snake has entered a new face.
+            if @onNewFace()
+                @_direction = Utils.opposite @head.face.directionTo @prevHead.face
 
         _setupControls: ->
 

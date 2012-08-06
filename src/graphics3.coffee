@@ -16,6 +16,11 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
             @_controls.update @_clock.getDelta()
             @_renderer.render @_scene, @_camera
 
+        show: (face) ->
+
+            console.log 'showing new face:'
+            console.log face
+
         _buildScene: ->
 
             @_scene = new THREE.Scene()

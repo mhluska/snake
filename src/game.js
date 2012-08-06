@@ -16,6 +16,9 @@
       Game.prototype.run = function() {
         var _this = this;
         return setInterval(function() {
+          if (_this._snake.onNewFace()) {
+            _this._graphics.show(_this._snake.head.face);
+          }
           return _this._graphics.update();
         }, this._timeStepRate);
       };
