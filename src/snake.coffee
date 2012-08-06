@@ -16,6 +16,9 @@ define ['jquery', 'src/utils'], ($, Utils) ->
 
             piece.status = 'on' for piece in @pieces
 
+            $(window).keydown (event) =>
+                @move() if event.keyCode is 84
+
         move: ->
 
             @tail.status = 'off'
@@ -25,6 +28,11 @@ define ['jquery', 'src/utils'], ($, Utils) ->
             @pieces.shift()
 
             @tail = @pieces[0]
+
+            # The snake has entered a new face.
+            if not @head.adjacentTo newHead
+                @_direction = Utils.opposite newHead.face.directionTo @head.face
+
             @head = newHead
             @head.status = 'on'
 

@@ -2,44 +2,45 @@ define [
     
     'src/face'
     'src/snake'
+    'src/utils'
     'src/graphics3'
+    'src/constants'
 
-    ], (Face, Snake, Graphics3) ->
+    ], (Face, Snake, Utils, Graphics3, Const) ->
     
     class Game
 
         constructor: (container) ->
 
-            @_timeStepRate = 100
+            @_timeStepRate = 30
+            @_faces = {}
 
             @_buildCube()
 
-            @_snake = new Snake @faces
-            @_graphics = new Graphics3 @faces, container
-
-            console.log 'constructed'
-            window.game = @
+            @_snake = new Snake @_faces
+            @_graphics = new Graphics3 @_getFaces(), container
 
         run: ->
 
             setInterval =>
 
-                @_snake.move()
+                # @_snake.move()
                 @_graphics.update()
 
             , @_timeStepRate
 
+        _getFaces: -> face for key, face of @_faces
+
         _buildCube: ->
 
-            @faces = []
+            @_faces = [
+                new Face 'x', true
+                new Face 'y', true
+                new Face 'z', true
+                new Face 'x'
+                new Face 'y'
+                new Face 'z'
+            ]
 
-            @faces.push new Face 'x', true
-            @faces.push new Face 'y', true
-            @faces.push new Face 'z', true
-            @faces.push new Face 'x'
-            @faces.push new Face 'y'
-            @faces.push new Face 'z'
-
-            for face, index in @faces
-                for otherFace, index2 in @faces when index2 > index
-                    face.connect otherFace
+            for face, index in @_faces
+                face.connect otherFace for otherFace in @_faces[index..]

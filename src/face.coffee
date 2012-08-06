@@ -4,111 +4,110 @@ define ['src/square', 'src/constants'], (Square, Const) ->
 
         constructor: (@normal, @offset = false) ->
 
-            Const.squareCount = 15
-            Const.squareSize = 15
-            @_sideLength = Const.squareCount * Const.squareSize
+            @squares = []
 
             @_buildFace()
             @_connectSquares()
 
-        # The notion of up, right, down, left is with respect to a front view
-        # of a face, with face 0 being normal to the X axis and face 1 being
-        # normal to the Y axis.
         connect: (face) ->
 
-            if @normal is 'x'
+            return if face is @
 
-                if face.normal is 'y'
+            directionOut = @directionTo face
 
-                    otherEdge = face.rightEdge()
-                    direction = if face.offset then 'up' else 'down'
+            return unless directionOut
 
-                if face.normal is 'z'
+            edgeOut = @getEdge directionOut
 
-                    if face.offset
-                        direction = 'left'
-                        otherEdge = face.rightEdge()
+            directionIn = face.directionTo @
+            edgeIn = face.getEdge directionIn
+
+            @connectEdge edgeOut, edgeIn, directionOut
+            face.connectEdge edgeIn, edgeOut, directionIn
+
+        directionTo: (face) ->
+
+            # Returns undefined if they are not adjacent.
+            return if @normal is face.normal
+
+            switch @normal
+
+                when 'x'
+                    if face.normal is 'y'
+                        if face.offset then 'up' else 'down'
                     else
-                        direction = 'right'
-                        otherEdge = face.leftEdge()
+                        if @offset
+                            if face.offset then 'left' else 'right'
+                        else
+                            if face.offset then 'right' else 'left'
 
-            if @normal is 'y'
-
-                if face.normal is 'x'
-
-                    otherEdge = face.topEdge()
-                    direction = if face.offset then 'right' else 'left'
-
-                if face.normal is 'z'
-
-                    otherEdge = face.topEdge()
-                    direction = if face.offset then 'down' else 'up'
-
-            if @normal is 'z'
-
-                if face.normal is 'x'
-
-                    if face.offset
-                        direction = 'right'
-                        otherEdge = face.leftEdge()
+                when 'y'
+                    if face.normal is 'x'
+                        if face.offset then 'right' else 'left'
                     else
-                        direction = 'left'
-                        otherEdge = face.rightEdge()
+                        if @offset
+                            if face.offset then 'down' else 'up'
+                        else
+                            if face.offset then 'up' else 'down'
 
-                if face.normal is 'y'
-
-                    if face.offset
-                        direction = 'up'
-                        otherEdge = face.bottomEdge()
+                when 'z'
+                    if face.normal is 'y'
+                        if face.offset then 'up' else 'down'
                     else
-                        direction = 'down'
-                        otherEdge = face.topEdge()
+                        if @offset
+                            if face.offset then 'right' else 'left'
+                        else
+                            if face.offset then 'left' else 'right'
 
-            # TODO: Find a better solution for joining edges. This is a hack.
-            edge = @_getEdge direction
+        connectEdge: (edge1, edge2, direction) ->
 
-            return unless edge.length
+            square.connect edge2[index], direction for square, index in edge1
 
-            if @normal in ['x', 'y'] and face.normal in ['x', 'y']
-                if edge[0].z isnt otherEdge[0].z
-                    console.log 'reversing!'
-                    edge.reverse()
+        getEdge: (direction) ->
 
-            for square, index in edge
-                console.log "connecting #{square.toString()} #{otherEdge[index].toString()}"
-                square.connect otherEdge[index], direction
+            switch direction
+                when 'up' then @_topEdge()
+                when 'right' then @_rightEdge()
+                when 'down' then @_bottomEdge()
+                when 'left' then @_leftEdge()
+                else []
 
-        topEdge: ->
-            for index in [0...Const.squareCount]
-                @squares[index][Const.squareCount - 1]
+        _topEdge: ->
 
-        rightEdge: ->
+            edge = (for index in [0...Const.squareCount]
+                @squares[index][Const.squareCount - 1])
+
+            edge.reverse() if @normal in ['y', 'z'] and not @offset
+
+            edge
+
+        _rightEdge: ->
+
             for index in [0...Const.squareCount]
                 @squares[Const.squareCount - 1][index]
 
-        bottomEdge: ->
-            @squares[index][0] for index in [0...Const.squareCount]
+        _bottomEdge: ->
 
-        leftEdge: ->
-            @squares[0][index] for index in [0...Const.squareCount]
+            edge = (@squares[index][0] for index in [0...Const.squareCount])
 
-        _getEdge: (direction) ->
+            edge.reverse() if @normal in ['x', 'z'] and @offset
+            edge.reverse() if @normal is 'y' and not @offset
 
-            switch direction
-                when 'up' then @topEdge()
-                when 'right' then @rightEdge()
-                when 'down' then @bottomEdge()
-                when 'left' then @leftEdge()
-                else []
+            edge
+
+        _leftEdge: ->
+
+            edge = (@squares[0][index] for index in [0...Const.squareCount])
+
+            edge.reverse() if @normal is 'y' and @offset
+
+            edge
 
         _orderArgs: (val1, val2) ->
 
-            offsetAmount = if @offset then @_sideLength else 0
-
-            # The face arrays are filled from the bottom left of a face, so in 
-            # these cases the z positions need to be reversed.
-            val2 = @_sideLength - val2 if @normal is 'y' and @offset
-            val1 = @_sideLength - val1 if @normal is 'x' and @offset
+            # Positions the squares on the surface of the cube.
+            offsetAmount = (Const.cubeSize / 2) + (Const.squareSize / 2)
+            offsetAmount = -offsetAmount unless @offset
 
             return [offsetAmount, val2, val1] if @normal is 'x'
             return [val1, offsetAmount, val2] if @normal is 'y'
@@ -122,19 +121,29 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                 @squares[x] = []
                 for y in [0...Const.squareCount]
 
-                    posX = x * Const.squareSize
-                    posY = y * Const.squareSize
+                    # Map the 2D array indices to square positions on the cube
+                    posX = x * Const.squareSize + (Const.squareSize / 2)
+                    posY = y * Const.squareSize + (Const.squareSize / 2)
 
-                    @squares[x][y] = new Square @_orderArgs(posX, posY)...
+                    # The 2D array is filled from the bottom left, so positions
+                    # need to be reversed in the cases where they are filled
+                    # in the negative direction of the axis.
+                    posX = Const.cubeSize - posX if @normal is 'x' and @offset
+                    posX = Const.cubeSize - posX if @normal is 'z' and not @offset
+                    posY = Const.cubeSize - posY if @normal is 'y' and @offset
+
+                    # Take the cube center into account.
+                    posX -= Const.cubeSize / 2
+                    posY -= Const.cubeSize / 2
+
+                    @squares[x][y] = new Square @, @_orderArgs(posX, posY)...
 
         _adjacentPositions: (x, y) ->
 
-            directions = {}
-            directions.up =    [x, y + 1] if y < Const.squareCount - 1
-            directions.right = [x + 1, y] if x < Const.squareCount - 1
-            directions.down =  [x, y - 1] if y > 0
-            directions.left =  [x - 1, y] if x > 0
-            directions
+            up:     [x, y + 1]
+            right:  [x + 1, y]
+            down:   [x, y - 1]
+            left:   [x - 1, y]
 
         _connectSquares: ->
 
@@ -144,5 +153,5 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                     for direction, pos of @_adjacentPositions x, y
 
                         [xNew, yNew] = pos
-                        @squares[x][y].connect @squares[xNew][yNew], direction
+                        @squares[x][y].connect @squares[xNew]?[yNew], direction
 

@@ -13,6 +13,7 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
                     for square in column
                         @_updateCube square
 
+            @_controls.update @_clock.getDelta()
             @_renderer.render @_scene, @_camera
 
         _buildScene: ->
@@ -24,22 +25,35 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
             sceneHeight = @_container.offsetHeight
             ratio = sceneWidth / sceneHeight
 
-            @_camera = new THREE.PerspectiveCamera 75, ratio, 1, 10000
-            @_camera.position.z = 450
-            @_camera.position.x = 250
-            @_camera.position.y = 300
+            @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
+            @_camera.position.z = 350
+            @_camera.position.x = 150
+            @_camera.position.y = 200
 
             @_scene.add @_camera
 
-            cubeSize = Const.squareCount * Const.squareSize
-            geometry = new THREE.CubeGeometry cubeSize, cubeSize, cubeSize
-            material = new THREE.MeshBasicMaterial color: 0xff0000, wireframe: true
+            geometry = new THREE.CubeGeometry Const.cubeSize, Const.cubeSize,
+                Const.cubeSize
+            material = new THREE.MeshLambertMaterial color: 0xcccccc
             mesh = new THREE.Mesh geometry, material
             @_scene.add mesh
-
             @_camera.lookAt mesh.position
 
-            @_renderer = new THREE.CanvasRenderer()
+            @_scene.add(new THREE.AxisHelper())
+
+            @_clock = new THREE.Clock()
+            @_controls = new THREE.FlyControls @_camera
+            @_controls.movementSpeed = 1000
+            @_controls.domElement = @_container
+            @_controls.rollSpeed = Math.PI / 12
+            @_controls.autoForward = false
+            @_controls.dragToLook = false
+
+            light = new THREE.PointLight 0xffffff
+            light.position.set 300, 600, 600
+            @_scene.add light
+
+            @_renderer = new THREE.WebGLRenderer()
             @_renderer.setSize sceneWidth, sceneHeight
 
             @_container.appendChild @_renderer.domElement

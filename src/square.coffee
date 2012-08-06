@@ -1,20 +1,28 @@
-define ['src/utils'], (Utils) ->
+define ['src/utils', 'src/constants'], (Utils, Const) ->
 
     class Square
 
         # TODO: Pass in a Vector3 if we end up needing to make such a class.
-        constructor: (@x, @y, @z) ->
+        constructor: (@face, @x, @y, @z) ->
 
             @neighbours = {}
             @pieces = []
             @status = 'off'
             @node = null
 
-        @sideLength: 15
-
         connect: (square, direction) ->
 
+            return unless square
+
             @neighbours[direction] = square
-            square.neighbours[Utils.opposite direction] = @
 
         toString: -> "(#{@x}, #{@y}, #{@z})"
+
+        adjacentTo: (square) ->
+
+            adjacencies = 0
+            adjacencies += 1 if Math.abs(@x - square.x) is Const.squareSize
+            adjacencies += 1 if Math.abs(@y - square.y) is Const.squareSize
+            adjacencies += 1 if Math.abs(@z - square.z) is Const.squareSize
+            
+            adjacencies is 1
