@@ -72,6 +72,10 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                 when 'left' then @_leftEdge()
                 else []
 
+        positionFromCentroid: (offset) ->
+
+            @_orderArgs 0, 0, (offset + (Const.cubeSize / 2))
+
         _topEdge: ->
 
             edge = (for index in [0...Const.squareCount]
@@ -103,15 +107,15 @@ define ['src/square', 'src/constants'], (Square, Const) ->
 
             edge
 
-        _orderArgs: (val1, val2) ->
+        _orderArgs: (val1, val2, offset) ->
 
             # Positions the squares on the surface of the cube.
-            offsetAmount = (Const.cubeSize / 2) + (Const.squareSize / 2)
-            offsetAmount = -offsetAmount unless @offset
+            offset ?= (Const.cubeSize / 2) + (Const.squareSize / 2)
+            offset = -offset unless @offset
 
-            return [offsetAmount, val2, val1] if @normal is 'x'
-            return [val1, offsetAmount, val2] if @normal is 'y'
-            return [val1, val2, offsetAmount] if @normal is 'z'
+            return [offset, val2, val1] if @normal is 'x'
+            return [val1, offset, val2] if @normal is 'y'
+            return [val1, val2, offset] if @normal is 'z'
 
         _buildFace: ->
 

@@ -13,52 +13,75 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
                     for square in column
                         @_updateCube square
 
-            @_controls.update @_clock.getDelta()
+            @_controls?.update @_clock.getDelta()
             @_renderer.render @_scene, @_camera
 
         show: (face) ->
 
+            window.camera = @_camera
+
+            newPosition = new THREE.Vector3 @_cameraOffset(face)...
+            intervalId = null
+            animation = =>
+
+                @_camera.position[face.normal] = (Math.sin @_camera.position[@_targetFace.normal]) * Const.cameraOffset
+                clearInterval intervalId if @_camera.position.equals newPosition
+
+            setTimeout animation, 30
+            animation()
+
             console.log 'showing new face:'
             console.log face
+
+            @_targetFace = face
+
+        _cameraOffset: (face) ->
+
+            face.positionFromCentroid Const.cameraOffset
+
+        _setupCamera: (ratio) ->
+
+            # TODO: Specify camera rotation. It won't be oriented properly if
+            # startFaceIndex isn't 2.
+            
+            @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
+            @_targetFace = @_faces[Const.startFaceIndex]
+            @_camera.position.set @_cameraOffset(@_targetFace)...
+            @_camera.lookAt @_cube.position
+            @_scene.add @_camera
+
+            window.camera = @_camera
 
         _buildScene: ->
 
             @_scene = new THREE.Scene()
 
-            # TODO: Make this more cross-browser without bringing in jQuery
-            sceneWidth = @_container.offsetWidth
-            sceneHeight = @_container.offsetHeight
-            ratio = sceneWidth / sceneHeight
-
-            @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
-            @_camera.position.z = 350
-            @_camera.position.x = 150
-            @_camera.position.y = 200
-
-            @_scene.add @_camera
-
             geometry = new THREE.CubeGeometry Const.cubeSize, Const.cubeSize,
                 Const.cubeSize
             material = new THREE.MeshLambertMaterial color: 0xcccccc
-            mesh = new THREE.Mesh geometry, material
-            @_scene.add mesh
-            @_camera.lookAt mesh.position
+            @_cube = new THREE.Mesh geometry, material
+            @_scene.add @_cube
+
+            # TODO: Make this more cross-browser without bringing in jQuery
+            sceneWidth = @_container.offsetWidth
+            sceneHeight = @_container.offsetHeight
+            @_setupCamera sceneWidth / sceneHeight
 
             @_scene.add(new THREE.AxisHelper())
 
             @_clock = new THREE.Clock()
-            @_controls = new THREE.FlyControls @_camera
-            @_controls.movementSpeed = 1000
-            @_controls.domElement = @_container
-            @_controls.rollSpeed = Math.PI / 12
-            @_controls.autoForward = false
-            @_controls.dragToLook = false
+            # @_controls = new THREE.FlyControls @_camera
+            # @_controls.movementSpeed = 1000
+            # @_controls.domElement = @_container
+            # @_controls.rollSpeed = Math.PI / 12
+            # @_controls.autoForward = false
+            # @_controls.dragToLook = false
 
             light = new THREE.PointLight 0xffffff
             light.position.set 300, 600, 600
             @_scene.add light
 
-            @_renderer = new THREE.WebGLRenderer()
+            @_renderer = new THREE.CanvasRenderer()
             @_renderer.setSize sceneWidth, sceneHeight
 
             @_container.appendChild @_renderer.domElement

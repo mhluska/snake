@@ -1,6 +1,5 @@
-define ['jquery', 'src/utils'], ($, Utils) ->
+define ['jquery', 'src/utils', 'src/constants'], ($, Utils, Const) ->
 
-    # TODO: Don't use jQuery. Get a small library for controls
     class Snake
 
         constructor: (@_faces) ->
@@ -10,7 +9,8 @@ define ['jquery', 'src/utils'], ($, Utils) ->
 
             @_setupControls()
 
-            @pieces = (@_faces[2].squares[0][index] for index in [0...@_length])
+            startFace = @_faces[Const.startFaceIndex]
+            @pieces = (startFace.squares[0][index] for index in [0...@_length])
             @head = @pieces[@_length - 1]
             @prevHead = @pieces[@_length - 2]
             @tail = @pieces[0]
@@ -42,6 +42,7 @@ define ['jquery', 'src/utils'], ($, Utils) ->
             if @onNewFace()
                 @_direction = Utils.opposite @head.face.directionTo @prevHead.face
 
+        # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->
 
             $(window).keydown (event) =>
