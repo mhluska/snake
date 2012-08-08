@@ -4,6 +4,7 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
 
         constructor: (@_faces, @_container) ->
 
+            @_cameraMoveCallback = null
             @_buildScene()
 
         update: ->
@@ -13,31 +14,51 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
                     for square in column
                         @_updateCube square
 
-            @_controls?.update @_clock.getDelta()
+            @_cameraMoveCallback?()
             @_renderer.render @_scene, @_camera
 
         show: (face) ->
+            
+            return if face is @_targetFace
 
-            window.camera = @_camera
+            newPosition = new THREE.Vector3 face.positionFromCentroid()...
+            indepAxis = @_targetFace.normal
 
-            newPosition = new THREE.Vector3 @_cameraOffset(face)...
-            intervalId = null
-            animation = =>
+            timeSteps = 0
+            totalTimeSteps = 30
 
-                @_camera.position[face.normal] = (Math.sin @_camera.position[@_targetFace.normal]) * Const.cameraOffset
-                clearInterval intervalId if @_camera.position.equals newPosition
-
-            setTimeout animation, 30
-            animation()
-
-            console.log 'showing new face:'
-            console.log face
-
+            currentFaceOffset = @_targetFace.offset
             @_targetFace = face
 
-        _cameraOffset: (face) ->
+            @_cameraMoveCallback = =>
 
-            face.positionFromCentroid Const.cameraOffset
+                return @_cameraMoveCallback = null if timeSteps is totalTimeSteps
+
+                @_camera.position[face.normal] = @_cameraHeight indepAxis
+
+                @_camera.lookAt @_cube.position
+
+                increment = Const.cameraFaceOffset / totalTimeSteps
+                increment *= -1 unless currentFaceOffset
+
+                @_camera.position[indepAxis] -= increment
+                @_renderer.render @_scene, @_camera
+
+                timeSteps += 1
+
+        _cameraHeight: (axis) ->
+
+            console.log "f(#{@_camera.position[axis]}) = #{@_bezier @_cos @_camera.position[axis]}"
+            height = @_bezier @_cos @_camera.position[axis]
+            if @_targetFace.offset then height else -height
+
+        _cos: (val) ->
+
+            Const.cameraFaceOffset * Math.cos((val * Math.PI / 2) / Const.cameraFaceOffset)
+
+        _bezier: (val) ->
+
+            val
 
         _setupCamera: (ratio) ->
 
@@ -46,7 +67,7 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
             
             @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
             @_targetFace = @_faces[Const.startFaceIndex]
-            @_camera.position.set @_cameraOffset(@_targetFace)...
+            @_camera.position = new THREE.Vector3 @_targetFace.positionFromCentroid()...
             @_camera.lookAt @_cube.position
             @_scene.add @_camera
 
@@ -68,14 +89,6 @@ define ['lib/Three.js', 'src/constants'], (THREE, Const) ->
             @_setupCamera sceneWidth / sceneHeight
 
             @_scene.add(new THREE.AxisHelper())
-
-            @_clock = new THREE.Clock()
-            # @_controls = new THREE.FlyControls @_camera
-            # @_controls.movementSpeed = 1000
-            # @_controls.domElement = @_container
-            # @_controls.rollSpeed = Math.PI / 12
-            # @_controls.autoForward = false
-            # @_controls.dragToLook = false
 
             light = new THREE.PointLight 0xffffff
             light.position.set 300, 600, 600

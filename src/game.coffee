@@ -22,13 +22,11 @@ define [
 
         run: ->
 
-            setInterval =>
+            requestAnimationFrame => @run()
 
-                # @_snake.move()
-                @_graphics.show @_snake.head.face if @_snake.onNewFace()
-                @_graphics.update()
-
-            , @_timeStepRate
+            # @_snake.move()
+            @_graphics.show @_snake.head.face if @_snake.onNewFace()
+            @_graphics.update()
 
         _getFaces: -> face for key, face of @_faces
 

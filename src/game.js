@@ -15,12 +15,13 @@
 
       Game.prototype.run = function() {
         var _this = this;
-        return setInterval(function() {
-          if (_this._snake.onNewFace()) {
-            _this._graphics.show(_this._snake.head.face);
-          }
-          return _this._graphics.update();
-        }, this._timeStepRate);
+        requestAnimationFrame(function() {
+          return _this.run();
+        });
+        if (this._snake.onNewFace()) {
+          this._graphics.show(this._snake.head.face);
+        }
+        return this._graphics.update();
       };
 
       Game.prototype._getFaces = function() {

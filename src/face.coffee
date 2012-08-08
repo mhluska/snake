@@ -72,9 +72,9 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                 when 'left' then @_leftEdge()
                 else []
 
-        positionFromCentroid: (offset) ->
+        positionFromCentroid: ->
 
-            @_orderArgs 0, 0, (offset + (Const.cubeSize / 2))
+            @_orderArgs 0, 0, Const.cameraFaceOffset
 
         _topEdge: ->
 
