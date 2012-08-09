@@ -1,3 +1,10 @@
+require.config
+    paths:
+        'jquery': 'lib/jquery'
+
+    shim:
+        'lib/Three.js': 'exports': 'THREE'
+
 define [
     
     'src/face'

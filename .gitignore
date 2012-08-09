@@ -1,5 +1,6 @@
 lib
 src/compile.sh
 test/test.html
+build
 .*.sw*
 *.js

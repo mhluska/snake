@@ -10,3 +10,6 @@
 [submodule "src/requirejs"]
 	path = src/requirejs
 	url = https://github.com/jrburke/requirejs.git
+[submodule "src/r.js"]
+	path = src/r.js
+	url = https://github.com/jrburke/r.js.git
