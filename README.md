@@ -8,8 +8,7 @@ food until the player takes control. Other crazy ideas include music-adaption
 and Inception-style transitions between levels.
 
 #### Usage ####
-```https://github.com/mhluska/Snakeception.git && cd Snakeception
-./setup.sh
-```
+    https://github.com/mhluska/Snakeception.git && cd Snakeception
+    ./setup.sh
 
 Open demo.html in a browser.
