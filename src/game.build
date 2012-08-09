@@ -1,0 +1,13 @@
+({
+    baseUrl: '..',
+    dir: '../build',
+    paths: { jquery: 'lib/jquery' },
+    shim: { 'lib/Three.js': { 'exports': 'THREE' } },
+    fileExclusionRegExp: /^\.|.*\.coffee|jquery$|threejs$|mustachejs|build|requirejs|test|examples|old|rjs/,
+    preserveLicenseComments: false,
+    modules: [
+        {
+            name: 'src/game'
+        }
+    ]
+})

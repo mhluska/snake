@@ -20,6 +20,6 @@ ln -fs ../src/requirejs/require.js lib
 ln -fs ../src/mustachejs/mustache.js lib
 ln -fs ../src/threejs/build/Three.js lib
 
-node src/rjs/r.js -o src/snake.build.js
+node src/rjs/r.js -o src/game.build
 
 rm $(find test/ -type f -name '*.js') snake.js src/*.js 2>/dev/null
