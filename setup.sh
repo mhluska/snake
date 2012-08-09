@@ -2,6 +2,8 @@
 
 git submodule update --init --recursive
 
+coffee -c $(find test/ -type f -name '*.coffee') snake.coffee src/*.coffee
+
 cd src/jquery
 npm install
 grunt
@@ -19,3 +21,5 @@ ln -fs ../src/mustache.js/mustache.js lib
 ln -fs ../src/three.js/build/Three.js lib
 
 node src/r.js/r.js -o src/snake.build.js
+
+rm $(find test/ -type f -name '*.js') snake.js src/*.js 2>/dev/null
