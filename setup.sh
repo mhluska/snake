@@ -9,7 +9,7 @@ npm install
 grunt
 cd -
 
-cd src/r.js
+cd src/rjs
 node dist.js
 cd -
 
@@ -17,9 +17,9 @@ mkdir -p lib
 
 ln -fs ../src/jquery/dist/jquery.js lib
 ln -fs ../src/requirejs/require.js lib
-ln -fs ../src/mustache.js/mustache.js lib
-ln -fs ../src/three.js/build/Three.js lib
+ln -fs ../src/mustachejs/mustache.js lib
+ln -fs ../src/threejs/build/Three.js lib
 
-node src/r.js/r.js -o src/snake.build.js
+node src/rjs/r.js -o src/snake.build.js
 
 rm $(find test/ -type f -name '*.js') snake.js src/*.js 2>/dev/null
