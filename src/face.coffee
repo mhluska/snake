@@ -72,9 +72,8 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                 when 'left' then @_leftEdge()
                 else []
 
-        positionFromCentroid: ->
-
-            @_orderArgs 0, 0, Const.cameraFaceOffset
+        # Returns a 3-array describing the unit vector of the face normal.
+        up: -> @_orderArgs 0, 0, 1
 
         _topEdge: ->
 
