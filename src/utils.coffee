@@ -18,3 +18,11 @@ define ->
         @flatten: (arr) ->
 
             [].concat.apply [], arr
+
+        @difference: (arr1, arr2) ->
+
+            obj = {}
+            obj[elem] = true for elem in arr1
+            delete obj[elem] for elem in arr2
+            keys for keys of obj
+
