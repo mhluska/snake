@@ -18,7 +18,7 @@ define ['jquery', 'src/utils', 'src/constants'], ($, Utils, Const) ->
             piece.status = 'on' for piece in @pieces
 
             $(window).keydown (event) =>
-                @move() if event.keyCode is 84
+                @move() if event.keyCode is 69
 
         onNewFace: ->
 

@@ -90,7 +90,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
             geometry = new THREE.CubeGeometry Const.cubeSize, Const.cubeSize,
                 Const.cubeSize
-            material = new THREE.MeshLambertMaterial color: 0xcccccc
+            material = new THREE.MeshLambertMaterial color: 0x7198F5
             @_cube = new THREE.Mesh geometry, material
             @_scene.add @_cube
 
@@ -101,11 +101,15 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
             @_scene.add(new THREE.AxisHelper())
 
-            light = new THREE.PointLight 0xffffff
-            light.position.set 300, 600, 600
-            @_scene.add light
+            light1 = new THREE.PointLight 0xffffff
+            light1.position.set 500, 500, 500
+            @_scene.add light1
 
-            @_renderer = new THREE.CanvasRenderer()
+            light2 = new THREE.PointLight 0xffffff
+            light2.position.set -500, -500, -500
+            @_scene.add light2
+
+            @_renderer = new THREE.CanvasRenderer antialias: true
             @_renderer.setSize sceneWidth, sceneHeight
 
             @_container.appendChild @_renderer.domElement
@@ -115,7 +119,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
             geometry = new THREE.CubeGeometry Const.squareSize, Const.squareSize,
                 Const.squareSize
 
-            material = new THREE.MeshBasicMaterial color: 0xff0000, transparent: true
+            material = new THREE.MeshLambertMaterial color: 0x437f16
             mesh = new THREE.Mesh geometry, material
             mesh.position.set x, y, z
             @_scene.add mesh
