@@ -2,27 +2,42 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
 
     class Square
 
-        # TODO: Pass in a Vector3 if we end up needing to make such a class.
-        constructor: (@face, @x, @y, @z) ->
+        constructor: (@face, @position) ->
+
+            [@x, @y, @z] = [@position.x, @position.y, @position.z]
 
             @neighbours = {}
-            @pieces = []
             @status = 'off'
             @node = null
 
-        connect: (square, direction) ->
+        connect: (square) ->
 
             return unless square
+            return if square is @
+
+            direction = square.position.clone().sub @position
+            direction.divideScalar Const.squareSize
+
+            # Adjust the connection for faces on edges
+            unless direction.isVersor()
+                direction[@face.axis] = 0
 
             @neighbours[direction] = square
 
-        toString: -> "(#{@x}, #{@y}, #{@z})"
+        adjacencies: (square) ->
+
+            near = 0
+            same = 0
+            for axis, value of @position.items()
+                if value is square[axis]
+                    same += 1
+                else if Math.abs(value - square[axis]) is Const.squareSize
+                    near += 1
+
+            return 0 if (near + same) isnt 3
+
+            near
 
         adjacentTo: (square) ->
 
-            adjacencies = 0
-            adjacencies += 1 if Math.abs(@x - square.x) is Const.squareSize
-            adjacencies += 1 if Math.abs(@y - square.y) is Const.squareSize
-            adjacencies += 1 if Math.abs(@z - square.z) is Const.squareSize
-            
-            adjacencies is 1
+            @adjacencies(square) is 1

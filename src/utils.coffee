@@ -2,14 +2,6 @@ define ->
 
     class Utils
 
-        @opposite: (thing) ->
-
-            switch thing
-                when 'up' then 'down'
-                when 'right' then 'left'
-                when 'down' then 'up'
-                when 'left' then 'right'
-
         @extend: (object1, object2) ->
 
             for prop of object1
@@ -26,3 +18,8 @@ define ->
             delete obj[elem] for elem in arr2
             keys for keys of obj
 
+        @getAxis: (unitVector) ->
+
+            return 'x' if Math.abs(unitVector.x) is 1
+            return 'y' if Math.abs(unitVector.y) is 1
+            return 'z' if Math.abs(unitVector.z) is 1

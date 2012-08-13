@@ -15,7 +15,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
                         @_updateCube square
 
             @_cameraMoveCallback?()
-            @_renderer.render @_scene, @_camera
+            @_renderer.render @_scene, @camera
 
         show: (nextFace) ->
             
@@ -24,11 +24,9 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
             face = @_targetFace
             @_targetFace = nextFace
 
-            indepAxis = face.normal
-            direction = face.directionTo nextFace
-
             timeSteps = 0
             totalTimeSteps = 30
+            indepAxis = face.axis
 
             @_cameraMoveCallback = =>
 
@@ -36,35 +34,33 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
                 @_orientCamera face, nextFace if timeSteps is (totalTimeSteps / 2)
 
-                @_camera.position[nextFace.normal] = @_cameraHeight indepAxis
+                @camera.position[nextFace.axis] = @_cameraHeight indepAxis
 
                 increment = Const.cameraFaceOffset / totalTimeSteps
-                increment *= -1 unless face.offset
+                increment *= face.normal[indepAxis]
 
-                @_camera.position[indepAxis] -= increment
-                @_camera.lookAt @_cube.position
+                @camera.position[indepAxis] -= increment
+                @camera.lookAt @_cube.position
 
                 timeSteps += 1
 
         _orientCamera: (face, nextFace) ->
 
-            nextUnitNormal = new THREE.Vector3 nextFace.up()...
-            currentUnitNormal = new THREE.Vector3 face.up()...
-            if @_camera.up.equals nextUnitNormal
-                @_camera.up = currentUnitNormal.negate()
+            if @camera.up.equals nextFace.normal
+                @camera.up.copy face.normal
+                @camera.up.negate()
                 
-            else if @_camera.up.clone().negate().equals nextUnitNormal
-                @_camera.up = currentUnitNormal
+            else if @camera.up.clone().negate().equals nextFace.normal
+                @camera.up.copy face.normal
 
         _positionAboveFace: (face) ->
 
-            normal = new THREE.Vector3 face.up()...
-            normal.multiplyScalar Const.cameraFaceOffset
+            face.normal.clone().multiplyScalar Const.cameraFaceOffset
 
         _cameraHeight: (axis) ->
 
-            height = @_bezier @_cos @_camera.position[axis]
-            if @_targetFace.offset then height else -height
+            height = @_bezier @_cos @camera.position[axis]
+            height *= @_targetFace.normal[@_targetFace.axis]
 
         _cos: (val) ->
 
@@ -76,13 +72,11 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
         _setupCamera: (ratio) ->
 
-            @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
+            @camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
             @_targetFace = @_faces[Const.startFaceIndex]
-            @_camera.position = @_positionAboveFace @_targetFace
-            @_camera.lookAt @_cube.position
-            @_scene.add @_camera
-
-            window.camera = @_camera
+            @camera.position = @_positionAboveFace @_targetFace
+            @camera.lookAt @_cube.position
+            @_scene.add @camera
 
         _buildScene: ->
 

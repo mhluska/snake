@@ -1,10 +1,17 @@
-define ['src/square', 'src/constants'], (Square, Const) ->
+define [
+    
+    'src/square'
+    'src/vector3'
+    'src/constants'
+    'src/utils'
+
+    ], (Square, Vector3, Const, Utils) ->
 
     class Face
 
-        constructor: (@normal, @offset = false) ->
+        constructor: (@normal) ->
 
-            @squares = []
+            @axis = Utils.getAxis @normal
 
             @_buildFace()
             @_connectSquares()
@@ -12,77 +19,40 @@ define ['src/square', 'src/constants'], (Square, Const) ->
         connect: (face) ->
 
             return if face is @
+            return if face.axis is @axis
 
-            directionOut = @directionTo face
+            for edge in @edges()
+                for otherEdge in face.edges()
 
-            return unless directionOut
+                    continue if @_connectEdges edge, otherEdge
 
-            edgeOut = @getEdge directionOut
+        edges: -> [@_topEdge(), @_rightEdge(), @_bottomEdge(), @_leftEdge()]
 
-            directionIn = face.directionTo @
-            edgeIn = face.getEdge directionIn
+        _connectEdges: (edge1, edge2) ->
 
-            @connectEdge edgeOut, edgeIn, directionOut
-            face.connectEdge edgeIn, edgeOut, directionIn
+            nonCornerIndex = 1
+            testSquare = edge1[nonCornerIndex]
+            testSquare2 = edge2[nonCornerIndex]
 
-        directionTo: (face) ->
+            if testSquare.adjacencies(testSquare2) isnt 2
 
-            # Returns undefined if they are not adjacent.
-            return if @normal is face.normal
+                otherEndSquare = edge2[Const.squareCount - 1 - nonCornerIndex]
 
-            switch @normal
+                if testSquare.adjacencies(otherEndSquare) is 2
+                    edge2.reverse()
 
-                when 'x'
-                    if face.normal is 'y'
-                        if face.offset then 'up' else 'down'
-                    else
-                        if @offset
-                            if face.offset then 'left' else 'right'
-                        else
-                            if face.offset then 'right' else 'left'
+                else return false
 
-                when 'y'
-                    if face.normal is 'x'
-                        if face.offset then 'right' else 'left'
-                    else
-                        if @offset
-                            if face.offset then 'down' else 'up'
-                        else
-                            if face.offset then 'up' else 'down'
+            for square, index in edge1
+                square.connect edge2[index]
+                edge2[index].connect square
 
-                when 'z'
-                    if face.normal is 'y'
-                        if face.offset then 'up' else 'down'
-                    else
-                        if @offset
-                            if face.offset then 'right' else 'left'
-                        else
-                            if face.offset then 'left' else 'right'
-
-        connectEdge: (edge1, edge2, direction) ->
-
-            square.connect edge2[index], direction for square, index in edge1
-
-        getEdge: (direction) ->
-
-            switch direction
-                when 'up' then @_topEdge()
-                when 'right' then @_rightEdge()
-                when 'down' then @_bottomEdge()
-                when 'left' then @_leftEdge()
-                else []
-
-        # Returns a 3-array describing the unit vector of the face normal.
-        up: -> @_orderArgs 0, 0, 1
+            true
 
         _topEdge: ->
 
-            edge = (for index in [0...Const.squareCount]
-                @squares[index][Const.squareCount - 1])
-
-            edge.reverse() if @normal in ['y', 'z'] and not @offset
-
-            edge
+            for index in [0...Const.squareCount]
+                @squares[index][Const.squareCount - 1]
 
         _rightEdge: ->
 
@@ -91,30 +61,22 @@ define ['src/square', 'src/constants'], (Square, Const) ->
 
         _bottomEdge: ->
 
-            edge = (@squares[index][0] for index in [0...Const.squareCount])
-
-            edge.reverse() if @normal in ['x', 'z'] and @offset
-            edge.reverse() if @normal is 'y' and not @offset
-
-            edge
+            @squares[index][0] for index in [0...Const.squareCount]
 
         _leftEdge: ->
 
-            edge = (@squares[0][index] for index in [0...Const.squareCount])
-
-            edge.reverse() if @normal is 'y' and @offset
-
-            edge
+            @squares[0][index] for index in [0...Const.squareCount]
 
         _orderArgs: (val1, val2, offset) ->
 
             # Positions the squares on the surface of the cube.
             offset ?= (Const.cubeSize / 2) + (Const.squareSize / 2)
-            offset = -offset unless @offset
 
-            return [offset, val2, val1] if @normal is 'x'
-            return [val1, offset, val2] if @normal is 'y'
-            return [val1, val2, offset] if @normal is 'z'
+            args = [@normal.x * offset, val2, val1] if @axis is 'x'
+            args = [val1, @normal.y * offset, val2] if @axis is 'y'
+            args = [val1, val2, @normal.z * offset] if @axis is 'z'
+
+            new Vector3 args...
 
         _buildFace: ->
 
@@ -131,30 +93,29 @@ define ['src/square', 'src/constants'], (Square, Const) ->
                     # The 2D array is filled from the bottom left, so positions
                     # need to be reversed in the cases where they are filled
                     # in the negative direction of the axis.
-                    posX = Const.cubeSize - posX if @normal is 'x' and @offset
-                    posX = Const.cubeSize - posX if @normal is 'z' and not @offset
-                    posY = Const.cubeSize - posY if @normal is 'y' and @offset
+                    posX = Const.cubeSize - posX if @normal.equals Const.normalX
+                    posX = Const.cubeSize - posX if @normal.equals Const.normalNegZ
+                    posY = Const.cubeSize - posY if @normal.equals Const.normalY
 
                     # Take the cube center into account.
                     posX -= Const.cubeSize / 2
                     posY -= Const.cubeSize / 2
 
-                    @squares[x][y] = new Square @, @_orderArgs(posX, posY)...
+                    @squares[x][y] = new Square @, @_orderArgs posX, posY
 
         _adjacentPositions: (x, y) ->
 
-            up:     [x, y + 1]
-            right:  [x + 1, y]
-            down:   [x, y - 1]
-            left:   [x - 1, y]
+            [ [x, y + 1]
+              [x + 1, y]
+              [x, y - 1]
+              [x - 1, y] ]
 
         _connectSquares: ->
 
             for x in [0...Const.squareCount]
                 for y in [0...Const.squareCount]
-
-                    for direction, pos of @_adjacentPositions x, y
+                    for pos in @_adjacentPositions x, y
 
                         [xNew, yNew] = pos
-                        @squares[x][y].connect @squares[xNew]?[yNew], direction
+                        @squares[x][y].connect @squares[xNew]?[yNew]
 
