@@ -15,7 +15,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
                         @_updateCube square
 
             @_cameraMoveCallback?()
-            @_renderer.render @_scene, @camera
+            @_renderer.render @_scene, @_camera
 
         show: (nextFace) ->
             
@@ -34,24 +34,24 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
                 @_orientCamera face, nextFace if timeSteps is (totalTimeSteps / 2)
 
-                @camera.position[nextFace.axis] = @_cameraHeight indepAxis
+                @_camera.position[nextFace.axis] = @_cameraHeight indepAxis
 
                 increment = Const.cameraFaceOffset / totalTimeSteps
                 increment *= face.normal[indepAxis]
 
-                @camera.position[indepAxis] -= increment
-                @camera.lookAt @_cube.position
+                @_camera.position[indepAxis] -= increment
+                @_camera.lookAt @_cube.position
 
                 timeSteps += 1
 
         _orientCamera: (face, nextFace) ->
 
-            oldCameraUp = @camera.up.clone()
+            oldCameraUp = @_camera.up.clone()
 
-            if Utils.getAxis(@camera.up) is nextFace.axis
-                @camera.up.copy face.normal
+            if Utils.getAxis(@_camera.up) is nextFace.axis
+                @_camera.up.copy face.normal
 
-            @camera.up.negate() if oldCameraUp.equals nextFace.normal
+            @_camera.up.negate() if oldCameraUp.equals nextFace.normal
                 
 
         _positionAboveFace: (face) ->
@@ -60,7 +60,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
         _cameraHeight: (axis) ->
 
-            height = @_bezier @_cos @camera.position[axis]
+            height = @_bezier @_cos @_camera.position[axis]
             height *= @_targetFace.normal[@_targetFace.axis]
 
         _cos: (val) ->
@@ -73,11 +73,11 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
         _setupCamera: (ratio) ->
 
-            @camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
+            @_camera = new THREE.PerspectiveCamera 75, ratio, 50, 10000
             @_targetFace = @_faces[Const.startFaceIndex]
-            @camera.position = @_positionAboveFace @_targetFace
-            @camera.lookAt @_cube.position
-            @_scene.add @camera
+            @_camera.position = @_positionAboveFace @_targetFace
+            @_camera.lookAt @_cube.position
+            @_scene.add @_camera
 
         _buildScene: ->
 

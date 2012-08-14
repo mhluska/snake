@@ -19,8 +19,7 @@ define [
 
         constructor: (container) ->
 
-            @_timeStepRate = 30
-            @_faces = {}
+            @_steps = 0
 
             @_buildCube()
 
@@ -31,9 +30,11 @@ define [
 
             requestAnimationFrame => @run()
 
-            # @_snake.move()
+            @_snake.move() if (@_steps % 5) is 0
             @_graphics.show @_snake.head.face if @_snake.onNewFace()
             @_graphics.update()
+
+            @_steps += 1
 
         _getFaces: -> face for key, face of @_faces
 
