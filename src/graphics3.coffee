@@ -4,6 +4,8 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
         constructor: (@_faces, @_container) ->
 
+            @_objectQueue = []
+
             @_cameraMoveCallback = null
             @_buildScene()
 
@@ -85,7 +87,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
             geometry = new THREE.CubeGeometry Const.cubeSize, Const.cubeSize,
                 Const.cubeSize
-            material = new THREE.MeshLambertMaterial color: 0x7198F5
+            material = new THREE.MeshLambertMaterial color: 0xE2FFCF
             @_cube = new THREE.Mesh geometry, material
             @_scene.add @_cube
 
@@ -93,8 +95,6 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
             sceneWidth = @_container.offsetWidth
             sceneHeight = @_container.offsetHeight
             @_setupCamera sceneWidth / sceneHeight
-
-            @_scene.add(new THREE.AxisHelper())
 
             light1 = new THREE.PointLight 0xffffff
             light1.position.set 500, 500, 500
@@ -104,19 +104,18 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
             light2.position.set -500, -500, -500
             @_scene.add light2
 
-            @_renderer = new THREE.CanvasRenderer antialias: true
+            @_renderer = new THREE.WebGLRenderer
             @_renderer.setSize sceneWidth, sceneHeight
 
             @_container.appendChild @_renderer.domElement
 
-        _buildNode: (x, y, z) ->
+        _buildObject: ->
 
             geometry = new THREE.CubeGeometry Const.squareSize, Const.squareSize,
                 Const.squareSize
 
-            material = new THREE.MeshLambertMaterial color: 0x437f16
+            material = new THREE.MeshLambertMaterial color: 0x9586DE
             mesh = new THREE.Mesh geometry, material
-            mesh.position.set x, y, z
             @_scene.add mesh
 
             mesh
@@ -125,11 +124,14 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
             if square.status is 'on'
 
-                square.node ?= @_buildNode square.x, square.y, square.z
-                square.node.material.opacity = 1
+                mesh = square.node or @_objectQueue.pop() or @_buildObject()
+                mesh.position.copy square.position
+
+                square.node = mesh
 
             else if square.node
 
-                square.node.material.opacity = 0
+                @_objectQueue.unshift square.node
+                square.node = null
 
 
