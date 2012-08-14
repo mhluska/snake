@@ -2,7 +2,7 @@ define ['src/vector3'], (Vector3) ->
 
     class Constants
 
-        @squareSize: 15
+        @squareSize: 10
         @squareCount: 15
         @cubeSize: @squareSize * @squareCount
         @startFaceIndex: 2

@@ -87,7 +87,7 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
             geometry = new THREE.CubeGeometry Const.cubeSize, Const.cubeSize,
                 Const.cubeSize
-            material = new THREE.MeshLambertMaterial color: 0xE2FFCF
+            material = new THREE.MeshLambertMaterial color: 0xA5C9F3
             @_cube = new THREE.Mesh geometry, material
             @_scene.add @_cube
 
