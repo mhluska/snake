@@ -24,8 +24,8 @@ define [
 
             @_buildCube()
 
+            @_snake = new Snake @_faces
             @_graphics = new Graphics3 @_getFaces(), container
-            @_snake = new Snake @_faces, @_graphics.camera
 
         run: ->
 
@@ -48,7 +48,5 @@ define [
                 new Face Const.normalNegZ.clone()
             ]
             
-            # @_faces[2].connect @_faces[1]
-
             for face, index in @_faces
                 face.connect otherFace for otherFace in @_faces[index..]

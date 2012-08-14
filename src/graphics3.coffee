@@ -46,12 +46,13 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
 
         _orientCamera: (face, nextFace) ->
 
-            if @camera.up.equals nextFace.normal
+            oldCameraUp = @camera.up.clone()
+
+            if Utils.getAxis(@camera.up) is nextFace.axis
                 @camera.up.copy face.normal
-                @camera.up.negate()
+
+            @camera.up.negate() if oldCameraUp.equals nextFace.normal
                 
-            else if @camera.up.clone().negate().equals nextFace.normal
-                @camera.up.copy face.normal
 
         _positionAboveFace: (face) ->
 

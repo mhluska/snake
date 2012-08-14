@@ -2,6 +2,14 @@ define ->
 
     class Utils
 
+        @opposite: (direction) ->
+
+            switch direction
+                when 'up' then 'down'
+                when 'right' then 'left'
+                when 'down' then 'up'
+                when 'left' then 'right'
+
         @extend: (object1, object2) ->
 
             for prop of object1

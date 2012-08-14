@@ -9,10 +9,17 @@ define [
 
     class Snake
 
-        constructor: (@_faces, @_camera) ->
+        constructor: (@_faces) ->
+
+            @_orientation =
+                up:    Const.normalY.clone()
+                right: Const.normalX.clone()
+                down:  Const.normalNegY.clone()
+                left:  Const.normalNegX.clone()
 
             @_length = 5
-            @_direction = Const.normalY.clone()
+            @_direction = 'up'
+            @_directionVec = @_orientation[@_direction]
 
             @_setupControls()
 
@@ -35,7 +42,7 @@ define [
 
             @tail.status = 'off'
 
-            newHead = @head.neighbours[@_direction]
+            newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
             @pieces.shift()
 
@@ -47,37 +54,29 @@ define [
 
             # The snake has entered a new face.
             if @onNewFace()
-                @_direction = @prevHead.face.normal.clone().negate()
+
+                @_directionVecBack = @prevHead.face.normal.clone()
+                @_directionVec = @_directionVecBack.clone().negate()
+
+                @_orientation[@_direction] = @_directionVec
+                @_orientation[Utils.opposite @_direction] = @_directionVecBack
 
         # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->
 
             $(window).keydown (event) =>
 
-                newDirection = @_direction
                 switch event.keyCode
-                    when 37 then newDirection = @_turn 'left'
-                    when 38 then newDirection = @_turn 'up'
-                    when 39 then newDirection = @_turn 'right'
-                    when 40 then newDirection = @_turn 'down'
+                    when 37 then @_turn 'left'
+                    when 38 then @_turn 'up'
+                    when 39 then @_turn 'right'
+                    when 40 then @_turn 'down'
                     else return
-
-                if newDirection.dot(@_direction) is 0
-
-                    # TODO: Add to move queue here instead
-                    @_direction = newDirection
 
         _turn: (direction) ->
 
-            normal = new Vector3
-
-            return normal.copy @_camera.up if direction is 'up'
-            return normal.copy(@_camera.up).negate() if direction is 'down'
-
-            cameraAxis = Utils.getAxis @_camera.up
-            faceAxis = Utils.getAxis @head.face.normal
-            newAxis = (Utils.difference ['x', 'y', 'z'], [cameraAxis, faceAxis])[0]
-
-            normal[newAxis] = if direction is 'right' then 1 else -1
-
-            normal
+            if @_orientation[direction].dot(@_directionVec) is 0
+            
+                # TODO: Add to move queue here instead
+                @_directionVec = @_orientation[direction]
+                @_direction = direction
