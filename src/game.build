@@ -2,8 +2,11 @@
     baseUrl: '..',
     dir: '../build',
     paths: { jquery: 'lib/jquery' },
-    shim: { 'lib/Three.js': { 'exports': 'THREE' } },
-    fileExclusionRegExp: /^\.|.*\.coffee|jquery$|threejs$|mustachejs|build|requirejs|test|examples|old|rjs/,
+    shim: { 
+        'lib/Three.js': { 'exports': 'THREE' },
+        'lib/Tween.js': { 'exports': 'TWEEN' } 
+    },
+    fileExclusionRegExp: /^\.|.*\.coffee|jquery$|threejs$|tweenjs|mustachejs|build|requirejs|test|examples|old|rjs/,
     preserveLicenseComments: false,
     modules: [
         {

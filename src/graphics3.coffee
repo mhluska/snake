@@ -1,4 +1,11 @@
-define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
+define [
+    
+    'lib/Three.js'
+    'lib/Tween.js'
+    'src/constants'
+    'src/utils'
+
+    ], (THREE, TWEEN, Const, Utils) ->
 
     class Graphics3
 
@@ -54,7 +61,6 @@ define ['lib/Three.js', 'src/constants', 'src/utils'], (THREE, Const, Utils) ->
                 @_camera.up.copy face.normal
 
             @_camera.up.negate() if oldCameraUp.equals nextFace.normal
-                
 
         _positionAboveFace: (face) ->
 

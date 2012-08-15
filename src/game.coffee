@@ -4,6 +4,7 @@ require.config
 
     shim:
         'lib/Three.js': 'exports': 'THREE'
+        'lib/Tween.js': 'exports': 'TWEEN'
 
 define [
     

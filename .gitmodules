@@ -13,3 +13,6 @@
 [submodule "src/mustachejs"]
 	path = src/mustachejs
 	url = https://github.com/janl/mustache.js.git
+[submodule "src/tweenjs"]
+	path = src/tweenjs
+	url = https://github.com/sole/tween.js.git
