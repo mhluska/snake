@@ -23,7 +23,7 @@ define [
                     for square in column
                         @_updateCube square
 
-            @_cameraMoveCallback?()
+            TWEEN.update()
             @_renderer.render @_scene, @_camera
 
         show: (nextFace) ->
@@ -33,25 +33,25 @@ define [
             face = @_targetFace
             @_targetFace = nextFace
 
-            timeSteps = 0
-            totalTimeSteps = 30
-            indepAxis = face.axis
+            start = @_camera.position[face.axis]
+            obj = x: start
 
-            @_cameraMoveCallback = =>
+            new TWEEN.Tween(obj)
+                .to(x: 0, 750)
+                .easing(TWEEN.Easing.Quartic.Out)
+                .onUpdate =>
+                    @_camera.position[nextFace.axis] = @_cos obj.x
+                    @_camera.position[nextFace.axis] *= @_targetFace.normal[@_targetFace.axis]
+                    @_camera.position[face.axis] = obj.x
+                    @_camera.lookAt @_cube.position
 
-                return @_cameraMoveCallback = null if timeSteps is totalTimeSteps
+                    @_orientCamera(face, nextFace) if obj.x > start / 2
 
-                @_orientCamera face, nextFace if timeSteps is (totalTimeSteps / 2)
+                .start()
 
-                @_camera.position[nextFace.axis] = @_cameraHeight indepAxis
+        _cos: (val) ->
 
-                increment = Const.cameraFaceOffset / totalTimeSteps
-                increment *= face.normal[indepAxis]
-
-                @_camera.position[indepAxis] -= increment
-                @_camera.lookAt @_cube.position
-
-                timeSteps += 1
+            Const.cameraFaceOffset * Math.cos((val * Math.PI / 2) / Const.cameraFaceOffset)
 
         _orientCamera: (face, nextFace) ->
 
@@ -65,19 +65,6 @@ define [
         _positionAboveFace: (face) ->
 
             face.normal.clone().multiplyScalar Const.cameraFaceOffset
-
-        _cameraHeight: (axis) ->
-
-            height = @_bezier @_cos @_camera.position[axis]
-            height *= @_targetFace.normal[@_targetFace.axis]
-
-        _cos: (val) ->
-
-            Const.cameraFaceOffset * Math.cos((val * Math.PI / 2) / Const.cameraFaceOffset)
-
-        _bezier: (val) ->
-
-            val
 
         _setupCamera: (ratio) ->
 
