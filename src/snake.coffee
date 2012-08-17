@@ -29,10 +29,10 @@ define [
             @prevHead = @pieces[@_length - 2]
             @tail = @pieces[0]
 
-            piece.status = 'on' for piece in @pieces
+            piece.on() for piece in @pieces
 
             $(window).keydown (event) =>
-                @move() if event.keyCode is 69
+                @move() if event.which is 69
 
         onNewFace: ->
 
@@ -40,17 +40,21 @@ define [
 
         move: ->
 
-            @tail.status = 'off'
 
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
-            @pieces.shift()
+
+            unless newHead.has 'food'
+                @tail.off()
+                @pieces.shift()
 
             @tail = @pieces[0]
 
             @prevHead = @head
             @head = newHead
-            @head.status = 'on'
+            @head.on()
+
+            @head.remove 'food'
 
             # The snake has entered a new face.
             if @onNewFace()

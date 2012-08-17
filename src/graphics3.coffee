@@ -13,6 +13,10 @@ define [
 
             @_objectQueue = []
 
+            # A square can have multiple items but only one is shown. This is 
+            # the order of precedence.
+            @_itemOrder = ['food', 'snake']
+
             @_cameraMoveCallback = null
             @_buildScene()
 
@@ -107,7 +111,7 @@ define [
             geometry = new THREE.CubeGeometry Const.squareSize, Const.squareSize,
                 Const.squareSize
 
-            material = new THREE.MeshLambertMaterial color: 0x9586DE
+            material = new THREE.MeshLambertMaterial 
             mesh = new THREE.Mesh geometry, material
             @_scene.add mesh
 
@@ -120,11 +124,20 @@ define [
                 mesh = square.node or @_objectQueue.pop() or @_buildObject()
                 mesh.position.copy square.position
 
-                square.node = mesh
+                @_updateSquare square, mesh
 
             else if square.node
 
                 @_objectQueue.unshift square.node
                 square.node = null
 
+        _updateSquare: (square, mesh) ->
+
+            square.node = mesh
+
+            for item in @_itemOrder
+                if square.has item
+                    colour = new THREE.Color Const.colours[item]
+                    square.node.material.color = colour
+                    return
 

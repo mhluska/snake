@@ -10,6 +10,25 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
             @status = 'off'
             @node = null
 
+            # A hash of items on the square (food, snake, etc..).
+            @_items = {}
+
+        on: (item = 'snake') ->
+
+            @_items[item] = true
+            @status = 'on'
+
+        off: (item = 'snake') ->
+
+            @_items[item] = false
+            @status = 'off'
+
+        add: (item) -> @_items[item] = true
+
+        remove: (item) -> @_items[item] = false
+
+        has: (item) -> @_items[item] is true
+
         connect: (square) ->
 
             return unless square

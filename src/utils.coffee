@@ -31,3 +31,6 @@ define ->
             return 'x' if Math.abs(unitVector.x) is 1
             return 'y' if Math.abs(unitVector.y) is 1
             return 'z' if Math.abs(unitVector.z) is 1
+
+        @randInt: (min, max) ->
+            Math.floor(Math.random() * (max - min + 1)) + min

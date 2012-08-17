@@ -2,7 +2,7 @@ define ['src/vector3'], (Vector3) ->
 
     class Constants
 
-        @squareSize: 16
+        @squareSize: 15
         @squareCount: 15
         @cubeSize: @squareSize * @squareCount
         @startFaceIndex: 2
@@ -16,3 +16,7 @@ define ['src/vector3'], (Vector3) ->
         @normalNegX: new Vector3(-1, 0, 0)
         @normalNegY: new Vector3(0, -1, 0)
         @normalNegZ: new Vector3(0, 0, -1)
+
+        @colours:
+            'snake': 0x9586DE
+            'food': 0x7FDC50
