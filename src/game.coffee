@@ -27,12 +27,16 @@ define [
             @_snake = new Snake @_faces
             @_graphics = new Graphics3 @_getFaces(), container
 
-            $(window).keydown (event) =>
-                @_dropFood() if event.which is 70
+            # $(window).keydown (event) =>
+            #     if event.which is 69
+            #         @step()
+            #         @_steps += 4
 
         run: ->
 
-            requestAnimationFrame => @run()
+            requestAnimationFrame => @step() and @run()
+
+        step: ->
 
             @_snake.move() if (@_steps % 5) is 0
             @_dropFood() if (@_steps % 100) is 0
@@ -59,7 +63,8 @@ define [
 
         _dropFood: ->
 
-            face = @_faces[Utils.randInt 0, @_faces.length - 1]
+            # face = @_faces[Utils.randInt 0, @_faces.length - 1]
+            face = @_faces[2]
 
             randX = Utils.randInt 0, Const.squareCount - 1
             randY = Utils.randInt 0, Const.squareCount - 1

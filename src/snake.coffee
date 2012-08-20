@@ -31,15 +31,11 @@ define [
 
             piece.on() for piece in @pieces
 
-            $(window).keydown (event) =>
-                @move() if event.which is 69
-
         onNewFace: ->
 
             not @head.adjacentTo @prevHead
 
         move: ->
-
 
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead

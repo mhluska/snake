@@ -17,17 +17,24 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
 
             @_items[item] = true
             @status = 'on'
+            @
 
         off: (item = 'snake') ->
 
             @_items[item] = false
             @status = 'off'
+            @
 
-        add: (item) -> @_items[item] = true
+        add: (item) ->
+            @_items[item] = true
+            @
 
-        remove: (item) -> @_items[item] = false
+        remove: (item) ->
+            @_items[item] = false
+            @
 
-        has: (item) -> @_items[item] is true
+        has: (item) ->
+            @_items[item] is true
 
         connect: (square) ->
 
@@ -42,6 +49,8 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
                 direction[@face.axis] = 0
 
             @neighbours[direction] = square
+
+            @
 
         adjacencies: (square) ->
 

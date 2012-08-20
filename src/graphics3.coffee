@@ -25,7 +25,7 @@ define [
             for face in @_faces
                 for column in face.squares
                     for square in column
-                        @_updateCube square
+                        @_updateSquare square
 
             TWEEN.update()
             @_renderer.render @_scene, @_camera
@@ -117,23 +117,25 @@ define [
 
             mesh
 
-        _updateCube: (square) ->
+        _updateSquare: (square) ->
 
             if square.status is 'on'
 
                 mesh = square.node or @_objectQueue.pop() or @_buildObject()
                 mesh.position.copy square.position
+                mesh.visible = true
 
-                @_updateSquare square, mesh
+                square.node = mesh
+
+                @_updateItems square, mesh
 
             else if square.node
 
                 @_objectQueue.unshift square.node
+                square.node.visible = false
                 square.node = null
 
-        _updateSquare: (square, mesh) ->
-
-            square.node = mesh
+        _updateItems: (square, mesh) ->
 
             for item in @_itemOrder
                 if square.has item
