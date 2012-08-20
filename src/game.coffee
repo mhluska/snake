@@ -63,8 +63,7 @@ define [
 
         _dropFood: ->
 
-            # face = @_faces[Utils.randInt 0, @_faces.length - 1]
-            face = @_faces[2]
+            face = @_faces[Utils.randInt 0, @_faces.length - 1]
 
             randX = Utils.randInt 0, Const.squareCount - 1
             randY = Utils.randInt 0, Const.squareCount - 1

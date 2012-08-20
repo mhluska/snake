@@ -40,8 +40,12 @@ define [
             start = @_camera.position[face.axis]
             obj = x: start
 
+            for tween in TWEEN.getAll()
+                tween.update(Date.now() + Const.cameraMoveSpeed)
+                tween.stop()
+
             new TWEEN.Tween(obj)
-                .to(x: 0, 750)
+                .to({ x: 0 }, Const.cameraMoveSpeed)
                 .easing(TWEEN.Easing.Quartic.Out)
                 .onUpdate =>
                     @_camera.position[nextFace.axis] = @_cos obj.x

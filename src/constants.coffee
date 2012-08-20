@@ -8,6 +8,7 @@ define ['src/vector3'], (Vector3) ->
         @startFaceIndex: 2
 
         @cameraOffset: 300
+        @cameraMoveSpeed: 750
         @cameraFaceOffset: @cameraOffset + (@cubeSize / 2)
 
         @normalX: new Vector3(1, 0, 0)
