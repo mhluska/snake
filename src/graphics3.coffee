@@ -17,6 +17,8 @@ define [
             # the order of precedence.
             @_itemOrder = ['food', 'snake']
 
+            @_squareTweens = {}
+
             @_cameraMoveCallback = null
             @_buildScene()
 
@@ -40,11 +42,10 @@ define [
             start = @_camera.position[face.axis]
             obj = x: start
 
-            for tween in TWEEN.getAll()
-                tween.update(Date.now() + Const.cameraMoveSpeed)
-                tween.stop()
+            @_cameraTween?.update(Date.now() + Const.cameraMoveSpeed)
+            @_cameraTween?.stop()
 
-            new TWEEN.Tween(obj)
+            @_cameraTween = new TWEEN.Tween(obj)
                 .to({ x: 0 }, Const.cameraMoveSpeed)
                 .easing(TWEEN.Easing.Quartic.Out)
                 .onUpdate =>
@@ -123,21 +124,42 @@ define [
 
         _updateSquare: (square) ->
 
-            if square.status is 'on'
+            switch square.status
 
-                mesh = square.node or @_objectQueue.pop() or @_buildObject()
-                mesh.position.copy square.position
-                mesh.visible = true
+                when 'on'
 
-                square.node = mesh
+                    mesh = square.node or @_objectQueue.shift() or @_buildObject()
+                    mesh.position.copy square.position
+                    mesh.material.opacity = 1
+                    mesh.visible = true
 
-                @_updateItems square, mesh
+                    square.node = mesh
 
-            else if square.node
+                    @_updateItems square, mesh
 
-                @_objectQueue.unshift square.node
-                square.node.visible = false
-                square.node = null
+                when 'dead'
+
+                    self = @
+
+                    @_squareTweens[square] ?= new TWEEN.Tween(opacity: 1)
+                        .to({ opacity: 0 }, 1000)
+                        .easing(TWEEN.Easing.Quartic.Out)
+                        .onUpdate ->
+                            square.node.material.opacity = @opacity
+                        .onComplete ->
+                            square.off()
+                            self._updateSquare square
+                            self._squareTweens[square] = null
+
+                        .start()
+
+                when 'off'
+
+                    return unless square.node
+
+                    @_objectQueue.push square.node
+                    square.node.visible = false
+                    square.node = null
 
         _updateItems: (square, mesh) ->
 

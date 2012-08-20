@@ -17,7 +17,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 5
+            @_length = 12
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
 
@@ -40,6 +40,8 @@ define [
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
 
+            @_splitAt newHead if newHead.has 'snake'
+
             unless newHead.has 'food'
                 @tail.off()
                 @pieces.shift()
@@ -60,6 +62,17 @@ define [
 
                 @_orientation[@_direction] = @_directionVec
                 @_orientation[Utils.opposite @_direction] = @_directionVecBack
+
+        _splitAt: (square) ->
+
+            for piece, index in @pieces
+
+                piece.status = 'dead'
+
+                if piece.position.equals square.position
+
+                    @pieces = @pieces.slice index
+                    return
 
         # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->

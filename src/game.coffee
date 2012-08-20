@@ -70,4 +70,5 @@ define [
 
             square = face.squares[randX][randY]
             square.on 'food'
+            window.food = square
             

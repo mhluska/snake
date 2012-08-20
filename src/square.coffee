@@ -8,6 +8,9 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
 
             @neighbours = {}
             @status = 'off'
+
+            # The visual element representing this square. This variable should
+            # be modified only by the graphics module.
             @node = null
 
             # A hash of items on the square (food, snake, etc..).
@@ -19,9 +22,10 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
             @status = 'on'
             @
 
-        off: (item = 'snake') ->
+        off: (item) ->
 
             @_items[item] = false
+            @_items = {} if arguments.length is 0
             @status = 'off'
             @
 
@@ -34,6 +38,7 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
             @
 
         has: (item) ->
+            return false if @status is 'dead'
             @_items[item] is true
 
         connect: (square) ->
@@ -69,3 +74,5 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
         adjacentTo: (square) ->
 
             @adjacencies(square) is 1
+
+        toString: -> @position.toString()
