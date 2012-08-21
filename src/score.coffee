@@ -5,13 +5,13 @@ define ->
         constructor: (container) ->
 
             @_points = 0
+            @_highscore = 0
             @_multiplier = 10
             @_setupDisplay container
 
         add: (amount = 1) ->
 
-            @_points += amount
-            @_set @_points
+            @_set @_points + amount
 
         sub: (amount = 1, floor = false) ->
 
@@ -24,8 +24,14 @@ define ->
         _set: (amount) ->
 
             return unless arguments.length > 0
-            @points = amount
-            @_display.innerHTML = "Score<br />#{@_points * @_multiplier}"
+
+            @_points = amount
+            @_highscore = Math.max @_highscore, @_points
+
+            html =  "highscore<br />#{@_highscore * @_multiplier}<br />"
+            html += "score<br />#{@_points * @_multiplier}"
+
+            @_display.innerHTML = html
 
         _setupDisplay: (container) ->
 
