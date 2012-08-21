@@ -140,15 +140,17 @@ define [
                 when 'dead'
 
                     self = @
+                    node = square.node
+                    square.node = null
 
                     @_squareTweens[square] ?= new TWEEN.Tween(opacity: 1)
                         .to({ opacity: 0 }, 1000)
                         .easing(TWEEN.Easing.Quartic.Out)
                         .onUpdate ->
-                            square.node.material.opacity = @opacity
+                            node.material.opacity = @opacity
                         .onComplete ->
                             square.off()
-                            self._updateSquare square
+                            self._objectQueue.push node
                             self._squareTweens[square] = null
 
                         .start()
