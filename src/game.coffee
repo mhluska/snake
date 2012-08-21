@@ -9,12 +9,13 @@ require.config
 define [
     
     'src/face'
+    'src/score'
     'src/snake'
     'src/utils'
     'src/graphics3'
     'src/constants'
 
-    ], (Face, Snake, Utils, Graphics3, Const) ->
+    ], (Face, Score, Snake, Utils, Graphics3, Const) ->
     
     class Game
 
@@ -24,7 +25,7 @@ define [
 
             @_buildCube()
 
-            @_snake = new Snake @_faces
+            @_snake = new Snake @_faces, new Score container
             @_graphics = new Graphics3 @_getFaces(), container
 
             # $(window).keydown (event) =>

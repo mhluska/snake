@@ -9,7 +9,7 @@ define [
 
     class Snake
 
-        constructor: (@_faces) ->
+        constructor: (@_faces, @_score) ->
 
             @_orientation =
                 up:    Const.normalY.clone()
@@ -18,8 +18,10 @@ define [
                 left:  Const.normalNegX.clone()
 
             @_length = 12
+
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
+            @_directionQueue = []
 
             @_setupControls()
 
@@ -37,14 +39,14 @@ define [
 
         move: ->
 
+            if @_directionQueue.length
+                [@_direction, @_directionVec] = @_directionQueue.shift()
+
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
 
             @_splitAt newHead if newHead.has 'snake'
-
-            unless newHead.has 'food'
-                @tail.off()
-                @pieces.shift()
+            @_checkFood newHead
 
             @tail = @pieces[0]
 
@@ -52,16 +54,24 @@ define [
             @head = newHead
             @head.on()
 
-            @head.remove 'food'
-
             # The snake has entered a new face.
             if @onNewFace()
 
-                @_directionVecBack = @prevHead.face.normal.clone()
-                @_directionVec = @_directionVecBack.clone().negate()
+                directionVecBack = @prevHead.face.normal.clone()
+                @_directionVec = directionVecBack.clone().negate()
 
                 @_orientation[@_direction] = @_directionVec
-                @_orientation[Utils.opposite @_direction] = @_directionVecBack
+                @_orientation[Utils.opposite @_direction] = directionVecBack
+
+        _checkFood: (square) ->
+
+            if square.has 'food'
+                @_score.add()
+            else
+                @tail.off()
+                @pieces.shift()
+
+            square.remove 'food'
 
         _splitAt: (square) ->
 
@@ -72,6 +82,7 @@ define [
                 if piece.position.equals square.position
 
                     @pieces = @pieces.slice index
+                    @_score.sub index, true
                     return
 
         # TODO: Don't use jQuery. Get a small library for controls
@@ -88,8 +99,10 @@ define [
 
         _turn: (direction) ->
 
-            if @_orientation[direction].dot(@_directionVec) is 0
+            return if @_turned
+
+            newDirectionVec = @_orientation[direction]
+
+            if newDirectionVec.dot(@_directionVec) is 0
             
-                # TODO: Add to move queue here instead
-                @_directionVec = @_orientation[direction]
-                @_direction = direction
+                @_directionQueue.push [direction, newDirectionVec]
