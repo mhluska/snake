@@ -116,7 +116,7 @@ define [
             geometry = new THREE.CubeGeometry Const.squareSize, Const.squareSize,
                 Const.squareSize
 
-            material = new THREE.MeshLambertMaterial 
+            material = new THREE.MeshLambertMaterial transparent: true
             mesh = new THREE.Mesh geometry, material
             @_scene.add mesh
 
