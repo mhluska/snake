@@ -19,6 +19,8 @@ define [
 
             @_length = 15
 
+            @_resetInfection()
+
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
             @_directionQueue = []
@@ -46,13 +48,14 @@ define [
             @pieces.push newHead
 
             @_checkSnakeAt newHead
+            @_checkPoisonAt newHead
             @_checkFoodAt newHead
+            @_growInfection()
 
             @tail = @pieces[0]
-
             @prevHead = @head
             @head = newHead
-            @head.on()
+            @head.off().on()
 
             # The snake has entered a new face.
             if @onNewFace()
@@ -63,15 +66,27 @@ define [
                 @_orientation[@_direction] = @_directionVec
                 @_orientation[Utils.opposite @_direction] = directionVecBack
 
-        _checkFoodAt: (square) ->
+        _resetInfection: ->
+            
+            @_infected = false
+            @_infectedMoves = 0
+            @_infectionIndex = 0
 
-            if square.has 'food'
-                @_score.add()
-            else
-                @tail.off()
-                @pieces.shift()
+        _growInfection: ->
 
-            square.remove 'food'
+            return unless @_infected
+
+            @_infectedMoves += 1
+            @_infectionIndex += 1 if @_infectedMoves % 10 is 0
+
+            endIndex = @_length - Const.snakeMinLength + 1
+            if @_infectionIndex is endIndex
+                @_resetInfection()
+                @_checkSnakeAt @pieces[endIndex - 1]
+                return
+
+            @pieces[@_infectionIndex].add 'poison'
+            @pieces[@_infectionIndex - 1]?.add 'poison'
 
         _checkSnakeAt: (square) ->
 
@@ -79,13 +94,44 @@ define [
 
             for piece, index in @pieces
 
-                piece.status = 'dead'
-
                 if piece.position.equals square.position
 
-                    @pieces = @pieces.slice index
-                    @_score.sub index, true
+                    if piece.has 'poison'
+                        @_infectionIndex -= index
+                    else
+                        @_resetInfection()
+
+                    @_splitAt index
                     return
+
+                piece.status = 'dead'
+
+        _splitAt: (index) ->
+
+            return unless index and index > 0
+
+            @pieces = @pieces.slice index
+            @_length -= index
+            @_score.sub index, true
+
+        _checkFoodAt: (square) ->
+
+            if square.has 'food'
+                @_score.add()
+                @_length += 1
+            else
+                @tail.off()
+                @pieces.shift()
+
+            square.remove 'food'
+
+        _checkPoisonAt: (square) ->
+
+            return unless square.has('poison') and @_length > Const.snakeMinLength
+
+            @_infected = true
+
+            square.remove 'poison'
 
         # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->
@@ -102,10 +148,9 @@ define [
         _turn: (direction) ->
 
             newDirectionVec = @_orientation[direction]
+            prevDirectionVec = @_directionVec
 
-            if @_directionQueue.length is 0
-                prevDirectionVec = @_directionVec
-            else
+            if @_directionQueue.length
                 prevDirectionVec = @_directionQueue[@_directionQueue.length - 1]?[1]
 
             if newDirectionVec.dot(prevDirectionVec) is 0

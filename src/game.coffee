@@ -69,7 +69,8 @@ define [
             randX = Utils.randInt 0, Const.squareCount - 1
             randY = Utils.randInt 0, Const.squareCount - 1
 
+            type = if (Utils.randInt 0, 5) is 0 then 'poison' else 'food'
+
             square = face.squares[randX][randY]
-            square.on 'food'
-            window.food = square
+            square.on type
             

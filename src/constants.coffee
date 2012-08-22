@@ -2,6 +2,8 @@ define ['src/vector3'], (Vector3) ->
 
     class Constants
 
+        @snakeMinLength: 3
+
         @squareSize: 15
         @squareCount: 15
         @cubeSize: @squareSize * @squareCount
@@ -19,5 +21,6 @@ define ['src/vector3'], (Vector3) ->
         @normalNegZ: new Vector3(0, 0, -1)
 
         @colours:
-            'snake': 0x9586DE
+            'poison': 0x4F5A1D
             'food': 0x7FDC50
+            'snake': 0x9586DE

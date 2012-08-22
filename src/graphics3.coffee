@@ -15,7 +15,7 @@ define [
 
             # A square can have multiple items but only one is shown. This is 
             # the order of precedence.
-            @_itemOrder = ['food', 'snake']
+            @_itemOrder = ['poison', 'food', 'snake']
 
             @_squareTweens = {}
 
