@@ -17,7 +17,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 15
+            @_length = 5
 
             @_resetInfection()
 
