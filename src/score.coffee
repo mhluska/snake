@@ -28,7 +28,7 @@ define ->
             @_points = amount
             @_highscore = Math.max @_highscore, @_points
 
-            html =  "highscore<br />#{@_highscore * @_multiplier}<br />"
+            html =  "high score<br />#{@_highscore * @_multiplier}<br />"
             html += "score<br />#{@_points * @_multiplier}"
 
             @_display.innerHTML = html

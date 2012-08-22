@@ -17,7 +17,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 12
+            @_length = 15
 
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
@@ -45,8 +45,8 @@ define [
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
 
-            @_splitAt newHead if newHead.has 'snake'
-            @_checkFood newHead
+            @_checkSnakeAt newHead
+            @_checkFoodAt newHead
 
             @tail = @pieces[0]
 
@@ -63,7 +63,7 @@ define [
                 @_orientation[@_direction] = @_directionVec
                 @_orientation[Utils.opposite @_direction] = directionVecBack
 
-        _checkFood: (square) ->
+        _checkFoodAt: (square) ->
 
             if square.has 'food'
                 @_score.add()
@@ -73,7 +73,9 @@ define [
 
             square.remove 'food'
 
-        _splitAt: (square) ->
+        _checkSnakeAt: (square) ->
+
+            return unless square.has 'snake'
 
             for piece, index in @pieces
 
@@ -99,10 +101,14 @@ define [
 
         _turn: (direction) ->
 
-            return if @_turned
-
             newDirectionVec = @_orientation[direction]
 
-            if newDirectionVec.dot(@_directionVec) is 0
+            if @_directionQueue.length is 0
+                prevDirectionVec = @_directionVec
+            else
+                prevDirectionVec = @_directionQueue[@_directionQueue.length - 1]?[1]
+
+            if newDirectionVec.dot(prevDirectionVec) is 0
             
+                @_nextHead = @head.neighbours[newDirectionVec]
                 @_directionQueue.push [direction, newDirectionVec]

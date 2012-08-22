@@ -140,6 +140,7 @@ define [
                 when 'dead'
 
                     self = @
+
                     node = square.node
                     square.node = null
 
@@ -149,19 +150,24 @@ define [
                         .onUpdate ->
                             node.material.opacity = @opacity
                         .onComplete ->
-                            square.off()
-                            self._objectQueue.push node
+                            square.off() if square.status is 'dead'
+                            self._recycleNode node
                             self._squareTweens[square] = null
 
                         .start()
 
                 when 'off'
 
-                    return unless square.node
-
-                    @_objectQueue.push square.node
-                    square.node.visible = false
+                    @_recycleNode square.node
                     square.node = null
+
+
+        _recycleNode: (node) ->
+
+            return unless node
+
+            @_objectQueue.push node
+            node.visible = false
 
         _updateItems: (square, mesh) ->
 
