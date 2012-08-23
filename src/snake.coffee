@@ -2,15 +2,16 @@ define [
     
     'jquery'
     'src/utils'
+    'src/queue'
     'src/vector3'
     'src/constants'
 
-    ], ($, Utils, Vector3, Const) ->
+    ], ($, Utils, Queue, Vector3, Const) ->
 
     class Snake
 
         constructor: (@_faces, @_score) ->
-
+            
             @_orientation =
                 up:    Const.normalY.clone()
                 right: Const.normalX.clone()
@@ -23,7 +24,7 @@ define [
 
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
-            @_directionQueue = []
+            @_moves = new Queue
 
             @_setupControls()
 
@@ -41,8 +42,7 @@ define [
 
         move: ->
 
-            if @_directionQueue.length
-                [@_direction, @_directionVec] = @_directionQueue.shift()
+            [@_direction, @_directionVec] = @_moves.dequeue() if @_moves.length()
 
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
@@ -148,12 +148,9 @@ define [
         _turn: (direction) ->
 
             newDirectionVec = @_orientation[direction]
-            prevDirectionVec = @_directionVec
-
-            if @_directionQueue.length
-                prevDirectionVec = @_directionQueue[@_directionQueue.length - 1]?[1]
+            prevDirectionVec = @_moves.peek()?[1] or @_directionVec
 
             if newDirectionVec.dot(prevDirectionVec) is 0
             
                 @_nextHead = @head.neighbours[newDirectionVec]
-                @_directionQueue.push [direction, newDirectionVec]
+                @_moves.enqueue [direction, newDirectionVec]

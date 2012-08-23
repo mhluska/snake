@@ -2,16 +2,17 @@ define [
     
     'lib/Three.js'
     'lib/Tween.js'
+    'src/queue'
     'src/constants'
     'src/utils'
 
-    ], (THREE, TWEEN, Const, Utils) ->
+    ], (THREE, TWEEN, Queue, Const, Utils) ->
 
     class Graphics3
 
         constructor: (@_faces, @_container) ->
 
-            @_objectQueue = []
+            @_objects = new Queue
 
             # A square can have multiple items but only one is shown. This is 
             # the order of precedence.
@@ -128,7 +129,7 @@ define [
 
                 when 'on'
 
-                    mesh = square.node or @_objectQueue.shift() or @_buildObject()
+                    mesh = square.node or @_objects.dequeue() or @_buildObject()
                     mesh.position.copy square.position
                     mesh.material.opacity = 1
                     mesh.visible = true
@@ -166,7 +167,7 @@ define [
 
             return unless node
 
-            @_objectQueue.push node
+            @_objects.enqueue node
             node.visible = false
 
         _updateItems: (square, mesh) ->
