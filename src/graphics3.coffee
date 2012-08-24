@@ -177,7 +177,7 @@ define [
                     self = @
                     @_squareTweens.poisoned[square] = new TWEEN.Tween(colour)
                         .to(newColour, 200)
-                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .easing(TWEEN.Easing.Linear.None)
                         .onComplete ->
                             self._squareTweens.poisoned[square] = null
 

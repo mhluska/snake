@@ -18,7 +18,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 5
+            @_length = 15
 
             @_resetInfection()
 
@@ -117,22 +117,32 @@ define [
             @_infectionIndex += 1 if @_infectedMoves % 10 is 0
 
             endIndex = @_length - Const.snakeMinLength + 1
-            if @_infectionIndex is endIndex
+            if @_infectionIndex is endIndex + 1
                 @_resetInfection()
-                @_eatSnakeAt @pieces[endIndex - 1]
+                @_chainKill @_splitAt endIndex - 1
                 return
 
             @pieces[@_infectionIndex].status = 'poisoned'
             @pieces[@_infectionIndex - 1]?.status = 'poisoned'
+
+        _chainKill: (squares) ->
+
+            index = 0
+
+            do kill = ->
+
+                return if index is squares.length
+                squares[index++].status = 'dead'
+                setTimeout kill, 25
 
         _splitAt: (index) ->
 
             # The non-zero check prevents constantly eating the snake tail.
             return unless index and index > 0
 
-            @pieces = @pieces.slice index
             @_length -= index
             @_score.sub index, true
+            @pieces.splice 1, index
 
         # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->
