@@ -18,7 +18,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 15
+            @_length = 5
 
             @_resetInfection()
 
@@ -28,8 +28,10 @@ define [
 
             @_setupControls()
 
+            middle = (Const.squareCount - 1) / 2
             startFace = @_faces[Const.startFaceIndex]
-            @pieces = (startFace.squares[0][index] for index in [0...@_length])
+            @pieces = (startFace.squares[middle][i] for i in [0...@_length])
+
             @head = @pieces[@_length - 1]
             @prevHead = @pieces[@_length - 2]
             @tail = @pieces[0]
