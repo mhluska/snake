@@ -47,15 +47,20 @@ define [
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
 
-            @_checkSnakeAt newHead
-            @_checkPoisonAt newHead
-            @_checkFoodAt newHead
-            @_growInfection()
+            switch newHead.item
 
+                when 'snake' then @_eatSnakeAt newHead
+                when 'poison' then @_eatPoisonAt newHead
+                when 'food' then @_eatFoodAt newHead
+
+            @tail?.off()
+            @pieces.shift()
             @tail = @pieces[0]
             @prevHead = @head
             @head = newHead
-            @head.off().on()
+            @head.on()
+
+            @_growInfection() if @_infected
 
             # The snake has entered a new face.
             if @onNewFace()
@@ -66,37 +71,18 @@ define [
                 @_orientation[@_direction] = @_directionVec
                 @_orientation[Utils.opposite @_direction] = directionVecBack
 
-        _resetInfection: ->
-            
-            @_infected = false
-            @_infectedMoves = 0
-            @_infectionIndex = 0
+        _eatSnakeAt: (square) ->
 
-        _growInfection: ->
-
-            return unless @_infected
-
-            @_infectedMoves += 1
-            @_infectionIndex += 1 if @_infectedMoves % 10 is 0
-
-            endIndex = @_length - Const.snakeMinLength + 1
-            if @_infectionIndex is endIndex
-                @_resetInfection()
-                @_checkSnakeAt @pieces[endIndex - 1]
-                return
-
-            @pieces[@_infectionIndex].add 'poison'
-            @pieces[@_infectionIndex - 1]?.add 'poison'
-
-        _checkSnakeAt: (square) ->
-
-            return unless square.has 'snake'
+            return if square.status is 'dead'
 
             for piece, index in @pieces
 
+                prevStatus = piece.status
+                piece.status = 'dead'
+
                 if piece.position.equals square.position
 
-                    if piece.has 'poison'
+                    if prevStatus is 'poisoned'
                         @_infectionIndex -= index
                     else
                         @_resetInfection()
@@ -104,34 +90,49 @@ define [
                     @_splitAt index
                     return
 
-                piece.status = 'dead'
+        _eatPoisonAt: (square) ->
+
+            return unless @_length > Const.snakeMinLength
+            @_infected = true
+
+        _eatFoodAt: (square) ->
+
+            # Add a blank element which the movement algorithm will destroy
+            # instead of a real snake piece.
+            @pieces.unshift null
+            @tail = @pieces[0]
+
+            @_score.add()
+            @_length += 1
+
+        _resetInfection: ->
+            
+            @_infected = false
+            @_infectedMoves = 0
+            @_infectionIndex = 1
+
+        _growInfection: ->
+
+            @_infectedMoves += 1
+            @_infectionIndex += 1 if @_infectedMoves % 10 is 0
+
+            endIndex = @_length - Const.snakeMinLength + 1
+            if @_infectionIndex is endIndex
+                @_resetInfection()
+                @_eatSnakeAt @pieces[endIndex - 1]
+                return
+
+            @pieces[@_infectionIndex].status = 'poisoned'
+            @pieces[@_infectionIndex - 1]?.status = 'poisoned'
 
         _splitAt: (index) ->
 
+            # The non-zero check prevents constantly eating the snake tail.
             return unless index and index > 0
 
             @pieces = @pieces.slice index
             @_length -= index
             @_score.sub index, true
-
-        _checkFoodAt: (square) ->
-
-            if square.has 'food'
-                @_score.add()
-                @_length += 1
-            else
-                @tail.off()
-                @pieces.shift()
-
-            square.remove 'food'
-
-        _checkPoisonAt: (square) ->
-
-            return unless square.has('poison') and @_length > Const.snakeMinLength
-
-            @_infected = true
-
-            square.remove 'poison'
 
         # TODO: Don't use jQuery. Get a small library for controls
         _setupControls: ->

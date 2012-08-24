@@ -13,33 +13,16 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
             # be modified only by the graphics module.
             @node = null
 
-            # A hash of items on the square (food, snake, etc..).
-            @_items = {}
+        on: (@item = 'snake') ->
 
-        on: (item = 'snake') ->
-
-            @_items[item] = true
             @status = 'on'
             @
 
-        off: (item) ->
+        off: ->
 
-            @_items[item] = false
-            @_items = {} if arguments.length is 0
             @status = 'off'
+            @item = null
             @
-
-        add: (item) ->
-            @_items[item] = true
-            @
-
-        remove: (item) ->
-            @_items[item] = false
-            @
-
-        has: (item) ->
-            return false if @status is 'dead'
-            @_items[item] is true
 
         connect: (square) ->
 

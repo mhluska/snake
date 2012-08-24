@@ -18,7 +18,9 @@ define [
             # the order of precedence.
             @_itemOrder = ['poison', 'food', 'snake']
 
-            @_squareTweens = {}
+            @_squareTweens =
+                poisoned: {}
+                dead: {}
 
             @_cameraMoveCallback = null
             @_buildScene()
@@ -145,7 +147,7 @@ define [
                     node = square.node
                     square.node = null
 
-                    @_squareTweens[square] ?= new TWEEN.Tween(opacity: 1)
+                    @_squareTweens.dead[square] ?= new TWEEN.Tween(opacity: 1)
                         .to({ opacity: 0 }, 1000)
                         .easing(TWEEN.Easing.Quartic.Out)
                         .onUpdate ->
@@ -153,7 +155,7 @@ define [
                         .onComplete ->
                             square.off() if square.status is 'dead'
                             self._recycleNode node
-                            self._squareTweens[square] = null
+                            self._squareTweens.dead[square] = null
 
                         .start()
 
@@ -162,6 +164,24 @@ define [
                     @_recycleNode square.node
                     square.node = null
 
+                when 'poisoned'
+
+                    return if @_squareTweens.poisoned[square]
+
+                    colour = square.node.material.color
+
+                    newColour = {}
+                    for additive in ['r', 'g', 'b']
+                        newColour[additive] = Math.max(0.25, colour[additive] * 0.75)
+
+                    self = @
+                    @_squareTweens.poisoned[square] = new TWEEN.Tween(colour)
+                        .to(newColour, 200)
+                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .onComplete ->
+                            self._squareTweens.poisoned[square] = null
+
+                        .start()
 
         _recycleNode: (node) ->
 
@@ -172,9 +192,9 @@ define [
 
         _updateItems: (square, mesh) ->
 
-            for item in @_itemOrder
-                if square.has item
-                    colour = new THREE.Color Const.colours[item]
+            for drawItem in @_itemOrder
+                if square.item is drawItem
+                    colour = new THREE.Color Const.colours[drawItem]
                     square.node.material.color = colour
                     return
 

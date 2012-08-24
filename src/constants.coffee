@@ -2,7 +2,7 @@ define ['src/vector3'], (Vector3) ->
 
     class Constants
 
-        @snakeMinLength: 3
+        @snakeMinLength: 4
 
         @squareSize: 15
         @squareCount: 15
