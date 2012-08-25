@@ -24,17 +24,21 @@ define [
             @_steps = 0
 
             @_buildCube()
+            @_makeGraph()
 
             @_snake = new Snake @_faces, new Score container
             @_graphics = new Graphics3 @_getFaces(), container
 
-            # $(window).keydown (event) =>
-            #     if event.which is 69
-            #         @step()
-            #         @_steps += 4
+            $(window).keydown (event) =>
+                if event.which is 69
+                    @step()
+                    @_steps += 4
+            
+            window.game = @
 
         run: ->
 
+            return
             requestAnimationFrame => @step() and @run()
 
         step: ->
@@ -73,4 +77,29 @@ define [
 
             square = face.squares[randX][randY]
             square.on type
+
+        # Do a depth-first search of the cube squares, building a data
+        # structure for the graph module.
+        _makeGraph: ->
             
+            graphEdges = []
+            explored = {}
+
+            current = @_faces[0].squares[0][0]
+
+            # Use an explicit stack rather than recursion just because.
+            searchStack = [current]
+
+            while searchStack.length
+
+                current = searchStack.pop()
+                explored[current] = true
+
+                for key, neighbour of current.neighbours
+
+                    continue if explored[neighbour]
+
+                    graphEdges.push [current.toString(), neighbour.toString()]
+                    searchStack.push neighbour
+
+            graphEdges
