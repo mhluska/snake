@@ -29,6 +29,52 @@ class window.Test
 
     @after: (start) -> start()
 
+    show: (value, message) ->
+
+        return unless arguments.length > 0
+
+        @_writeMessage message if message
+        console.log message if message
+        @_writeMessage value
+        console.log value
+
+    assert: (bool, message) ->
+
+        return if bool
+
+        # TODO: Make getting the error line number more cross-browser friendly
+        getErrorObject = ->
+            try
+                throw Error('')
+            catch err
+                return err
+
+        err = getErrorObject()
+        callerLine = err.stack.split('\n')[4]
+        index = callerLine.indexOf("at ")
+        clean = callerLine.slice(index + 2, callerLine.length).split(':')[2]
+
+        errorMessage = "#{clean}: Test failed"
+        errorMessage += ": #{message}" if message
+
+        @_writeError errorMessage
+        console.error errorMessage
+
+    equals: (value1, value2) ->
+
+        type1 = @_typeOf value1
+        type2 = @_typeOf value2
+
+        return false if type1 isnt type2
+
+        if type1 is 'object' and type2 is 'object'
+            return @_equalObjects value1, value2
+
+        if type1 is 'array' and type2 is 'array'
+            return @_equalArrays value1, value2
+
+        value1 is value2
+
     # Changes string like 'testCamelCase' to 'Camel Case'
     _formatTestName: (name) ->
 
@@ -132,57 +178,11 @@ class window.Test
         results.innerHTML = @_outputBuffer.join ''
         document.body.appendChild results
 
-        # TODO: Find a way to do this without setTimeout
-        # setTimeout works around not scrolling to bottom
+        # TODO: Find a way to do this without setTimeout setTimeout works 
+        # around not scrolling to bottom.
         setTimeout ->
             window.scroll 0, document.body.scrollHeight
         , 1
 
         @_outputBuffer = []
-
-    show: (value, message) ->
-
-        return unless arguments.length > 0
-
-        @_writeMessage message if message
-        console.log message if message
-        @_writeMessage value
-        console.log value
-
-    assert: (bool, message) ->
-
-        return if bool
-
-        # TODO: Make getting the error line number more cross-browser friendly
-        getErrorObject = ->
-            try
-                throw Error('')
-            catch err
-                return err
-
-        err = getErrorObject()
-        callerLine = err.stack.split('\n')[4]
-        index = callerLine.indexOf("at ")
-        clean = callerLine.slice(index + 2, callerLine.length).split(':')[2]
-
-        errorMessage = "#{clean}: Test failed"
-        errorMessage += ": #{message}" if message
-
-        @_writeError errorMessage
-        console.error errorMessage
-
-    equals: (value1, value2) ->
-
-        type1 = @_typeOf value1
-        type2 = @_typeOf value2
-
-        return false if type1 isnt type2
-
-        if type1 is 'object' and type2 is 'object'
-            return @_equalObjects value1, value2
-
-        if type1 is 'array' and type2 is 'array'
-            return @_equalArrays value1, value2
-
-        value1 is value2
 

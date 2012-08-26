@@ -110,14 +110,14 @@ read -d '' HTML << EOF
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="test.css" />
         <script src='../lib/mustache.js'></script>
-        $(build_dependency_html "${DEPENDENCIES}")
         <script src='config.js'></script>
         <script src='test.js'></script>
+        $(build_dependency_html "${DEPENDENCIES}")
         ${SCRIPTS}
-        <script>${JS_CODE}</script>
     </head>
     <body>
         $(cat templates.html)
+        <script>${JS_CODE}</script>
     </body>
 </html>
 EOF
