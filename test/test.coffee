@@ -18,9 +18,6 @@ class window.Test
         # Class accessor. Kind of like '@@' in Ruby
         @.class = (Object.getPrototypeOf @).constructor
 
-        @_origBefore = @before
-        @_origAfter = @after
-
         @_runTests()
 
     # @before and @after can be overriden with asynchronous initialization. It

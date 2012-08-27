@@ -1,29 +1,32 @@
-define ->
+# Modified from http://eloquentjavascript.net/appendix2.html
+# TODO: Publish BinaryHeap and HashMap in a data structures repo on GitHub. 
+
+define ['src/hashmap'], (HashMap) ->
 
     class BinaryHeap
 
-        constructor: (@scoreFunction) ->
+        constructor: (@scoreFunction = (item) -> item) ->
 
             @_content = []
+            @_indexHash = new HashMap
 
         push: (element) ->
 
             @_content.push element
-            @bubbleUp @_content.length - 1
+            @_indexHash.put element, @size() - 1
+            @bubbleUp @size() - 1
 
         pop: ->
 
             result = @_content[0]
             end = @_content.pop()
-            if @_content.length > 0
+            if @size() > 0
                 @_content[0] = end
                 @sinkDown(0)
 
             result
 
         remove: (node) ->
-
-            len = @_content.length
 
             # To remove a value, we must search through the array to find it.
             for item, index in @_content
@@ -33,7 +36,7 @@ define ->
                     # When it is found, the process seen in 'pop' is repeated
                     # to fill up the hole.
                     end = @_content.pop()
-                    if index != @_content.length - 1
+                    if index != @size() - 1
                         @_content[index] = end
                         if @scoreFunction(end) < @scoreFunction node
                             @bubbleUp index
@@ -46,40 +49,45 @@ define ->
 
         size: -> @_content.length
 
-        bubbleUp: (n) ->
+        last: -> @_content[@size() - 1]
 
-            element = @_content[n]
+        bubbleUp: (index) ->
+
+            element = @_content[index]
 
             # When at 0, an element can not go up any further.
-            while n > 0
+            while index > 0
 
                 # Compute the parent element's index, and fetch it.
-                parentN = Math.floor((n + 1) / 2) - 1
+                parentN = Math.floor((index + 1) / 2) - 1
                 parent = this._content[parentN]
 
                 # Swap the elements if the parent is greater.
                 if @scoreFunction(element) < @scoreFunction parent
 
                     @_content[parentN] = element
-                    @_content[n] = parent
+                    @_content[index] = parent
+                    
+                    @_indexHash.put element, parentN
+                    @_indexHash.put parent, index
 
-                    # Update 'n' to continue at the new position.
-                    n = parentN
+                    # Update 'index' to continue at the new position.
+                    index = parentN
 
                 # Found a parent that is less, no need to move it further.
                 else break
 
-        sinkDown: (n) ->
+        sinkDown: (index) ->
 
             # Look up the target element and its score.
-            length = @_content.length
-            element = @_content[n]
+            length = @size()
+            element = @_content[index]
             elemScore = @scoreFunction element
 
             while true
 
                 # Compute the indices of the child elements.
-                child2N = (n + 1) * 2
+                child2N = (index + 1) * 2
                 child1N = child2N - 1
 
                 # This is used to store the new position of the element, if any.
@@ -107,8 +115,21 @@ define ->
                 # If the element needs to be moved, swap it, and continue.
                 if swap isnt null
 
-                    @_content[n] = @_content[swap]
+                    @_content[index] = @_content[swap]
                     @_content[swap] = element
-                    n = swap
+
+                    @_indexHash.put @_content[swap], index
+                    @_indexHash.put element, swap
+
+                    index = swap
 
                 else break
+
+        indexOf: (element) ->
+
+            index = @_indexHash.get(element)
+            if index? then index else -1
+
+        decreaseKey: (element) ->
+
+            @bubbleUp @indexOf element
