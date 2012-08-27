@@ -101,7 +101,7 @@ define [
                     posX -= Const.cubeSize / 2
                     posY -= Const.cubeSize / 2
 
-                    @squares[x][y] = new Square @, @_orderArgs posX, posY
+                    @squares[x][y] = new Square @, @_orderArgs(posX, posY), @_graph
 
         _adjacentPositions: (x, y) ->
 

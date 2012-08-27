@@ -10,7 +10,7 @@ define [
 
     class Snake
 
-        constructor: (@_faces, @_score) ->
+        constructor: (@_faces, @_food, @_score) ->
             
             @_orientation =
                 up:    Const.normalY.clone()
@@ -22,11 +22,13 @@ define [
 
             @_resetInfection()
 
+            @_playing = false
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
-            @_moves = new Queue
 
             @_setupControls()
+
+            @moves = new Queue
 
             middle = (Const.squareCount - 1) / 2
             startFace = @_faces[Const.startFaceIndex]
@@ -38,13 +40,17 @@ define [
 
             piece.on() for piece in @pieces
 
+        acceptingPath: ->
+
+            @moves.length() is 0 and not @_playing
+
         onNewFace: ->
 
             not @head.adjacentTo @prevHead
 
         move: ->
-
-            [@_direction, @_directionVec] = @_moves.dequeue() if @_moves.length()
+            
+            @_setNextDirection() if @moves.length()
 
             newHead = @head.neighbours[@_directionVec]
             @pieces.push newHead
@@ -64,7 +70,6 @@ define [
 
             @_growInfection() if @_infected
 
-            # The snake has entered a new face.
             if @onNewFace()
 
                 directionVecBack = @prevHead.face.normal.clone()
@@ -72,6 +77,20 @@ define [
 
                 @_orientation[@_direction] = @_directionVec
                 @_orientation[Utils.opposite @_direction] = directionVecBack
+
+        _setNextDirection: ->
+
+            nextSquare = @moves.dequeue()
+
+            for own direction, square of @head.neighbours
+                if square.position.equals nextSquare.position
+                    @_directionVec = direction
+                    break
+
+            for own direction, vector of @_orientation
+                if vector.equals @_directionVec
+                    @_direction = direction
+                    break
 
         _eatSnakeAt: (square) ->
 
@@ -98,6 +117,8 @@ define [
             @_infected = true
 
         _eatFoodAt: (square) ->
+
+            @_food.remove square
 
             # Add a blank element which the movement algorithm will destroy
             # instead of a real snake piece.
@@ -151,6 +172,8 @@ define [
 
             $(window).keydown (event) =>
 
+                # TODO: Get player controls working with AI.
+                return
                 switch event.keyCode
                     when 37 then @_turn 'left'
                     when 38 then @_turn 'up'
@@ -160,10 +183,10 @@ define [
 
         _turn: (direction) ->
 
-            newDirectionVec = @_orientation[direction]
-            prevDirectionVec = @_moves.peek()?[1] or @_directionVec
+            vector = @_orientation[direction]
 
-            if newDirectionVec.dot(prevDirectionVec) is 0
-            
-                @_nextHead = @head.neighbours[newDirectionVec]
-                @_moves.enqueue [direction, newDirectionVec]
+            if vector.dot(@_lastQueuedVector or @_directionVec) is 0
+
+                @_lastQueuedVector = vector.clone()
+                lastSquare = @moves.last() or @head
+                @moves.enqueue lastSquare.neighbours[vector]

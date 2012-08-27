@@ -1,107 +1,99 @@
 define [
     
     'src/hashmap'
-    'src/queue'
-    'src/utils'
+    'src/binaryheap'
 
-    ], (HashMap, Queue, Utils) ->
+    ], (HashMap, BinaryHeap) ->
 
     class Graph
 
-        constructor: (@neighbours = {}) ->
+        # The snake game graph is very sparse: For thousands of vertices, each 
+        # vertex has a max of four neighbours. Also, our graph is modified on
+        # the fly to save time in Dijkstra's algorithm. We store the graph in
+        # an unconventional way for these reasons. We use an array of vertices 
+        # where each vertex maps to its 4-tuple of neighbours. This way we can
+        # get neighbours in O(1) time while keeping things decoupled (not
+        # relying on the neighbours info in the Square module).
+        constructor: (@vertices = new HashMap) ->
 
-        removeVertex: (square) ->
+        addVertex: (obj) ->
 
-            return unless @neighbours[square]
+            return if @vertices.has obj
 
-            for pos, neighbour of square.neighbours when @neighbours[neighbour]
+            # TODO: Don't do this. Make Square use HashMap for neighbours. Pass
+            # it into the function so we don't rely on Square's internals.
+            neighbours = (value for key, value of obj.neighbours)
 
-                index = @neighbours[neighbour].indexOf square.toString()
-                @neighbours[neighbour].splice index, 1
+            tuple = new HashMap
+            for vertex in neighbours when @vertices.get(vertex)?
+                tuple.put vertex
+                @vertices.get(vertex).put obj
 
-            delete @neighbours[square]
+            @vertices.put obj, tuple
 
-        addVertex: (square) ->
+        removeVertex: (obj) ->
 
-            return if @neighbours[square]
+            return unless @vertices.has obj
 
-            @neighbours[square] = []
+            # TODO: Don't do this. Make Square use HashMap for neighbours. Pass
+            # it into the function so we don't rely on Square's internals.
+            neighbours = (value for key, value of obj.neighbours)
 
-            for pos, neighbour of square.neighbours
-
-                @neighbours[square].push neighbour.toString()
-                @neighbours[neighbour]?.push square.toString()
-
-        vertices: -> vertex for vertex of @neighbours
-
-        distanceBetween: (vertex1, vertex2) ->
-
-            return Infinity if vertex2.toString() not in @neighbours[vertex1]
-            
-            1
-
-        # dijkstras(source, [targets, ...])
-        # Accepts a source and any number of target vertices. If target 
-        # vertices are provided, returns a shortest path from each source to 
-        # target path. If no targets are provided, returns distances from 
-        # source to every other vertex.
-        dijkstras: (source, targets...) ->
-
-            return unless source
-
-            vertices = @vertices()
-
-            # Initialize distance and previous
-            # distance[v] is the distance from source vertex to v vertex
-            # previous[v] is the previous node in the optimal path from source
-            distance = {}
-            previous = {}
-            for vertex in vertices
-                distance[vertex] = Infinity
-                previous[vertex] = null
-
-            distance[source] = 0
-
-            while vertices.length
+            for vertex in neighbours when @vertices.get(vertex)?
+                @vertices.get(vertex).remove obj
                 
-                closest = vertices[0]
-                for neighbour in vertices.slice(1)
-                    closest = neighbour if distance[neighbour] < distance[closest]
+            @vertices.remove obj
 
-                break if distance[closest] is Infinity
+        # Note: we rely on source hashing nicely in distance[] because of its 
+        # toString function. Its a balance between module coupling and code 
+        # complexity.
+        dijkstras: (source, target) ->
 
-                # Remove closest from vertex set
-                # TODO: Use a set data structure
-                vertices.splice vertices.indexOf(closest), 1
+            previous = {}
+            distance = {}
 
-                for neighbour in @neighbours[closest]
-                    # TODO: Avoid this linear time operation by working with a 
-                    # copy of @neighbours
-                    continue if neighbour not in vertices
+            heap = new BinaryHeap (item) -> distance[item]
+            
+            for vertex in @vertices.keys()
+                distance[vertex] = Infinity
+                distance[vertex] = 0 if vertex is source
+                heap.push vertex
 
-                    # The length of the path from source to neighbour if it 
-                    # goes through closest
-                    alt = distance[closest] + @distanceBetween closest, neighbour
+            while heap.size()
+
+                closest = heap.pop()
+                return [] if distance[closest] is Infinity
+
+                break if closest is target
+
+                for neighbour in @vertices.get(closest).values()
+
+                    continue if heap.indexOf(neighbour) is -1
+                    
+                    alt = distance[closest] + @_distance closest, neighbour
 
                     if alt < distance[neighbour]
+
                         distance[neighbour] = alt
                         previous[neighbour] = closest
-                        
-            return distance unless targets.length
+                        heap.decreaseKey neighbour
 
-            pathDistances = (distance[target] for target in targets)
-            minDistance = Math.min.apply null, pathDistances
-            targetIndex = pathDistances.indexOf minDistance
-
-            @_shortestPath previous, source, targets[targetIndex]
+            @_shortestPath previous, source, target
 
         # Follows the parent pointers returned by Dijkstra's algorithm to 
         # create a path between source and target
         _shortestPath: (previous, source, target) ->
 
-            path = new Queue
+            path = []
             while previous[target]
-                path.enqueue target
+                path.unshift target
                 target = previous[target]
 
             path
+
+        _distance: (vertex1, vertex2) ->
+
+            return Infinity unless @vertices.get(vertex1).has(vertex2)
+
+            1
+

@@ -33,4 +33,5 @@ define ->
             return 'z' if Math.abs(unitVector.z) is 1
 
         @randInt: (min, max) ->
+
             Math.floor(Math.random() * (max - min + 1)) + min

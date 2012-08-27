@@ -9,17 +9,23 @@ define ['src/utils', 'src/constants'], (Utils, Const) ->
             @neighbours = {}
             @status = 'off'
 
+            # TODO: Make it so these references aren't added dynamically.
+            # This reference is set during the Game._makeGraph call
+            @graph = null
+
             # The visual element representing this square. This variable should
             # be modified only by the graphics module.
             @node = null
 
         on: (@item = 'snake') ->
 
+            @graph.removeVertex @ if @item in ['snake', 'poison']
             @status = 'on'
             @
 
         off: ->
 
+            @graph.addVertex @
             @status = 'off'
             @item = null
             @

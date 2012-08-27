@@ -4,11 +4,13 @@ define ->
 
     class Queue
 
-        constructor: ->
+        constructor: (arr = []) ->
 
             @_queue = []
             @_offset = 0
             @_length = 0
+
+            @enqueue item for item in arr
 
         length: -> @_length - @_offset
 
@@ -38,3 +40,9 @@ define ->
         peek: ->
 
             @_queue[@_offset] if @_length > 0
+
+        last: ->
+
+            @_queue[@_length - 1]
+
+        toString: -> @_queue.toString()
