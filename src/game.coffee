@@ -26,6 +26,7 @@ define [
         constructor: (container) ->
 
             @_steps = 0
+            @_playing = true
             @_food = new HashMap
 
             @_buildCube()
@@ -33,6 +34,8 @@ define [
 
             @_snake = new Snake @_faces, @_food, new Score container
             @_graphics = new Graphics3 @_getFaces(), container
+
+            @_setupControls()
 
             $(window).keydown (event) =>
                 if event.which is 69
@@ -48,7 +51,7 @@ define [
 
             if (@_steps % 5) is 0
 
-                if @_food.size and @_snake.acceptingPath()
+                if @_snake.moves.isEmpty() and not @_playing
                     @_snake.moves = @_getFoodPath()
 
                 @_snake.move()
@@ -58,6 +61,19 @@ define [
             @_graphics.update()
 
             @_steps += 1
+
+        # TODO: Don't use jQuery. Get a small library for controls
+        _setupControls: ->
+
+            $(window).keydown (event) =>
+
+                # TODO: Get player controls working with AI.
+                switch event.which
+                    when 37 then @_snake.turn 'left'
+                    when 38 then @_snake.turn 'up'
+                    when 39 then @_snake.turn 'right'
+                    when 40 then @_snake.turn 'down'
+                    else return
 
         _getFaces: -> face for key, face of @_faces
 

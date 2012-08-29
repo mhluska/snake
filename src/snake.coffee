@@ -22,11 +22,8 @@ define [
 
             @_resetInfection()
 
-            @_playing = true
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
-
-            @_setupControls()
 
             @moves = new Queue
 
@@ -40,13 +37,27 @@ define [
 
             piece.on() for piece in @pieces
 
-        acceptingPath: ->
-
-            @moves.isEmpty() and not @_playing
-
         onNewFace: ->
 
             @head.face isnt @prevHead.face
+
+        turn: do ->
+
+            lastDirection = null
+
+            (direction) ->
+
+                return if direction is Utils.opposite lastDirection
+
+                # TODO: Implement queueing of moves across faces. Is it worth
+                # the code complexity?
+                lastSquare = @moves.last() or @head
+                return if lastSquare.face isnt @head.face
+
+                lastDirection = direction
+
+                directionVector = @_orientation[direction]
+                @moves.enqueue lastSquare.neighbours[directionVector]
 
         move: ->
 
@@ -168,33 +179,3 @@ define [
             @_score.sub index, true
             @pieces.splice 1, index
 
-        # TODO: Don't use jQuery. Get a small library for controls
-        _setupControls: ->
-
-            $(window).keydown (event) =>
-
-                # TODO: Get player controls working with AI.
-                switch event.keyCode
-                    when 37 then @_turn 'left'
-                    when 38 then @_turn 'up'
-                    when 39 then @_turn 'right'
-                    when 40 then @_turn 'down'
-                    else return
-
-        _turn: do ->
-
-            lastDirection = null
-
-            (direction) ->
-
-                return if direction is Utils.opposite lastDirection
-
-                # TODO: Implement queueing of moves across faces. Is it worth
-                # the code complexity?
-                lastSquare = @moves.last() or @head
-                return if lastSquare.face isnt @head.face
-
-                lastDirection = direction
-
-                directionVector = @_orientation[direction]
-                @moves.enqueue lastSquare.neighbours[directionVector]
