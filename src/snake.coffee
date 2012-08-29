@@ -42,7 +42,7 @@ define [
 
         acceptingPath: ->
 
-            @moves.length() is 0 and not @_playing
+            @moves.isEmpty() and not @_playing
 
         onNewFace: ->
 

@@ -13,8 +13,7 @@ define ->
 
             @add item for item in arr
 
-        # TODO: Implement this. Create a Utils.copyObject.
-        clone: ->
+        isEmpty: -> @size is 0
 
         put: (key, value) ->
 

@@ -52,7 +52,7 @@ define [
 
                 @_snake.move()
 
-            @_dropFood() if (@_steps % 100) is 0
+            @_dropFood() if (@_steps % 100) is 0 or @_food.isEmpty()
             @_graphics.show @_snake.head.face if @_snake.onNewFace()
             @_graphics.update()
 
@@ -85,15 +85,10 @@ define [
 
         _dropFood: ->
 
-            # face = @_faces[Utils.randInt 0, @_faces.length - 1]
-            face = @_faces[2]
-
-            randX = Utils.randInt 0, Const.squareCount - 1
-            randY = Utils.randInt 0, Const.squareCount - 1
-
             type = if (Utils.randInt 0, 5) is 0 then 'poison' else 'food'
 
-            square = face.squares[randX][randY]
+            index = Utils.randInt 0, @_graph.vertices.size - 1
+            square = @_graph.vertices.keys()[index]
             square.on type
 
             @_food.put square if type is 'food'
