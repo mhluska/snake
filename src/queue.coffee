@@ -45,4 +45,8 @@ define ->
 
             @_queue[@_length - 1]
 
+        clear: ->
+
+            @dequeue() until @length() is 0
+
         toString: -> @_queue.toString()

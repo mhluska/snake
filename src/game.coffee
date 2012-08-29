@@ -26,7 +26,7 @@ define [
         constructor: (container) ->
 
             @_steps = 0
-            @_playing = true
+            @_playing = false
             @_food = new HashMap
 
             @_buildCube()
@@ -44,7 +44,6 @@ define [
             
         run: ->
 
-            return
             requestAnimationFrame => @step() and @run()
 
         step: ->
@@ -67,13 +66,15 @@ define [
 
             $(window).keydown (event) =>
 
-                # TODO: Get player controls working with AI.
+                if event.which in [37...40]
+                    @_snake.moves.clear() unless @_playing
+                    @_playing = true
+
                 switch event.which
                     when 37 then @_snake.turn 'left'
                     when 38 then @_snake.turn 'up'
                     when 39 then @_snake.turn 'right'
                     when 40 then @_snake.turn 'down'
-                    else return
 
         _getFaces: -> face for key, face of @_faces
 
