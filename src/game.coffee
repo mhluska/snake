@@ -27,20 +27,24 @@ define [
 
             @_steps = 0
             @_playing = false
-            @_food = new HashMap
+
+            @_edible =
+                food: new HashMap
+                poison: new HashMap
 
             @_buildCube()
             @_makeGraph()
 
-            @_snake = new Snake @_faces, @_food, new Score container
+            @_score = new Score container
+            @_snake = new Snake @_faces, @_edible, @_score
             @_graphics = new Graphics3 @_getFaces(), container
 
             @_setupControls()
 
-            $(window).keydown (event) =>
-                if event.which is 69
-                    @step()
-                    @_steps += 4
+            # $(window).keydown (event) =>
+            #     if event.which is 69
+            #         @step()
+            #         @_steps += 4
             
         run: ->
 
@@ -51,11 +55,12 @@ define [
             if (@_steps % 5) is 0
 
                 if @_snake.moves.isEmpty() and not @_playing
+
                     @_snake.moves = @_getFoodPath()
 
                 @_snake.move()
 
-            @_dropFood() if (@_steps % 100) is 0 or @_food.isEmpty()
+            @_dropFood() if (@_steps % 100) is 0 or @_edible.food.isEmpty()
             @_graphics.show @_snake.head.face if @_snake.onNewFace()
             @_graphics.update()
 
@@ -66,8 +71,12 @@ define [
 
             $(window).keydown (event) =>
 
-                if event.which in [37...40]
-                    @_snake.moves.clear() unless @_playing
+                if not @_playing and event.which in [37...40]
+
+                    # TODO: Starting the game during this async call might
+                    # cause problems. If it does, delay the action until we are
+                    # at the start of step()
+                    @_startGame()
                     @_playing = true
 
                 switch event.which
@@ -76,13 +85,23 @@ define [
                     when 39 then @_snake.turn 'right'
                     when 40 then @_snake.turn 'down'
 
+        _startGame: ->
+
+            @_snake.moves.clear()
+            @_score.clear()
+            @_snake.die()
+
+            edibles = @_edible.food.values().concat @_edible.poison.values()
+            edible.status = 'dead' for edible in edibles
+
+            @_dropFood()
+
         _getFaces: -> face for key, face of @_faces
 
         _getFoodPath: ->
 
-            time = Date.now()
             @_graph.addVertex @_snake.head
-            squares = @_graph.dijkstras @_snake.head, @_food.values()...
+            squares = @_graph.dijkstras @_snake.head, @_edible.food.values()...
             @_graph.removeVertex @_snake.head
 
             new Queue squares
@@ -109,7 +128,7 @@ define [
             square = @_graph.vertices.keys()[index]
             square.on type
 
-            @_food.put square if type is 'food'
+            @_edible[type]?.put square
 
         # Do a depth-first search of the cube squares, building a data
         # structure meant for passing to the graph module.

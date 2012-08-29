@@ -21,6 +21,11 @@ define ->
 
             @add -amount
 
+        clear: ->
+            
+            @_highscore = 0
+            @_set 0
+
         _set: (amount) ->
 
             return unless arguments.length > 0

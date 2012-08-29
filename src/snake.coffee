@@ -10,7 +10,7 @@ define [
 
     class Snake
 
-        constructor: (@_faces, @_food, @_score) ->
+        constructor: (@_faces, @_edible, @_score) ->
             
             @_orientation =
                 up:    Const.normalY.clone()
@@ -58,6 +58,11 @@ define [
 
                 directionVector = @_orientation[direction]
                 @moves.enqueue lastSquare.neighbours[directionVector]
+
+        die: ->
+
+            endIndex = @_length - Const.snakeMinLength
+            @_chainKill @_splitAt endIndex - 1
 
         move: ->
 
@@ -125,12 +130,14 @@ define [
 
         _eatPoisonAt: (square) ->
 
+            @_edible.poison.remove square
+
             return unless @_length > Const.snakeMinLength
             @_infected = true
 
         _eatFoodAt: (square) ->
 
-            @_food.remove square
+            @_edible.food.remove square
 
             # Add a blank element which the movement algorithm will destroy
             # instead of a real snake piece.
@@ -151,10 +158,10 @@ define [
             @_infectedMoves += 1
             @_infectionIndex += 1 if @_infectedMoves % 10 is 0
 
-            endIndex = @_length - Const.snakeMinLength + 1
-            if @_infectionIndex is endIndex + 1
+            endIndex = @_length - Const.snakeMinLength
+            if @_infectionIndex is endIndex - 1
                 @_resetInfection()
-                @_chainKill @_splitAt endIndex - 1
+                @die()
                 return
 
             @pieces[@_infectionIndex].status = 'poisoned'

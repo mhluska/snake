@@ -9,7 +9,7 @@ define ->
                 when 'right' then 'left'
                 when 'down' then 'up'
                 when 'left' then 'right'
-                when null then true
+                when null then false
 
         @extend: (object1, object2) ->
 
