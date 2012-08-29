@@ -23,7 +23,7 @@ define [
             @_resetInfection()
 
             @_direction = 'up'
-            @_lastDirection = @_direction
+            @_lastDir = @_direction
             @_directionVec = @_orientation[@_direction]
 
             @moves = new Queue
@@ -44,14 +44,14 @@ define [
 
         turn: (direction) ->
 
-            return if direction is Utils.opposite @_lastDirection
+            return if direction in [@_lastDir, Utils.opposite @_lastDir]
 
             # TODO: Implement queueing of moves across faces. Is it worth
             # the code complexity?
             lastSquare = @moves.last() or @head
             return if lastSquare.face isnt @head.face
 
-            @_lastDirection = direction
+            @_lastDir = direction
 
             directionVector = @_orientation[direction]
             @moves.enqueue lastSquare.neighbours[directionVector]
@@ -96,8 +96,8 @@ define [
 
             for own direction, vector of @_orientation
                 if vector.toString() is @_directionVec
+                    @_lastDir = direction
                     @_direction = direction
-                    @_lastDirection = direction
                     break
 
         _orient: ->

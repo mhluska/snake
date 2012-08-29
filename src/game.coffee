@@ -122,7 +122,7 @@ define [
 
         _dropFood: ->
 
-            type = if (Utils.randInt 0, 1) is 0 then 'poison' else 'food'
+            type = if (Utils.randInt 0, 5) is 0 then 'poison' else 'food'
 
             index = Utils.randInt 0, @_graph.vertices.size - 1
             square = @_graph.vertices.keys()[index]
