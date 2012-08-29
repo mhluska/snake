@@ -18,11 +18,12 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = 5
+            @_length = Const.snakeMinLength
 
             @_resetInfection()
 
             @_direction = 'up'
+            @_lastDirection = @_direction
             @_directionVec = @_orientation[@_direction]
 
             @moves = new Queue
@@ -41,28 +42,24 @@ define [
 
             @head.face isnt @prevHead.face
 
-        turn: do ->
+        turn: (direction) ->
 
-            lastDirection = null
+            return if direction is Utils.opposite @_lastDirection
 
-            (direction) ->
+            # TODO: Implement queueing of moves across faces. Is it worth
+            # the code complexity?
+            lastSquare = @moves.last() or @head
+            return if lastSquare.face isnt @head.face
 
-                return if direction is Utils.opposite lastDirection
+            @_lastDirection = direction
 
-                # TODO: Implement queueing of moves across faces. Is it worth
-                # the code complexity?
-                lastSquare = @moves.last() or @head
-                return if lastSquare.face isnt @head.face
-
-                lastDirection = direction
-
-                directionVector = @_orientation[direction]
-                @moves.enqueue lastSquare.neighbours[directionVector]
+            directionVector = @_orientation[direction]
+            @moves.enqueue lastSquare.neighbours[directionVector]
 
         die: ->
 
             endIndex = @_length - Const.snakeMinLength
-            @_chainKill @_splitAt endIndex - 1
+            @_chainKill @_splitAt endIndex
 
         move: ->
 
@@ -100,6 +97,7 @@ define [
             for own direction, vector of @_orientation
                 if vector.toString() is @_directionVec
                     @_direction = direction
+                    @_lastDirection = direction
                     break
 
         _orient: ->
@@ -159,7 +157,7 @@ define [
             @_infectionIndex += 1 if @_infectedMoves % 10 is 0
 
             endIndex = @_length - Const.snakeMinLength
-            if @_infectionIndex is endIndex - 1
+            if @_infectionIndex is endIndex
                 @_resetInfection()
                 @die()
                 return
@@ -168,6 +166,8 @@ define [
             @pieces[@_infectionIndex - 1]?.status = 'poisoned'
 
         _chainKill: (squares) ->
+
+            return unless squares
 
             index = 0
 
