@@ -102,7 +102,7 @@ define [
 
         _orient: ->
 
-            directionVecBack = @prevHead.face.normal.clone()
+            directionVecBack = @head.face.normal.clone()
             @_directionVec = directionVecBack.clone().negate()
             @_orientation[@_direction] = @_directionVec
             @_orientation[Utils.opposite @_direction] = directionVecBack
