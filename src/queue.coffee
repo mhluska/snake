@@ -14,7 +14,7 @@ define ->
 
         length: -> @_length - @_offset
 
-        isEmpty: -> @_length is 0
+        isEmpty: -> @length() is 0
 
         enqueue: (item) ->
             

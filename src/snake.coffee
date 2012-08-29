@@ -30,7 +30,7 @@ define [
 
             @moves = new Queue
 
-            middle = (Const.squareCount - 1) / 2
+            middle = Math.round (Const.squareCount - 1) / 2
             startFace = @_faces[Const.startFaceIndex]
             @pieces = (startFace.squares[middle][i] for i in [0...@_length])
 
