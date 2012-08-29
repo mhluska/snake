@@ -34,13 +34,14 @@ define [
             @_snake = new Snake @_faces, @_food, new Score container
             @_graphics = new Graphics3 @_getFaces(), container
 
-            # $(window).keydown (event) =>
-            #     if event.which is 69
-            #         @step()
-            #         @_steps += 4
+            $(window).keydown (event) =>
+                if event.which is 69
+                    @step()
+                    @_steps += 4
             
         run: ->
 
+            return
             requestAnimationFrame => @step() and @run()
 
         step: ->

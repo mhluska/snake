@@ -5,13 +5,13 @@ define ->
 
     class HashMap
 
-        constructor: (arr = []) ->
+        constructor: (pairs = {}) ->
 
             @size = 0
             @_hash = {}
             @_reverseHash = {}
 
-            @add item for item in arr
+            @put key, value for own key, value in pairs
 
         isEmpty: -> @size is 0
 

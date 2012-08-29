@@ -22,7 +22,7 @@ define [
 
             @_resetInfection()
 
-            @_playing = false
+            @_playing = true
             @_direction = 'up'
             @_directionVec = @_orientation[@_direction]
 
@@ -46,14 +46,15 @@ define [
 
         onNewFace: ->
 
-            not @head.adjacentTo @prevHead
+            @head.face isnt @prevHead.face
 
         move: ->
-            
-            @_setNextDirection() if @moves.length()
 
+            @_setDirection @moves.dequeue()
+            
             newHead = @head.neighbours[@_directionVec]
-            @pieces.push newHead
+
+            @_orient() if newHead.face isnt @head.face
 
             switch newHead.item
 
@@ -63,6 +64,7 @@ define [
 
             @tail?.off()
             @pieces.shift()
+            @pieces.push newHead
             @tail = @pieces[0]
             @prevHead = @head
             @head = newHead
@@ -70,17 +72,9 @@ define [
 
             @_growInfection() if @_infected
 
-            if @onNewFace()
+        _setDirection: (nextSquare) ->
 
-                directionVecBack = @prevHead.face.normal.clone()
-                @_directionVec = directionVecBack.clone().negate()
-
-                @_orientation[@_direction] = @_directionVec
-                @_orientation[Utils.opposite @_direction] = directionVecBack
-
-        _setNextDirection: ->
-
-            nextSquare = @moves.dequeue()
+            return unless nextSquare
 
             for own direction, square of @head.neighbours
                 if square.position.equals nextSquare.position
@@ -88,9 +82,16 @@ define [
                     break
 
             for own direction, vector of @_orientation
-                if vector.equals @_directionVec
+                if vector.toString() is @_directionVec
                     @_direction = direction
                     break
+
+        _orient: ->
+
+            directionVecBack = @prevHead.face.normal.clone()
+            @_directionVec = directionVecBack.clone().negate()
+            @_orientation[@_direction] = @_directionVec
+            @_orientation[Utils.opposite @_direction] = directionVecBack
 
         _eatSnakeAt: (square) ->
 
@@ -173,7 +174,6 @@ define [
             $(window).keydown (event) =>
 
                 # TODO: Get player controls working with AI.
-                return
                 switch event.keyCode
                     when 37 then @_turn 'left'
                     when 38 then @_turn 'up'
@@ -181,12 +181,20 @@ define [
                     when 40 then @_turn 'down'
                     else return
 
-        _turn: (direction) ->
+        _turn: do ->
 
-            vector = @_orientation[direction]
+            lastDirection = null
 
-            if vector.dot(@_lastQueuedVector or @_directionVec) is 0
+            (direction) ->
 
-                @_lastQueuedVector = vector.clone()
+                return if direction is Utils.opposite lastDirection
+
+                # TODO: Implement queueing of moves across faces. Is it worth
+                # the code complexity?
                 lastSquare = @moves.last() or @head
-                @moves.enqueue lastSquare.neighbours[vector]
+                return if lastSquare.face isnt @head.face
+
+                lastDirection = direction
+
+                directionVector = @_orientation[direction]
+                @moves.enqueue lastSquare.neighbours[directionVector]
