@@ -26,7 +26,7 @@ define [
         constructor: (container) ->
 
             @_steps = 0
-            @_playing = true
+            @_playing = false
 
             @_edible =
                 food: new HashMap

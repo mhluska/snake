@@ -47,7 +47,7 @@ define [
         # Note: we rely on source hashing nicely in distance[] because of its 
         # toString function. Its a balance between module coupling and code 
         # complexity.
-        dijkstras: (source, target) ->
+        dijkstras: (source, targets...) ->
 
             previous = {}
             distance = {}
@@ -64,7 +64,7 @@ define [
                 closest = heap.pop()
                 return [] if distance[closest] is Infinity
 
-                break if closest is target
+                break if closest in targets
 
                 for neighbour in @vertices.get(closest).values()
 
@@ -78,7 +78,9 @@ define [
                         previous[neighbour] = closest
                         heap.decreaseKey neighbour
 
-            @_shortestPath previous, source, target
+            targets.sort (a, b) -> if distance[a] < distance[b] then -1 else 1
+
+            @_shortestPath previous, source, targets[0]
 
         # Follows the parent pointers returned by Dijkstra's algorithm to 
         # create a path between source and target
