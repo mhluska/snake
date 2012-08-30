@@ -23,7 +23,7 @@ define [
             @_resetInfection()
 
             @_direction = 'up'
-            @_lastDir = @_direction
+            @_lastDir = null
             @_directionVec = @_orientation[@_direction]
 
             @moves = new Queue
@@ -43,6 +43,8 @@ define [
             @head.face isnt @prevHead.face
 
         turn: (direction) ->
+
+            @_lastDir ?= @_direction
 
             return if direction in [@_lastDir, Utils.opposite @_lastDir]
 
