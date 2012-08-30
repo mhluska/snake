@@ -18,7 +18,7 @@ define [
                 down:  Const.normalNegY.clone()
                 left:  Const.normalNegX.clone()
 
-            @_length = Const.snakeMinLength
+            @_length = Const.snakeStartLength
 
             @_resetInfection()
 
@@ -46,13 +46,14 @@ define [
 
             return if direction in [@_lastDir, Utils.opposite @_lastDir]
 
-            # TODO: Implement queueing of moves across faces. Is it worth
-            # the code complexity?
+            # Don't allow queueing across faces. It would add too much
+            # code complexity and it's hardly missed.
             lastSquare = @moves.last() or @head
             return if lastSquare.face isnt @head.face
 
-            @_lastDir = direction
+            return if @moves.length() > Const.maxMoveQueueSize
 
+            @_lastDir = direction
             directionVector = @_orientation[direction]
             @moves.enqueue lastSquare.neighbours[directionVector]
 
@@ -96,7 +97,6 @@ define [
 
             for own direction, vector of @_orientation
                 if vector.toString() is @_directionVec
-                    @_lastDir = direction
                     @_direction = direction
                     break
 
@@ -179,8 +179,7 @@ define [
 
         _splitAt: (index) ->
 
-            # The non-zero check prevents constantly eating the snake tail.
-            return unless index and index > 0
+            return unless index
 
             @_length -= index
             @_score.sub index, true
