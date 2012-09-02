@@ -2,7 +2,7 @@
 
 git submodule update --init --recursive
 
-coffee -c $(find test/ -type f -name '*.coffee') snake.coffee src/*.coffee
+coffee -c $(find test/ -type f -name '*.coffee') snake.coffee src/*.coffee lib/*.coffee
 
 cd src/jquery
 npm install
