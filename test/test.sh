@@ -1,3 +1,5 @@
+# TODO: Make only constants capital case. Others camel case.
+
 #!/bin/bash
 
 TEST_FILE='test.html'
