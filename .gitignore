@@ -1,8 +1,8 @@
 lib/*.js
 src/compile.sh
 test/test.html
+server/static
 build
 deploy.sh
-.*.sw*
 .sw*
 *.js
