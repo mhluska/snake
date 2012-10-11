@@ -1,7 +1,9 @@
 from flask import Flask
 from flask import render_template
+from reverseproxied import ReverseProxied
 
 app = Flask(__name__)
+app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 @app.route('/')
 def index():
