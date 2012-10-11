@@ -4,5 +4,6 @@ test/test.html
 server/static
 build
 deploy.sh
+todo.txt
 .sw*
 *.js
