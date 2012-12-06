@@ -1,18 +1,12 @@
-[submodule "src/jquery"]
-	path = src/jquery
+[submodule "sub/jquery"]
+	path = sub/jquery
 	url = https://github.com/jquery/jquery.git
-[submodule "src/requirejs"]
-	path = src/requirejs
-	url = https://github.com/jrburke/requirejs.git
-[submodule "src/rjs"]
-	path = src/rjs
-	url = https://github.com/jrburke/r.js.git
-[submodule "src/threejs"]
-	path = src/threejs
+[submodule "sub/threejs"]
+	path = sub/threejs
 	url = https://github.com/mrdoob/three.js.git
-[submodule "src/mustachejs"]
-	path = src/mustachejs
+[submodule "sub/mustachejs"]
+	path = sub/mustachejs
 	url = https://github.com/janl/mustache.js.git
-[submodule "src/tweenjs"]
-	path = src/tweenjs
+[submodule "sub/tweenjs"]
+	path = sub/tweenjs
 	url = https://github.com/sole/tween.js.git

@@ -1,4 +1,4 @@
-define ['src/utils', 'src/constants'], (Utils, Const) ->
+define ['utils', 'constants'], (Utils, Const) ->
 
     class Square
 

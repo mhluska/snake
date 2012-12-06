@@ -1,12 +1,12 @@
 define [
     
-    'jquery'
-    'src/utils'
-    'src/queue'
-    'src/vector3'
-    'src/constants'
+    'lib/jquery'
+    'utils'
+    'queue'
+    'vector3'
+    'constants'
 
-    ], ($, Utils, Queue, Vector3, Const) ->
+], ($, Utils, Queue, Vector3, Const) ->
 
     class Snake
 
@@ -176,7 +176,8 @@ define [
             do kill = ->
 
                 return if index is squares.length
-                squares[index++].status = 'dead'
+                squares[index].status = 'dead'
+                index += 1
                 setTimeout kill, 25
 
         _splitAt: (index) ->

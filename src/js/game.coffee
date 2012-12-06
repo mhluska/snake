@@ -1,25 +1,27 @@
 require.config
-    paths:
-        'jquery': 'lib/jquery'
-
     shim:
-        'lib/Three.js': 'exports': 'THREE'
-        'lib/Tween.js': 'exports': 'TWEEN'
+        'lib/three':   'exports': 'THREE'
+        'lib/tween':   'exports': 'TWEEN'
+        'lib/jquery':  'exports': '$'
 
-define [
+requirejs [
     
-    'jquery'
-    'src/face'
-    'src/score'
-    'src/snake'
-    'src/queue'
-    'src/hashmap'
-    'src/utils'
-    'src/graph'
-    'src/graphics3'
-    'src/constants'
+    'lib/jquery'
+    'face'
+    'score'
+    'snake'
+    'queue'
+    'hashmap'
+    'utils'
+    'graph'
+    'graphics3'
+    'detector'
+    'constants'
 
-    ], ($, Face, Score, Snake, Queue, HashMap, Utils, Graph, Graphics3, Const) ->
+], ($, Face, Score, Snake, Queue, HashMap, Utils, Graph, Graphics3,
+        Detector, Const) ->
+
+    console.log 'bang'
     
     class Game
 
@@ -153,3 +155,15 @@ define [
                 for key, vertex of current.neighbours when not explored[vertex]
 
                     searchStack.push vertex
+
+    container = document.getElementById 'game'
+
+    console.log container
+
+    detector = new Detector()
+    unless detector.webgl
+
+        detector.showWebGLError container
+        return
+
+    new Game(container).run()

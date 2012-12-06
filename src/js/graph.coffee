@@ -1,16 +1,16 @@
 define [
     
-    'src/hashmap'
-    'src/binaryheap'
+    'hashmap'
+    'binaryheap'
 
     ], (HashMap, BinaryHeap) ->
 
     class Graph
 
-        # The snake game graph is very sparse: For thousands of vertices, each 
+        # The snake game graph is very sparse: For thousands of vertices, each
         # vertex has a max of four neighbours. Also, our graph is modified on
         # the fly to save time in Dijkstra's algorithm. We store the graph in
-        # an unconventional way for these reasons. We use an array of vertices 
+        # an unconventional way for these reasons. We use an array of vertices
         # where each vertex maps to its 4-tuple of neighbours. This way we can
         # get neighbours in O(1) time while keeping things decoupled (not
         # relying on the neighbours info in the Square module).
@@ -44,8 +44,8 @@ define [
                 
             @vertices.remove obj
 
-        # Note: we rely on source hashing nicely in distance[] because of its 
-        # toString function. Its a balance between module coupling and code 
+        # Note: we rely on source hashing nicely in distance[] because of its
+        # toString function. Its a balance between module coupling and code
         # complexity.
         dijkstras: (source, targets...) ->
 
@@ -82,7 +82,7 @@ define [
 
             @_shortestPath previous, source, targets[0]
 
-        # Follows the parent pointers returned by Dijkstra's algorithm to 
+        # Follows the parent pointers returned by Dijkstra's algorithm to
         # create a path between source and target
         _shortestPath: (previous, source, target) ->
 

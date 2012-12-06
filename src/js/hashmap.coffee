@@ -1,5 +1,5 @@
 # Temporary HashMap implementation. Relies on toString()
-# TODO: Publish BinaryHeap and HashMap in a data structures repo on GitHub. 
+# TODO: Publish BinaryHeap and HashMap in a data structures repo on GitHub.
 
 define ->
 

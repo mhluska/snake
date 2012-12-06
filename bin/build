@@ -1,0 +1,22 @@
+#!/bin/bash
+
+call_dir=$(pwd)
+root_dir=$(dirname $(dirname ${0}))
+
+cd ${root_dir}
+
+test -d .git && install -m 764 bin/pre-commit .git/hooks
+
+git submodule update --init --recursive
+
+npm install
+
+cd sub/jquery
+npm install
+grunt
+cd -
+
+coffee -c grunt.coffee
+grunt
+
+cd ${call_dir}

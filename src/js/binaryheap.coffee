@@ -1,7 +1,7 @@
 # Modified from http://eloquentjavascript.net/appendix2.html
-# TODO: Publish BinaryHeap and HashMap in a data structures repo on GitHub. 
+# TODO: Publish BinaryHeap and HashMap in a data structures repo on GitHub.
 
-define ['src/hashmap'], (HashMap) ->
+define ['hashmap'], (HashMap) ->
 
     class BinaryHeap
 

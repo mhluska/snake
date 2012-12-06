@@ -1,4 +1,4 @@
-define ['src/vector3'], (Vector3) ->
+define ['vector3'], (Vector3) ->
 
     class Constants
 

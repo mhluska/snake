@@ -1,9 +1,9 @@
 define [
     
-    'src/square'
-    'src/vector3'
-    'src/constants'
-    'src/utils'
+    'square'
+    'vector3'
+    'constants'
+    'utils'
 
     ], (Square, Vector3, Const, Utils) ->
 
@@ -93,15 +93,20 @@ define [
                     # The 2D array is filled from the bottom left, so positions
                     # need to be reversed in the cases where they are filled
                     # in the negative direction of the axis.
-                    posX = Const.cubeSize - posX if @normal.equals Const.normalX
-                    posX = Const.cubeSize - posX if @normal.equals Const.normalNegZ
-                    posY = Const.cubeSize - posY if @normal.equals Const.normalY
+                    if @normal.equals Const.normalX
+                        posX = Const.cubeSize - posX
+                    if @normal.equals Const.normalNegZ
+                        posX = Const.cubeSize - posX
+                    if @normal.equals Const.normalY
+                        posY = Const.cubeSize - posY
 
                     # Take the cube center into account.
                     posX -= Const.cubeSize / 2
                     posY -= Const.cubeSize / 2
 
-                    @squares[x][y] = new Square @, @_orderArgs(posX, posY), @_graph
+                    @squares[x][y] = new Square \
+                        @,
+                        @_orderArgs(posX, posY), @_graph
 
         _adjacentPositions: (x, y) ->
 

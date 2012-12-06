@@ -1,10 +1,10 @@
 define [
     
-    'lib/Three.js'
-    'lib/Tween.js'
-    'src/queue'
-    'src/constants'
-    'src/utils'
+    'lib/three'
+    'lib/tween'
+    'queue'
+    'constants'
+    'utils'
 
     ], (THREE, TWEEN, Queue, Const, Utils) ->
 
@@ -14,7 +14,7 @@ define [
 
             @_objects = new Queue
 
-            # A square can have multiple items but only one is shown. This is 
+            # A square can have multiple items but only one is shown. This is
             # the order of precedence.
             @_itemOrder = ['poison', 'food', 'snake']
 
@@ -51,19 +51,24 @@ define [
             @_cameraTween = new TWEEN.Tween(obj)
                 .to({ x: 0 }, Const.cameraMoveSpeed)
                 .easing(TWEEN.Easing.Quartic.Out)
-                .onUpdate =>
-                    @_camera.position[nextFace.axis] = @_cos obj.x
-                    @_camera.position[nextFace.axis] *= @_targetFace.normal[@_targetFace.axis]
-                    @_camera.position[face.axis] = obj.x
-                    @_camera.lookAt @_cube.position
 
-                    @_orientCamera(face, nextFace) if obj.x > start / 2
+            @_cameraTween.onUpdate =>
 
-                .start()
+                @_camera.position[nextFace.axis] = @_cos obj.x
+
+                otherAxis = @_targetFace.normal[@_targetFace.axis]
+                @_camera.position[nextFace.axis] *= otherAxis
+                @_camera.position[face.axis] = obj.x
+
+                @_camera.lookAt @_cube.position
+                @_orientCamera(face, nextFace) if obj.x > start / 2
+
+            @_cameraTween.start()
 
         _cos: (val) ->
 
-            Const.cameraFaceOffset * Math.cos((val * Math.PI / 2) / Const.cameraFaceOffset)
+            Const.cameraFaceOffset *
+                Math.cos((val * Math.PI / 2) / Const.cameraFaceOffset)
 
         _orientCamera: (face, nextFace) ->
 
@@ -116,7 +121,9 @@ define [
 
         _buildObject: ->
 
-            geometry = new THREE.CubeGeometry Const.squareSize, Const.squareSize,
+            geometry = new THREE.CubeGeometry \
+                Const.squareSize,
+                Const.squareSize,
                 Const.squareSize
 
             material = new THREE.MeshLambertMaterial transparent: true
@@ -150,14 +157,15 @@ define [
                     @_squareTweens.dead[square] ?= new TWEEN.Tween(opacity: 1)
                         .to({ opacity: 0 }, 1000)
                         .easing(TWEEN.Easing.Quartic.Out)
-                        .onUpdate ->
-                            node.material.opacity = @opacity
-                        .onComplete ->
-                            square.off() if square.status is 'dead'
-                            self._recycleNode node
-                            self._squareTweens.dead[square] = null
 
-                        .start()
+                    @_squareTweens.onUpdate ->
+                        node.material.opacity = @opacity
+                    @_squareTweens.onComplete ->
+                        square.off() if square.status is 'dead'
+                        self._recycleNode node
+                        self._squareTweens.dead[square] = null
+
+                    @_squareTweens.start()
 
                 when 'off'
 
@@ -172,16 +180,18 @@ define [
 
                     newColour = {}
                     for additive in ['r', 'g', 'b']
-                        newColour[additive] = Math.max(0.25, colour[additive] * 0.75)
+                        newColour[additive] =
+                            Math.max(0.25, colour[additive] * 0.75)
 
                     self = @
                     @_squareTweens.poisoned[square] = new TWEEN.Tween(colour)
                         .to(newColour, 200)
                         .easing(TWEEN.Easing.Linear.None)
-                        .onComplete ->
-                            self._squareTweens.poisoned[square] = null
 
-                        .start()
+                    @_squareTweens.onComplete ->
+                        self._squareTweens.poisoned[square] = null
+
+                    @_squareTweens.start()
 
         _recycleNode: (node) ->
 

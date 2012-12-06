@@ -1,9 +1,6 @@
-lib/*.js
-src/compile.sh
+*.js
+node_modules
+build/
 test/test.html
 server/static
-build
-deploy.sh
 todo.txt
-.sw*
-*.js
