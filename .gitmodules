@@ -10,3 +10,6 @@
 [submodule "sub/tweenjs"]
 	path = sub/tweenjs
 	url = https://github.com/sole/tween.js.git
+[submodule "sub/stimpackjs"]
+	path = sub/stimpackjs
+	url = https://github.com/mhluska/Stimpack
