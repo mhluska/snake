@@ -21,8 +21,6 @@ requirejs [
 ], ($, Face, Score, Snake, Queue, HashMap, Utils, Graph, Graphics3,
         Detector, Const) ->
 
-    console.log 'bang'
-    
     class Game
 
         constructor: (container) ->
@@ -157,8 +155,6 @@ requirejs [
                     searchStack.push vertex
 
     container = document.getElementById 'game'
-
-    console.log container
 
     detector = new Detector()
     unless detector.webgl
