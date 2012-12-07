@@ -44,10 +44,10 @@ define ->
 
         lengthSq: -> @dot @
 
-        lengthManhanttan: -> Math.abs(@x) + Math.abs(@y) + Math.abs(@z)
+        lengthManhattan: -> Math.abs(@x) + Math.abs(@y) + Math.abs(@z)
 
         isVersor: ->
 
-            @lengthSq() is 1 and @lengthManhanttan() is 1
+            @lengthSq() is 1 and @lengthManhattan() is 1
 
         toString: -> "(#{@x}, #{@y}, #{@z})"

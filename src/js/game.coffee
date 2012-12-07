@@ -7,19 +7,16 @@ require.config
 requirejs [
     
     'lib/jquery'
+    'lib/stim'
     'face'
     'score'
     'snake'
-    'queue'
-    'hashmap'
     'utils'
-    'graph'
     'graphics3'
     'detector'
     'constants'
 
-], ($, Face, Score, Snake, Queue, HashMap, Utils, Graph, Graphics3,
-        Detector, Const) ->
+], ($, Stim, Face, Score, Snake, Utils, Graphics3, Detector, Const) ->
 
     class Game
 
@@ -29,8 +26,8 @@ requirejs [
             @_playing = false
 
             @_edible =
-                food: new HashMap
-                poison: new HashMap
+                food: new Stim.Map()
+                poison: new Stim.Map()
 
             @_buildCube()
             @_makeGraph()
@@ -100,11 +97,24 @@ requirejs [
 
         _getFoodPath: ->
 
-            @_graph.addVertex @_snake.head
-            squares = @_graph.dijkstras @_snake.head, @_edible.food.values()...
+            time = new Date()
+
+            return new Stim.Queue() unless @_edible.food.size
+            
+            squares = @_graph.aStar \
+                @_snake.head,
+                @_edible.food.values()...,
+                (vertex) =>
+
+                # TODO: Find a heuristic for a cube-based game world. For now,
+                # use zero.
+                0
+
+            console.log new Date() - time
+
             @_graph.removeVertex @_snake.head
 
-            new Queue squares
+            new Stim.Queue squares
 
         _buildCube: ->
 
@@ -128,13 +138,13 @@ requirejs [
             square = @_graph.vertices.keys()[index]
             square.on type
 
-            @_edible[type]?.put square
+            @_edible[type]?.set square
 
         # Do a depth-first search of the cube squares, building a data
         # structure meant for passing to the graph module.
         _makeGraph: ->
             
-            @_graph = new Graph
+            @_graph = new Stim.Graph()
 
             explored = {}
             current = @_faces[0].squares[0][0]

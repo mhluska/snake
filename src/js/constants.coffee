@@ -2,6 +2,7 @@ define ['vector3'], (Vector3) ->
 
     class Constants
 
+        @edgeWeight: 1
         @snakeMinLength: 3
         @snakeStartLength: 6
         @maxMoveQueueSize: 5

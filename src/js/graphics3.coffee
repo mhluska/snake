@@ -2,17 +2,17 @@ define [
     
     'lib/three'
     'lib/tween'
-    'queue'
+    'lib/stim'
     'constants'
     'utils'
 
-    ], (THREE, TWEEN, Queue, Const, Utils) ->
+    ], (THREE, TWEEN, Stim, Const, Utils) ->
 
     class Graphics3
 
         constructor: (@_faces, @_container) ->
 
-            @_objects = new Queue
+            @_objects = new Stim.Queue()
 
             # A square can have multiple items but only one is shown. This is
             # the order of precedence.
@@ -154,18 +154,22 @@ define [
                     node = square.node
                     square.node = null
 
-                    @_squareTweens.dead[square] ?= new TWEEN.Tween(opacity: 1)
-                        .to({ opacity: 0 }, 1000)
-                        .easing(TWEEN.Easing.Quartic.Out)
+                    unless @_squareTweens.dead[square]
 
-                    @_squareTweens.onUpdate ->
-                        node.material.opacity = @opacity
-                    @_squareTweens.onComplete ->
-                        square.off() if square.status is 'dead'
-                        self._recycleNode node
-                        self._squareTweens.dead[square] = null
+                        tween = new TWEEN.Tween(opacity: 1)
+                            .to({ opacity: 0 }, 1000)
+                            .easing(TWEEN.Easing.Quartic.Out)
 
-                    @_squareTweens.start()
+                        tween.onUpdate ->
+                            node.material.opacity = @opacity
+
+                        tween.onComplete ->
+                            square.off() if square.status is 'dead'
+                            self._recycleNode node
+                            self._squareTweens.dead[square] = null
+
+                        @_squareTweens.dead[square] = tween
+                        tween.start()
 
                 when 'off'
 
@@ -188,10 +192,10 @@ define [
                         .to(newColour, 200)
                         .easing(TWEEN.Easing.Linear.None)
 
-                    @_squareTweens.onComplete ->
+                    @_squareTweens.poisoned[square].onComplete ->
                         self._squareTweens.poisoned[square] = null
 
-                    @_squareTweens.start()
+                    @_squareTweens.poisoned[square].start()
 
         _recycleNode: (node) ->
 

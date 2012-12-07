@@ -6,6 +6,7 @@ define ['utils', 'constants'], (Utils, Const) ->
 
             [@x, @y, @z] = [@position.x, @position.y, @position.z]
 
+            @edges = []
             @neighbours = {}
             @status = 'off'
 
@@ -43,6 +44,7 @@ define ['utils', 'constants'], (Utils, Const) ->
                 direction[@face.axis] = 0
 
             @neighbours[direction] = square
+            @edges.push [square, Const.edgeWeight]
 
             @
 

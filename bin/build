@@ -8,6 +8,7 @@ cd ${root_dir}
 test -d .git && install -m 764 bin/pre-commit .git/hooks
 
 git submodule update --init --recursive
+sub/stimpackjs/bin/build
 
 npm install
 

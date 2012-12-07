@@ -1,12 +1,12 @@
 define [
     
     'lib/jquery'
+    'lib/stim'
     'utils'
-    'queue'
     'vector3'
     'constants'
 
-], ($, Utils, Queue, Vector3, Const) ->
+], ($, Stim, Utils, Vector3, Const) ->
 
     class Snake
 
@@ -26,7 +26,7 @@ define [
             @_lastDir = null
             @_directionVec = @_orientation[@_direction]
 
-            @moves = new Queue
+            @moves = new Stim.Queue()
 
             middle = Math.round (Const.squareCount - 1) / 2
             startFace = @_faces[Const.startFaceIndex]
@@ -137,7 +137,7 @@ define [
 
         _eatFoodAt: (square) ->
 
-            @_edible.food.remove square
+            @_edible.food.delete square
 
             # Add a blank element which the movement algorithm will destroy
             # instead of a real snake piece.
