@@ -2,6 +2,10 @@ define ->
 
     class Utils
 
+        @isVersor: (direction) ->
+
+            direction.lengthSq() is 1 and direction.lengthManhattan() is 1
+
         @opposite: (direction) ->
 
             switch direction

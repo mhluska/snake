@@ -36,11 +36,11 @@ define ['utils', 'constants'], (Utils, Const) ->
             return unless square
             return if square is @
 
-            direction = square.position.clone().sub @position
+            direction = square.position.clone().subSelf @position
             direction.divideScalar Const.squareSize
 
             # Adjust the connection for faces on edges
-            unless direction.isVersor()
+            unless Utils.isVersor direction
                 direction[@face.axis] = 0
 
             @neighbours[direction] = square
@@ -52,7 +52,9 @@ define ['utils', 'constants'], (Utils, Const) ->
 
             near = 0
             same = 0
-            for axis, value of @position.items()
+            for axis in ['x', 'y', 'z']
+
+                value = @position[axis]
                 if value is square[axis]
                     same += 1
                 else if Math.abs(value - square[axis]) is Const.squareSize

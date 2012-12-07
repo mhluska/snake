@@ -170,4 +170,7 @@ requirejs [
         detector.showWebGLError container
         return
 
+    # Make Vector3 hashable.
+    THREE.Vector3.prototype.toString = -> "#{@x}#{@y}#{@z}"
+
     new Game(container).run()

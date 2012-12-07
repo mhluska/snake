@@ -1,4 +1,8 @@
-define ['vector3'], (Vector3) ->
+define [
+    
+    'lib/three'
+
+], (THREE) ->
 
     class Constants
 
@@ -16,12 +20,12 @@ define ['vector3'], (Vector3) ->
         @cameraMoveSpeed: 750
         @cameraFaceOffset: @cameraOffset + (@cubeSize / 2)
 
-        @normalX: new Vector3(1, 0, 0)
-        @normalY: new Vector3(0, 1, 0)
-        @normalZ: new Vector3(0, 0, 1)
-        @normalNegX: new Vector3(-1, 0, 0)
-        @normalNegY: new Vector3(0, -1, 0)
-        @normalNegZ: new Vector3(0, 0, -1)
+        @normalX: new THREE.Vector3(1, 0, 0)
+        @normalY: new THREE.Vector3(0, 1, 0)
+        @normalZ: new THREE.Vector3(0, 0, 1)
+        @normalNegX: new THREE.Vector3(-1, 0, 0)
+        @normalNegY: new THREE.Vector3(0, -1, 0)
+        @normalNegZ: new THREE.Vector3(0, 0, -1)
 
         @colours:
             'poison': 0x4F5A1D

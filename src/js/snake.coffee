@@ -3,10 +3,9 @@ define [
     'lib/jquery'
     'lib/stim'
     'utils'
-    'vector3'
     'constants'
 
-], ($, Stim, Utils, Vector3, Const) ->
+], ($, Stim, Utils, Const) ->
 
     class Snake
 
@@ -130,7 +129,7 @@ define [
 
         _eatPoisonAt: (square) ->
 
-            @_edible.poison.remove square
+            @_edible.poison.delete square
 
             return unless @_length > Const.snakeMinLength
             @_infected = true

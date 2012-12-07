@@ -1,11 +1,11 @@
 define [
     
+    'lib/three'
     'square'
-    'vector3'
     'constants'
     'utils'
 
-    ], (Square, Vector3, Const, Utils) ->
+], (THREE, Square, Const, Utils) ->
 
     class Face
 
@@ -76,7 +76,7 @@ define [
             args = [val1, @normal.y * offset, val2] if @axis is 'y'
             args = [val1, val2, @normal.z * offset] if @axis is 'z'
 
-            new Vector3 args...
+            new THREE.Vector3 args...
 
         _buildFace: ->
 
