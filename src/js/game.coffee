@@ -12,11 +12,11 @@ requirejs [
     'score'
     'snake'
     'utils'
-    'graphics3'
+    'graphics'
     'detector'
     'constants'
 
-], ($, Stim, Face, Score, Snake, Utils, Graphics3, Detector, Const) ->
+], ($, Stim, Face, Score, Snake, Utils, Graphics, Detector, Const) ->
 
     class Game
 
@@ -34,7 +34,7 @@ requirejs [
 
             @_score = new Score container
             @_snake = new Snake @_faces, @_edible, @_score
-            @_graphics = new Graphics3 @_getFaces(), container
+            @_graphics = new Graphics @_getFaces(), container
 
             @_setupControls()
 

@@ -6,9 +6,9 @@ define [
     'constants'
     'utils'
 
-    ], (THREE, TWEEN, Stim, Const, Utils) ->
+], (THREE, TWEEN, Stim, Const, Utils) ->
 
-    class Graphics3
+    class Graphics
 
         constructor: (@_faces, @_container) ->
 
