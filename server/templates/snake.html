@@ -4,15 +4,12 @@
         <meta charset="UTF-8" />
         <link href="http://fonts.googleapis.com/css?family=Open+Sans:400" rel="stylesheet" type="text/css">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='snake.css') }}" />
-        <script src="{{ url_for('static', filename='require.js') }}" ></script>
-        <script src="{{ url_for('static', filename='detector.js') }}" ></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='game.css') }}" />
         <script src="{{ url_for('static', filename='game.js') }}" ></script>
         <script src="{{ url_for('static', filename='analytics.js') }}"></script>
     </head>
     <body>
         {% include 'sidebar.html' %}
         <div id="game"></div>
-        <script src="{{ url_for('static', filename='snake.js') }}" ></script>
     </body>
 </html>
