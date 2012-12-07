@@ -101,13 +101,11 @@ requirejs [
 
             return new Stim.Queue() unless @_edible.food.size
             
-            squares = @_graph.aStar \
-                @_snake.head,
-                @_edible.food.values()...,
-                (vertex) =>
+            targets = @_edible.food.values()
+            squares = @_graph.aStar @_snake.head, targets..., (vertex) =>
 
-                # TODO: Find a heuristic for a cube-based game world. For now,
-                # use zero.
+                # TODO: Find a heuristic for a cube-based game world.
+                # For now, use zero.
                 0
 
             console.log new Date() - time
