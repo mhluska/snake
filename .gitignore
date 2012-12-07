@@ -1,6 +1,7 @@
 *.js
 node_modules
 build/
+bin/stage
 test/test.html
 server/static
 todo.txt
