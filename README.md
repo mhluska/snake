@@ -1,3 +1,5 @@
+![snakeception](src/snakeception.png)
+
 Snakeception
 ============
 
