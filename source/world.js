@@ -1,5 +1,11 @@
-var THREE = require('three')
+'use strict';
 
-module.exports = function () {
-  console.log(THREE);
-};
+var THREE = require('three');
+
+class World {
+  constructor() {
+    console.log('world class');
+  }
+}
+
+module.exports = World;
