@@ -1,0 +1,31 @@
+{
+  "name": "snake",
+  "version": "0.0.1",
+  "description": "3D self-playing snake game",
+  "main": "snake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --progress --colors source/snake.js build/snake.js",
+    "start": "webpack-dev-server --watch source/snake.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhluska/snake.git"
+  },
+  "keywords": [
+    "3D",
+    "self-playing",
+    "snake",
+    "game"
+  ],
+  "author": "Maros Hluska <mhluska@gmail.com> (http://mhluska.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mhluska/snake/issues"
+  },
+  "homepage": "https://github.com/mhluska/snake#readme",
+  "devDependencies": {
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  }
+}
