@@ -1,8 +1,10 @@
 module.exports = {
-  entry: './source/snake.js',
+  entry: './source/game.js',
   output: {
     path: __dirname + '/build',
-    filename: 'snake.js'
+    filename: 'snake.js',
+    libraryTarget: 'var',
+    library: 'Snake'
   },
   resolve: {
     alias: {

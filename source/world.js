@@ -2,10 +2,7 @@
 
 var THREE = require('three');
 
-class World {
+module.exports = class World {
   constructor() {
-    console.log('world class');
   }
-}
-
-module.exports = World;
+};

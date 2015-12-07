@@ -1,0 +1,21 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+}
+
+canvas {
+  display: block;
+}
+
+html,
+body,
+.snake-game {
+  height: 100%;
+}
