@@ -2,15 +2,20 @@
 
 var THREE = require('three');
 var World = require('./world.js');
+var Snake = require('./snake.js');
 
 module.exports = class Game {
   constructor(container) {
     this.container = container;
 
     this._setupScene();
+    this._steps = 0;
+    this._world = new World();
+    this._snake = new Snake(this._world);
     this._dummyMesh = this._addDummyMesh();
 
     window.addEventListener('resize', this._updateScreenSize.bind(this));
+    window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
   }
 
   run() {
@@ -34,7 +39,12 @@ module.exports = class Game {
 
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height)
+    this.renderer.setSize(width, height);
+  }
+
+  _updateSnakeDirection(event) {
+    var direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
+    this._snake.direction = direction;
   }
 
   _addDummyMesh() {
@@ -49,6 +59,12 @@ module.exports = class Game {
 
   _animate() {
     requestAnimationFrame(() => this._animate());
+
+    if (this._steps % 5 === 0) {
+      this._snake.move();
+    }
+
+    console.log(this._snake.position, this._snake.face, this._snake.direction);
 
     this._dummyMesh.rotation.x += 0.01;
     this._dummyMesh.rotation.y += 0.02;

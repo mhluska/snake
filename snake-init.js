@@ -1,4 +1,4 @@
 (function () {
-  var game = new Snake(document.querySelector('.snake-game'));
+  var game = new SnakeGame(document.querySelector('.snake-game'));
   game.run();
 })();

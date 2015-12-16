@@ -4,7 +4,7 @@ module.exports = {
     path: __dirname + '/build',
     filename: 'snake.js',
     libraryTarget: 'var',
-    library: 'Snake'
+    library: 'SnakeGame'
   },
   resolve: {
     alias: {
@@ -12,12 +12,22 @@ module.exports = {
     }
   },
   module: {
+    preLoaders: [
+      {
+          test: /\.js$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'eslint-loader'
+      }
+    ],
     loaders: [
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel'
+        loader: 'babel-loader?presets[]=es2015'
       }
     ]
+  },
+  eslint: {
+    configFile: '.eslintrc'
   }
 };
