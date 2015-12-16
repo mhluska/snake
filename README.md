@@ -1,6 +1,6 @@
 ![snake](snake.webp)
 
-# Snake
+# Snake (ES6)
 
 3D self-playing snake game
 
