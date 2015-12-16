@@ -7,7 +7,7 @@
   Each face has a 2D NxN array.
 
   Movement between faces happens as you would expect on a cube: moving up from 0
-  goes to 6, moving right from 0 goes to 5 etc.
+  goes to 5, moving right from 0 goes to 4 etc.
 
            . . .
            . 0 .
