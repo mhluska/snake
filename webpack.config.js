@@ -28,6 +28,7 @@ module.exports = {
     ]
   },
   eslint: {
-    configFile: '.eslintrc'
+    configFile: '.eslintrc',
+    formatter: require("eslint-friendly-formatter")
   }
 };

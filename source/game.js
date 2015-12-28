@@ -4,42 +4,53 @@ var THREE = require('three');
 var World = require('./world.js');
 var Snake = require('./snake.js');
 
-module.exports = class Game {
+class Game {
   constructor(container) {
-    this.container = container;
-
-    this._setupScene();
+    this._container = container;
     this._steps = 0;
+
+    [this._scene, this._camera, this._renderer] = this._setupScene(container);
+
     this._world = new World();
-    this._snake = new Snake(this._world);
-    this._dummyMesh = this._addDummyMesh();
+    this._snake = new Snake(this._world, this._camera);
+
+    this._container.appendChild(this._renderer.domElement);
+
+    this._scene.add(this._world.mesh);
+    this._scene.add(this._snake.mesh);
+    this._scene.add(...this._world.lights);
+
+    this._addAxisHelper();
 
     window.addEventListener('resize', this._updateScreenSize.bind(this));
     window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
   }
 
   run() {
-    console.log(this.container);
     this._animate();
   }
 
-  _setupScene() {
-    this.scene    = new THREE.Scene();
-    this.camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
-    this.renderer = new THREE.WebGLRenderer();
+  _setupScene(container) {
+    let scene    = new THREE.Scene();
+    let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
+    let renderer = new THREE.WebGLRenderer({ antialias: true });
 
-    this.camera.position.z = 1000;
-    this._updateScreenSize();
-    this.container.appendChild(this.renderer.domElement);
+    renderer.shadowMap.enabled = true;
+
+    this._updateScreenSize(container, camera, renderer);
+
+    return [scene, camera, renderer];
   }
 
-  _updateScreenSize() {
-    var width  = this.container.clientWidth;
-    var height = this.container.clientHeight;
+  _updateScreenSize(container, camera, renderer) {
+    var width  = container.clientWidth;
+    var height = container.clientHeight;
 
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    camera.position.z = Game.CAMERA_DISTANCE;
+
+    renderer.setSize(width, height);
   }
 
   _updateSnakeDirection(event) {
@@ -47,28 +58,42 @@ module.exports = class Game {
     this._snake.direction = direction;
   }
 
-  _addDummyMesh() {
-    var geometry = new THREE.BoxGeometry(200, 200, 200);
-    var material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-    var mesh     = new THREE.Mesh(geometry, material);
+  _update() {
+    if (this._steps % 5 === 0) {
+      this._snake.move(this._updateCamera.bind(this));
+    }
 
-    this.scene.add(mesh);
+    this._world.update();
+    this._steps += 1;
+  }
 
-    return mesh;
+  _render() {
+    this._renderer.render(this._scene, this._camera);
   }
 
   _animate() {
+    this._update();
+    this._render();
     requestAnimationFrame(() => this._animate());
-
-    if (this._steps % 5 === 0) {
-      this._snake.move();
-    }
-
-    console.log(this._snake.position, this._snake.face, this._snake.direction);
-
-    this._dummyMesh.rotation.x += 0.01;
-    this._dummyMesh.rotation.y += 0.02;
-
-    this.renderer.render(this.scene, this.camera);
   }
-};
+
+  // TODO(maros): Remove this for the production version.
+  _addAxisHelper() {
+  }
+
+  _updateCamera(prevFace, face, direction) {
+    let prevFaceVector = this._world.faceIndexToVector(prevFace);
+
+    if (direction === 'up')   this._camera.up.copy(prevFaceVector.negate());
+    if (direction === 'down') this._camera.up.copy(prevFaceVector);
+
+    let faceVector = this._world.faceIndexToVector(face);
+
+    this._camera.position.copy(faceVector.multiplyScalar(Game.CAMERA_DISTANCE));
+    this._camera.lookAt(this._world.mesh.position);
+  }
+}
+
+Game.CAMERA_DISTANCE = 500;
+
+module.exports = Game;
