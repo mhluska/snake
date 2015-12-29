@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source .env
+
+root="$(git rev-parse --show-toplevel)"
+
+cd "${root}"
+
+npm run build
+
+ssh -p ${DEPLOY_PORT} ${DEPLOY_USERNAME}@${DEPLOY_HOST} mkdir -p ${DEPLOY_PATH}
+scp -P ${DEPLOY_PORT} index.html snake-init.js snake.css build/snake.js \
+       ${DEPLOY_USERNAME}@${DEPLOY_HOST}:${DEPLOY_PATH}
