@@ -20,9 +20,7 @@ class Game {
     this._scene.add(this._snake.mesh);
     this._scene.add(...this._world.lights);
 
-    this._addAxisHelper();
-
-    window.addEventListener('resize', this._updateScreenSize.bind(this));
+    window.addEventListener('resize', this._updateScreenSizeResize.bind(this));
     window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
   }
 
@@ -35,6 +33,7 @@ class Game {
     let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
     let renderer = new THREE.WebGLRenderer({ antialias: true });
 
+    camera.position.z = Game.CAMERA_DISTANCE;
     renderer.shadowMap.enabled = true;
 
     this._updateScreenSize(container, camera, renderer);
@@ -48,9 +47,16 @@ class Game {
 
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    camera.position.z = Game.CAMERA_DISTANCE;
 
     renderer.setSize(width, height);
+  }
+
+  _updateScreenSizeResize() {
+    if (![this._container, this._camera, this._renderer].every(Boolean)) {
+      throw new Error('Container, camera or renderer are not initialized.');
+    }
+
+    this._updateScreenSize(this._container, this._camera, this._renderer);
   }
 
   _updateSnakeDirection(event) {
@@ -75,10 +81,6 @@ class Game {
     this._update();
     this._render();
     requestAnimationFrame(() => this._animate());
-  }
-
-  // TODO(maros): Remove this for the production version.
-  _addAxisHelper() {
   }
 
   _updateCamera(prevFace, face, direction) {
