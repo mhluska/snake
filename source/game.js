@@ -33,7 +33,7 @@ class Game {
     let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
     let renderer = new THREE.WebGLRenderer({ antialias: true });
 
-    camera.position.z = Game.CAMERA_DISTANCE;
+    camera.position.z = this.constructor.CAMERA_DISTANCE;
     renderer.shadowMap.enabled = true;
 
     this._updateScreenSize(container, camera, renderer);

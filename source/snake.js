@@ -1,25 +1,29 @@
 'use strict';
 
+var THREE = require('three');
 var World = require('./world.js');
 var Voxel = require('./voxel.js');
+var Utils = require('./utils');
 
 module.exports = class Snake {
   constructor(world, camera) {
     this.world = world;
-    this.voxel = new Voxel();
 
     // Possible positions are on a 2D array of size (N-1)x(N-1) for game size N.
     this.position = [Math.floor(World.GAME_SIZE/ 2), Math.floor(World.GAME_SIZE / 4)];
     this.prevPosition = null;
 
-    this.voxel.mesh.position.set(...this.world.position2to3(this.position));
-    this.voxel.mesh.position.y *= -1;
-
-    // Possible faces are [0, 1, 2, 3, 4, 5, 6]
+    // Possible faces are [0, 1, 2, 3, 4, 5, 6].
     this.face = 3;
     this.prevFace = null;
 
-    // Possible directions are ['up', 'right', 'down', 'left']
+    // Default snake size.
+    this.size = 4;
+    this.mesh = this._makeMesh(this.size, this.position);
+
+    this._head = this.mesh.children[0];
+
+    // Possible directions are ['up', 'right', 'down', 'left'].
     this._direction = 'up';
     this._camera = camera;
   }
@@ -34,10 +38,6 @@ module.exports = class Snake {
     if (['left', 'right'].includes(val) && ['left', 'right'].includes(this._direction)) return;
 
     this._direction = val;
-  }
-
-  get mesh() {
-    return this.voxel.mesh;
   }
 
   move(newFaceCallback) {
@@ -60,7 +60,33 @@ module.exports = class Snake {
     }
   }
 
+  _makeMesh(size, position) {
+    let group = new THREE.Object3D();
+    let position3 = World.position2to3(position);
+
+    position3[1] += (size + 1) * Voxel.SIZE;
+
+    Utils.times(size, () => {
+      group.add(new Voxel(position3).mesh);
+      position3[1] -= Voxel.SIZE;
+    });
+
+    return group;
+  }
+
   _updateMeshPosition() {
-    this.world.updateMeshPosition(this.mesh.position, this._direction, this._camera);
+    if (![this.mesh.position, this._direction, this._camera].every(Boolean)) {
+      throw new Error('Position, direction or camera are not initialized.');
+    }
+
+    let lastPosition = this._head.position.clone();
+    this.world.updateMeshPosition(this._head.position, this._direction, this._camera);
+
+    for (let i = 1; i < this.size; i += 1) {
+      let piece = this.mesh.children[i];
+      let tempPosition = piece.position.clone();
+      piece.position.copy(lastPosition);
+      lastPosition = tempPosition;
+    }
   }
 };

@@ -25,6 +25,14 @@ class World {
     this.lights = this._makeLights();
   }
 
+  static position2to3(position) {
+    let a = ((position[0] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
+    let b = ((position[1] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
+    let c = (Voxel.SIZE / 2) + (World.MESH_SIZE / 2);
+
+    return [a, b, c];
+  }
+
   update() {
   }
 
@@ -50,14 +58,6 @@ class World {
       '1,0,0':  4,
       '0,-1,0': 5,
     })[vector.toArray()];
-  }
-
-  position2to3(position) {
-    let a = ((position[0] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
-    let b = ((position[1] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
-    let c = (Voxel.SIZE / 2) + (World.MESH_SIZE / 2);
-
-    return [a, b, c];
   }
 
   nextFaceVector(direction, camera) {
