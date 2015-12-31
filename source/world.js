@@ -1,7 +1,6 @@
 'use strict';
 
 var THREE = require('three');
-var Voxel = require('./voxel');
 
 /*
   A game world of size N has 6 faces corresponding to the 6 faces of a cube.
@@ -26,9 +25,9 @@ class World {
   }
 
   static position2to3(position) {
-    let a = ((position[0] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
-    let b = ((position[1] + 1) * Voxel.SIZE) - (Voxel.SIZE / 2) - (World.MESH_SIZE / 2);
-    let c = (Voxel.SIZE / 2) + (World.MESH_SIZE / 2);
+    let a = ((position[0] + 1) * World.TILE_SIZE) - (World.TILE_SIZE / 2) - (World.MESH_SIZE / 2);
+    let b = ((position[1] + 1) * World.TILE_SIZE) - (World.TILE_SIZE / 2) - (World.MESH_SIZE / 2);
+    let c = (World.TILE_SIZE / 2) + (World.MESH_SIZE / 2);
 
     return [a, b, c];
   }
@@ -80,20 +79,20 @@ class World {
   // TODO(maros): Make this not modify `meshPosition` in place.
   updateMeshPosition(meshPosition, direction, camera) {
     let position = this.nextFaceVector(direction, camera);
-    position.multiplyScalar(Voxel.SIZE);
+    position.multiplyScalar(this.constructor.TILE_SIZE);
     meshPosition.add(position);
   }
 
   positionOutOfBounds(position) {
     return position[0] < 0 ||
-           position[0] >= World.GAME_SIZE ||
+           position[0] >= this.constructor.GAME_SIZE ||
            position[1] < 0 ||
-           position[1] >= World.GAME_SIZE;
+           position[1] >= this.constructor.GAME_SIZE;
   }
 
   wrapPosition(position) {
-    position[0] = (position[0] + World.GAME_SIZE) % World.GAME_SIZE;
-    position[1] = (position[1] + World.GAME_SIZE) % World.GAME_SIZE;
+    position[0] = (position[0] + this.constructor.GAME_SIZE) % this.constructor.GAME_SIZE;
+    position[1] = (position[1] + this.constructor.GAME_SIZE) % this.constructor.GAME_SIZE;
   }
 
   nextFace(direction, camera) {
@@ -116,7 +115,7 @@ class World {
   }
 
   _makeMesh() {
-    var geometry = new THREE.BoxGeometry(World.MESH_SIZE, World.MESH_SIZE, World.MESH_SIZE);
+    var geometry = new THREE.BoxGeometry(this.constructor.MESH_SIZE, this.constructor.MESH_SIZE, this.constructor.MESH_SIZE);
     var material = new THREE.MeshLambertMaterial({ color: 0xA5C9F3 });
     var mesh     = new THREE.Mesh(geometry, material);
 
@@ -136,7 +135,8 @@ class World {
   }
 }
 
-World.GAME_SIZE = 10;
+World.GAME_SIZE = 16;
 World.MESH_SIZE = 200;
+World.TILE_SIZE = World.MESH_SIZE / World.GAME_SIZE;
 
 module.exports = World;

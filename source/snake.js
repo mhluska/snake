@@ -2,7 +2,6 @@
 
 var THREE = require('three');
 var World = require('./world.js');
-var Voxel = require('./voxel.js');
 var Utils = require('./utils');
 
 module.exports = class Snake {
@@ -18,10 +17,8 @@ module.exports = class Snake {
     this.prevFace = null;
 
     // Default snake size.
-    this.size = 4;
-    this.mesh = this._makeMesh(this.size, this.position);
-
-    this._head = this.mesh.children[0];
+    this.size = 6;
+    this.mesh = this._makeMeshGroup(this.size, this.position);
 
     // Possible directions are ['up', 'right', 'down', 'left'].
     this._direction = 'up';
@@ -60,15 +57,25 @@ module.exports = class Snake {
     }
   }
 
-  _makeMesh(size, position) {
-    let group = new THREE.Object3D();
+  _makeMesh(position) {
+    let geometry = new THREE.BoxGeometry(World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
+    let material = new THREE.MeshBasicMaterial({ color: 0x9586de  });
+    let mesh     = new THREE.Mesh(geometry, material);
+
+    mesh.position.set(...position);
+
+    return mesh;
+  }
+
+  _makeMeshGroup(size, position) {
+    let group     = new THREE.Object3D();
     let position3 = World.position2to3(position);
 
-    position3[1] += (size + 1) * Voxel.SIZE;
+    position3[1] *= -1;
 
     Utils.times(size, () => {
-      group.add(new Voxel(position3).mesh);
-      position3[1] -= Voxel.SIZE;
+      group.add(this._makeMesh(position3));
+      position3[1] -= World.TILE_SIZE;
     });
 
     return group;
@@ -79,8 +86,10 @@ module.exports = class Snake {
       throw new Error('Position, direction or camera are not initialized.');
     }
 
-    let lastPosition = this._head.position.clone();
-    this.world.updateMeshPosition(this._head.position, this._direction, this._camera);
+    let head         = this.mesh.children[0];
+    let lastPosition = head.position.clone();
+
+    this.world.updateMeshPosition(head.position, this._direction, this._camera);
 
     for (let i = 1; i < this.size; i += 1) {
       let piece = this.mesh.children[i];
