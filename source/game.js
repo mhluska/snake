@@ -1,8 +1,8 @@
 'use strict';
 
 var THREE = require('three');
-var World = require('./world.js');
-var Snake = require('./snake.js');
+var World = require('./world');
+var Snake = require('./snake');
 
 class Game {
   constructor(container) {
@@ -64,12 +64,28 @@ class Game {
     this._snake.direction = direction;
   }
 
+  _processVoxel(voxel) {
+    if (!voxel) return;
+
+    if (['food', 'poison'].includes(voxel.type)) {
+      this._scene.remove(voxel.mesh);
+    }
+  }
+
+  _addVoxel(voxel) {
+    if (!voxel) return;
+    this._scene.add(voxel.mesh);
+  }
+
   _update() {
     if (this._steps % 5 === 0) {
-      this._snake.move(this._updateCamera.bind(this));
+      this._processVoxel(this._snake.move(this._updateCamera.bind(this)));
     }
 
-    this._world.update();
+    if (this._steps % 100 === 0) {
+      this._addVoxel(this._world.spawnFood());
+    }
+
     this._steps += 1;
   }
 
@@ -84,12 +100,12 @@ class Game {
   }
 
   _updateCamera(prevFace, face, direction) {
-    let prevFaceVector = this._world.faceIndexToVector(prevFace);
+    let prevFaceVector = World.faceIndexToVector(prevFace);
 
     if (direction === 'up')   this._camera.up.copy(prevFaceVector.negate());
     if (direction === 'down') this._camera.up.copy(prevFaceVector);
 
-    let faceVector = this._world.faceIndexToVector(face);
+    let faceVector = World.faceIndexToVector(face);
 
     this._camera.position.copy(faceVector.multiplyScalar(Game.CAMERA_DISTANCE));
     this._camera.lookAt(this._world.mesh.position);

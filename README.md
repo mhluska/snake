@@ -34,5 +34,5 @@ Then run:
 npm run deploy
 ```
 
-Snake game graphic courtesy of 
+Snake game graphic courtesy of
 [Guillaume Chéreau](http://blog.noctua-software.com/).
