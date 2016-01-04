@@ -5,6 +5,22 @@ class Queue {
     this._maxSize = maxSize;
   }
 
+  toArray() {
+    return this._data;
+  }
+
+  size() {
+    return this._data.length;
+  }
+
+  empty() {
+    return this.size() === 0;
+  }
+
+  peek() {
+    return this._data[0];
+  }
+
   enqueue(item) {
     this._data.unshift(item);
     if (this._data.length > this._maxSize) {

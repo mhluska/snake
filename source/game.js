@@ -4,6 +4,7 @@ var THREE = require('three');
 var World = require('./world');
 var Snake = require('./snake');
 var Queue = require('./queue');
+var Tests = require('../test/tests');
 
 class Game {
   constructor(container) {
@@ -24,6 +25,10 @@ class Game {
 
     window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
     window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
+  }
+
+  static tests() {
+    Tests.run();
   }
 
   run() {
