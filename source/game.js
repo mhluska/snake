@@ -3,11 +3,13 @@
 var THREE = require('three');
 var World = require('./world');
 var Snake = require('./snake');
+var Queue = require('./queue');
 
 class Game {
   constructor(container) {
     this._container = container;
     this._steps = 0;
+    this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
 
     [this._scene, this._camera, this._renderer] = this._setupScene(container);
 
@@ -20,7 +22,7 @@ class Game {
     this._scene.add(this._snake.mesh);
     this._scene.add(...this._world.lights);
 
-    window.addEventListener('resize', this._updateScreenSizeResize.bind(this));
+    window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
     window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
   }
 
@@ -61,7 +63,7 @@ class Game {
 
   _updateSnakeDirection(event) {
     var direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
-    this._snake.direction = direction;
+    this._moveQueue.enqueue(direction);
   }
 
   _processVoxel(voxel) {
@@ -79,6 +81,7 @@ class Game {
 
   _update() {
     if (this._steps % 5 === 0) {
+      this._snake.direction = this._moveQueue.dequeue();
       this._processVoxel(this._snake.move(this._updateCamera.bind(this)));
     }
 
@@ -112,6 +115,7 @@ class Game {
   }
 }
 
-Game.CAMERA_DISTANCE = 500;
+Game.CAMERA_DISTANCE  = 500;
+Game.MAX_QUEUED_MOVES = 2;
 
 module.exports = Game;

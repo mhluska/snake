@@ -30,7 +30,8 @@ module.exports = class Snake {
 
   set direction(val) {
     if (!['up', 'right', 'down', 'left'].includes(val)) return;
-    if (['up', 'down'].includes(val) && ['up', 'down'].includes(this._direction)) return;
+
+    if (['up', 'down'].includes(val)    && ['up', 'down'].includes(this._direction))    return;
     if (['left', 'right'].includes(val) && ['left', 'right'].includes(this._direction)) return;
 
     this._direction = val;
