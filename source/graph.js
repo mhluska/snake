@@ -6,34 +6,61 @@ class Node {
 
     // Used internally for pathfinding.
     this._previous = null;
+    this._visitId  = 0;
+  }
+
+  get firstAdjacent() {
+    return this.adjacent.values().next().value;
+  }
+
+  visited() {
+    return this._visitId === Graph.visitId;
+  }
+
+  visit() {
+    this._visitId = Graph.visitId;
   }
 }
 
 class Graph {
   static bfs(start, end, callback = null) {
-    let nodes = new Queue([start]);
+    this.visitId += 1;
+    return this._bfs(start, end, callback);
+  }
+
+  static dijkstra(start, end) {
+    this.visitId += 1;
+    return this._dijkstra(start, end);
+  }
+
+  static _bfs(start, end, callback = null) {
+    let nodes    = new Queue([start]);
+    let lastNode = null;
 
     while (!nodes.empty()) {
-      if (nodes.peek() === end) {
-        if (callback) {
-          return callback(end);
-        } else {
-          return true;
-        }
+      let currentNode = nodes.dequeue();
+
+      if (currentNode.visited()) continue;
+
+      currentNode.visit();
+
+      if (lastNode) {
+        currentNode._previous = lastNode;
       }
 
-      let currentNode = nodes.dequeue();
-      currentNode.adjacent.forEach(adj => {
-        nodes.enqueue(adj);
-        adj._previous = currentNode;
-      });
+      if (currentNode === end) {
+        return callback ? callback(end) : true;
+      }
+
+      currentNode.adjacent.forEach(adj => { nodes.enqueue(adj); });
+      lastNode = currentNode;
     }
 
     return false;
   }
 
-  static dijkstra(start, end) {
-    return this.bfs(start, end, this._retracePath);
+  static _dijkstra(start, end) {
+    return this._bfs(start, end, this._retracePath);
   }
 
   static _retracePath(node) {
@@ -47,6 +74,8 @@ class Graph {
     return path.reverse();
   }
 }
+
+Graph.visitId = 0;
 
 module.exports = {
   Graph: Graph,

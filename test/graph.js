@@ -21,6 +21,17 @@ class GraphTests extends Tools {
 
     this.assert(Graph.dijkstra(start, end).length === 5);
   }
+
+  static _dijkstraCycleTest() {
+    let end   = new Node();
+    let start = new Node([new Node([new Node([new Node([end])])])]);
+
+    start.firstAdjacent.adjacent.add(start);
+
+    // If the code under tests does not handle cycles, this will enter an
+    // infinite loop.
+    this.assert(Graph.dijkstra(start, end).length === 5);
+  }
 }
 
 module.exports = GraphTests;
