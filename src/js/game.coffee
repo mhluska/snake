@@ -108,8 +108,6 @@ requirejs [
                 # For now, use zero.
                 0
 
-            console.log new Date() - time
-
             @_graph.removeVertex @_snake.head
 
             new Stim.Queue squares
