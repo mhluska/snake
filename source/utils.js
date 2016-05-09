@@ -45,22 +45,6 @@ let shuffle = array => {
   return array;
 };
 
-let combinations = (array, size) => {
-  if (size <= 0) {
-    return [[]];
-  }
-
-  let result = [];
-
-  array.forEach((item, index) => {
-    let subResult = combinations(array.slice(index + 1), size - 1);
-    subResult.forEach(s => s.push(item));
-    result = result.concat(subResult);
-  });
-
-  return result;
-};
-
 let makeVoxelMesh = (size, color, position = null) => {
   var geometry = new THREE.BoxGeometry(size, size, size);
   var material = new THREE.MeshLambertMaterial({ color: color });

@@ -4,7 +4,7 @@ var THREE = require('three');
 var Voxel = require('./voxel');
 var Const = require('./const');
 
-var { adjacentUnitVector, makeVoxelMesh, shuffle, times, combinations } = require('./utils');
+var { adjacentUnitVector, makeVoxelMesh, shuffle, times } = require('./utils');
 
 /*
   A game world of size N has 6 faces corresponding to the 6 faces of a cube.
