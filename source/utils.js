@@ -2,6 +2,7 @@
 
 var THREE = require('three');
 var Voxel = require('./voxel');
+var assert = require('assert');
 
 let times = function* (count) {
   for (let i = 0; i < count; i += 1) {
@@ -19,9 +20,7 @@ let random = (min, max) => {
 };
 
 let adjacentUnitVector = vector3 => {
-  if (vector3.length() !== 1) {
-    throw new Error('Non unit vector passed to adjacentUnitVector.');
-  }
+  assert(vector3.length() === 1, 'Non unit vector passed to adjacentUnitVector.');
 
   let units = vector3.toArray();
   units.unshift(units.pop());
@@ -60,8 +59,8 @@ let makeVoxelMesh = (size, color, position = null) => {
   return mesh;
 };
 
-let copyPosition = (position) => {
-  return [...position];
+let assertTruthy = () => {
+
 };
 
 module.exports = {
@@ -71,5 +70,5 @@ module.exports = {
   adjacentUnitVector,
   adjacentPositions,
   makeVoxelMesh,
-  copyPosition,
+  assertTruthy
 };

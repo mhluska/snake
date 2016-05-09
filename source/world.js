@@ -1,8 +1,9 @@
 'use strict';
 
-var THREE = require('three');
-var Voxel = require('./voxel');
-var Const = require('./const');
+var assert = require('assert');
+var THREE  = require('three');
+var Voxel  = require('./voxel');
+var Const  = require('./const');
 
 var { adjacentUnitVector, makeVoxelMesh, shuffle, times } = require('./utils');
 
@@ -27,9 +28,10 @@ class World {
     this.mesh            = this._makeWorldMesh();
     this.lights          = this._makeLights();
     this._faceVectors    = this._setupFaceVectors();
-    this._voxelMap       = this._setupGraph(this._faceVectors);
     this._availableTiles = this._setupAvailableTiles();
     this._occupiedTiles  = new Map();
+
+    this._setupGraph();
   }
 
   static adjacentPositions(position2, faceVector) {
@@ -69,9 +71,8 @@ class World {
     if (vector3.y !== 0) position3[1] = scalar * vector3.y;
     if (vector3.z !== 0) position3[2] = scalar * vector3.z;
 
-    if (expectedLength && position3.filter(Boolean).length !== expectedLength) {
-      throw new Error('Something went wrong during position translation.');
-    }
+    assert(expectedLength && position3.filter(Boolean).length === expectedLength,
+      'Something went wrong during position translation.');
   }
 
   spawnFood() {
@@ -182,7 +183,7 @@ class World {
     return false;
   }
 
-  _setupGraph(faceVectors) {
+  _setupGraph() {
     // Connect voxels on same faces.
     this._eachTile((position3, adjacent, faceVector) => {
       adjacent.forEach(adj => {
@@ -208,9 +209,9 @@ class World {
   }
 
   _validateVoxelType(voxel) {
-    if (!voxel || !['food', 'poison', 'snake', 'tile'].includes(voxel.type)) {
-      throw new Error(`Invalid voxel: ${voxel}`);
-    }
+    let test = voxel && ['food', 'poison', 'snake', 'tile'].includes(voxel.type);
+    let message = `Invalid voxel: ${voxel}`;
+    assert(test, message);
   }
 
   _occupyTile(position3, voxel) {

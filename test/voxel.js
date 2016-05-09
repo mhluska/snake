@@ -8,6 +8,10 @@ class VoxelTests extends Tools {
 
   // TODO(maros): Finish these tests.
   static _directionToTest() {
+    let source = new Voxel();
+    let target = new Voxel();
+
+    source.directionTo(target);
     this.assert(true);
   }
 }

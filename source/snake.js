@@ -1,12 +1,13 @@
 'use strict';
 
-var THREE = require('three');
-var Const = require('./const');
-var World = require('./world');
-var Voxel = require('./voxel');
-var Queue = require('./queue');
+var assert = require('assert');
+var THREE  = require('three');
+var Const  = require('./const');
+var World  = require('./world');
+var Voxel  = require('./voxel');
+var Queue  = require('./queue');
 
-var { makeVoxelMesh, times, adjacentPositions } = require('./utils');
+var { makeVoxelMesh, times, adjacentPositions, assertTruthy } = require('./utils');
 var { Graph } = require('./graph');
 
 module.exports = class Snake {
@@ -95,16 +96,14 @@ module.exports = class Snake {
       this._path = new Queue(path);
     }
 
-    return this._updateMeshPosition(this._path.dequeue().position3);
+    return this._updateSnakeMeshPosition(this._path.dequeue().position3);
   }
 
   _moveManual() {
-    if (![this.position3, this._direction].every(Boolean)) {
-      throw new Error('Snake position or direction are not initialized.');
-    }
+    assertTruthy(this.position3, this._dirVector);
 
     let nextVoxel = Voxel.findOrCreate(this.position3).next(this._dirVector);
-    return this._updateMeshPosition(nextVoxel.position3);
+    return this._updateSnakeMeshPosition(nextVoxel.position3);
   }
 
   // TODO(maros): Remove magic color code.
@@ -117,13 +116,13 @@ module.exports = class Snake {
     let group         = new THREE.Object3D();
     let position3     = World.position2to3(headPosition2, face);
 
-    position3[1] *= -1;
+    for (let i of times(size)) {
+      let meshPosition = [...position3];
+      meshPosition[1] *= -1;
+      meshPosition[1] -= i * Const.TILE_SIZE;
 
-    // TODO(maros): Avoid unused variable.
-    for (let _ of times(size)) {
-      group.add(this._makeVoxelMesh(position3));
-      this._world.disable(position3);
-      position3[1] -= Const.TILE_SIZE;
+      group.add(this._makeVoxelMesh(meshPosition));
+      this._world.disable(meshPosition);
     }
 
     return group;
@@ -131,15 +130,10 @@ module.exports = class Snake {
 
   // TODO(maros): This should be the only method that manipulates `this.face`
   // and `this._dirVector`. Use a setter to enforce it.
-  _updateMeshPosition(position3) {
-    // TODO(maros): Use assert.
-    if (![this.head, this.mesh].every(Boolean)) {
-      throw new Error('Snake head or mesh are not initialized.');
-    }
-
-    if (!adjacentPositions(position3, this.head.position.toArray())) {
-      throw new Error('Attempting to update mesh to non-adjacent position.');
-    }
+  _updateSnakeMeshPosition(position3) {
+    assertTruthy(this.position3, this.mesh, this.head);
+    assert(adjacentPositions(position3, this.head.position.toArray()),
+      'Attempting to update mesh to non-adjacent position.');
 
     let currentVoxel = Voxel.findOrCreate(this.position3);
     let targetVoxel  = Voxel.findOrCreate(position3);

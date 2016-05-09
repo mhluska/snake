@@ -7,7 +7,7 @@ var Queue = require('./queue');
 var Voxel = require('./voxel');
 var Const = require('./const');
 var Tests = require('../test/tests');
-var { makeVoxelMesh } = require('./utils');
+var { makeVoxelMesh, assertTruthy } = require('./utils');
 
 class Game {
   constructor(container) {
@@ -65,10 +65,7 @@ class Game {
   }
 
   _updateScreenSizeResize() {
-    if (![this._container, this._camera, this._renderer].every(Boolean)) {
-      throw new Error('Container, camera or renderer are not initialized.');
-    }
-
+    assertTruthy(this._container, this._camera, this._renderer);
     this._updateScreenSize(this._container, this._camera, this._renderer);
   }
 
@@ -99,7 +96,7 @@ class Game {
     }
 
     this._snake.move();
-    this._updateCamera(this._snake.face, this._snake.direction);
+    this._updateCamera(this._snake.face);
     this._processVoxel(Voxel.findOrCreate(this._snake.position3));
   }
 
@@ -170,7 +167,9 @@ class Game {
     requestAnimationFrame(() => this._animate());
   }
 
-  _updateCamera(face, direction) {
+  _updateCamera(face) {
+    assertTruthy(this._camera, this._cameraFace);
+
     if (this._cameraFace.equals(face)) {
       return;
     }

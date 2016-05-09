@@ -1,8 +1,8 @@
 'use strict';
 
+var assert = require('assert');
 var THREE = require('three');
 var Const = require('./const');
-
 var { Node } = require('./graph');
 
 class Voxel extends Node {
@@ -37,10 +37,7 @@ class Voxel extends Node {
     let key   = direction.toArray().toString();
     let voxel = this._next.get(key);
 
-    if (!voxel) {
-      throw new Error(`Could not find next vector using direction ${key}`);
-    }
-
+    assert(voxel, `Could not find next vector using direction ${key}`);
     return voxel;
   }
 
