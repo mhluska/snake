@@ -1,3 +1,4 @@
+var assert = require('assert');
 var Tools = require('./tools');
 var { Graph, Node } = require('../source/graph');
 
@@ -10,7 +11,7 @@ class GraphTests extends Tools {
     let end   = new Node();
     let start = new Node([new Node([new Node([new Node([end])])])]);
 
-    this.assert(Graph.dijkstra(start, end).length === 5);
+    assert(Graph.dijkstra(start, end).length === 5);
   }
 
   static _dijkstraCycleTest() {
@@ -21,7 +22,7 @@ class GraphTests extends Tools {
 
     // If the code under tests does not handle cycles, this will enter an
     // infinite loop.
-    this.assert(Graph.dijkstra(start, end).length === 5);
+    assert(Graph.dijkstra(start, end).length === 5);
   }
 
   // . . . . . . .
@@ -55,8 +56,8 @@ class GraphTests extends Tools {
       }
     }
 
-    this.assert(Graph.dijkstra(nodes.a, nodes.i).length === 5);
-    this.assert(Graph.dijkstra(nodes.i, nodes.a).length === 5);
+    assert(Graph.dijkstra(nodes.a, nodes.i).length === 5);
+    assert(Graph.dijkstra(nodes.i, nodes.a).length === 5);
   }
 }
 

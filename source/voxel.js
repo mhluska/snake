@@ -9,6 +9,8 @@ class Voxel extends Node {
   constructor(position3, mesh = null, type = 'tile') {
     super();
 
+    assert(position3, 'Initialized Voxel without position');
+
     this.position3 = position3;
     this.mesh      = mesh;
     this.type      = type;
@@ -41,7 +43,9 @@ class Voxel extends Node {
     return voxel;
   }
 
-  directionTo(voxel, sourcePlane=true) {
+  directionTo(voxel, options={}) {
+    let sourcePlane = options.sourcePlane === undefined ? true : options.sourcePlane;
+
     let v1  = new THREE.Vector3(...this.position3);
     let v2  = new THREE.Vector3(...voxel.position3);
     let direction = v2.sub(v1);

@@ -138,7 +138,7 @@ module.exports = class Snake {
     let currentVoxel = Voxel.findOrCreate(this.position3);
     let targetVoxel  = Voxel.findOrCreate(position3);
 
-    this._dirVector = currentVoxel.directionTo(targetVoxel, false);
+    this._dirVector = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face       = targetVoxel.face;
 
     for (let i = 0; i < this.size; i += 1) {

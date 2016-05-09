@@ -1,3 +1,4 @@
+var assert = require('assert');
 var Tools = require('./tools');
 var Voxel = require('../source/voxel');
 
@@ -6,13 +7,12 @@ class VoxelTests extends Tools {
     super.run('voxel');
   }
 
-  // TODO(maros): Finish these tests.
   static _directionToTest() {
-    let source = new Voxel();
-    let target = new Voxel();
+    let source = new Voxel([6.25, 6.25, 106.25]);
+    let target = new Voxel([-6.25, 6.25, 93.75]);
 
-    source.directionTo(target);
-    this.assert(true);
+    assert.deepEqual(source.directionTo(target, { sourcePlane: false }).toArray(), [0, 0, -1]);
+    assert.deepEqual(source.directionTo(target, { sourcePlane: true }).toArray(),  [-1, 0, 0]);
   }
 }
 

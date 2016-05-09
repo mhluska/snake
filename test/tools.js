@@ -27,12 +27,6 @@ class Tools {
     return [passed, total, error];
   }
 
-  static assert(result) {
-    if (!result) {
-      throw new Error(`Assertion failed: ${result}`);
-    }
-  }
-
   static _tests() {
     let tests = [];
     for (let methodName of Object.getOwnPropertyNames(this)) {
