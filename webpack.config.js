@@ -6,11 +6,6 @@ module.exports = {
     libraryTarget: 'var',
     library: 'SnakeGame'
   },
-  resolve: {
-    alias: {
-      three: 'three.js/build/three.js'
-    }
-  },
   module: {
     preLoaders: [
       {
@@ -23,7 +18,11 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader?presets[]=es2015'
+        loader: 'babel',
+        query: {
+          presets: ['es2015'],
+          plugins: ['transform-runtime']
+        }
       }
     ]
   },

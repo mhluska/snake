@@ -23,6 +23,9 @@ class Node {
 }
 
 class Graph {
+  // `start` is the start node.
+  // `end` is a target node or a callback to determine if we found the target.
+  // `callback` is an action to take after we found the target.
   static bfs(start, end, callback = null) {
     this.visitId += 1;
     return this._bfs(start, end, callback);
@@ -34,26 +37,24 @@ class Graph {
   }
 
   static _bfs(start, end, callback = null) {
-    let nodes    = new Queue([start]);
-    let lastNode = null;
+    let nodes = new Queue([start]);
+    start.visit();
+    start._previous = null;
 
     while (!nodes.empty()) {
       let currentNode = nodes.dequeue();
-
-      if (currentNode.visited()) continue;
-
       currentNode.visit();
 
-      if (lastNode) {
-        currentNode._previous = lastNode;
+      if (typeof end === 'function' ? end(currentNode) : currentNode === end) {
+        return callback ? callback(currentNode) : true;
       }
 
-      if (currentNode === end) {
-        return callback ? callback(end) : true;
+      for (let adj of currentNode.adjacent) {
+        if (adj.visited()) continue;
+        nodes.enqueue(adj);
+        adj.visit();
+        adj._previous = currentNode;
       }
-
-      currentNode.adjacent.forEach(adj => { nodes.enqueue(adj); });
-      lastNode = currentNode;
     }
 
     return false;

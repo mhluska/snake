@@ -1,109 +1,167 @@
 'use strict';
 
 var THREE = require('three');
+var Const = require('./const');
 var World = require('./world');
-var Utils = require('./utils');
+var Voxel = require('./voxel');
+var Queue = require('./queue');
+
+var { makeVoxelMesh, times, adjacentPositions } = require('./utils');
+var { Graph } = require('./graph');
 
 module.exports = class Snake {
-  constructor(world, camera) {
-    // Possible positions are on a 2D array of size (N-1)x(N-1) for game size N.
-    this.position = [Math.floor(World.GAME_SIZE / 2), Math.floor(World.GAME_SIZE / 4)];
-    this.prevPosition = null;
-
-    // Possible faces are [0, 1, 2, 3, 4, 5, 6].
-    this.face = 3;
-    this.prevFace = null;
-
-    // Default snake size.
-    this.size = 6;
-    this.mesh = this._makeMeshGroup(this.size, this.position, this.face, camera);
-
-    // Possible directions are ['up', 'right', 'down', 'left'].
+  constructor(world, direction) {
+    this._path      = new Queue();
+    this._autoMove  = true;
     this._direction = 'up';
-    this._camera = camera;
-    this._world = world;
+    this._dirVector = direction;
+    this._world     = world;
+
+    // TODO(maros): Don't arbitrarily pick face. Use knowledge of what face the
+    // camera is looking at.
+    this.face = this._world._faceVectors[3];
+    this.size = 6;
+    this.mesh = this._makeMeshGroup(this.size, this._world, this.face);
+  }
+
+  get head() {
+    return this.mesh.children[0];
+  }
+
+  get tail() {
+    return this.mesh.children[this.size - 1];
+  }
+
+  get position3() {
+    return this.head.position.toArray();
   }
 
   get direction() {
-    return this._direction;
+    return this._dirVector;
   }
 
   set direction(val) {
     if (!['up', 'right', 'down', 'left'].includes(val)) return;
-
     if (['up', 'down'].includes(val)    && ['up', 'down'].includes(this._direction))    return;
     if (['left', 'right'].includes(val) && ['left', 'right'].includes(this._direction)) return;
 
+    this._dirVector.cross(this.face);
+
+    if (this._direction === 'up'    && val === 'left' ||
+        this._direction === 'right' && val === 'up' ||
+        this._direction === 'down'  && val === 'right' ||
+        this._direction === 'left'  && val === 'down') {
+
+      this._dirVector.negate();
+    }
+
     this._direction = val;
+    this._autoMove  = false;
   }
 
-  move(newFaceCallback) {
-    this.prevPosition = this.position;
+  move() {
+    this._world.enable(this.tail.position.toArray());
 
-    let prevFace = this.face;
-    let outside  = this._world.nextPosition(this.direction, this.position);
+    let prevHead = this.head.position.clone();
+    let position3 = this._moveAuto() || this._moveManual();
 
-    if (outside) {
-      this.face = this._world.nextFace(this.direction, this._camera);
-    }
+    this._world.disable(prevHead.toArray());
 
-    let newPosition = this._updateMeshPosition();
-
-    if (prevFace !== this.face) {
-      this.prevFace = prevFace;
-      newFaceCallback(this.prevFace, this.face, this.direction);
-      newPosition = this._updateMeshPosition();
-    }
-
-    let voxel = this._world.voxelAt(newPosition);
+    let voxel = Voxel.findOrCreate(position3);
     this._eat(voxel);
-
     return voxel;
   }
 
-  _makeVoxelMesh(position3) {
-    return Utils.makeVoxelMesh(World.TILE_SIZE, 0x9586de, position3);
+  _moveAuto() {
+    if (!this._autoMove) {
+      return false;
+    }
+
+    if (this._path.empty()) {
+      // Find new target.
+      let start = Voxel.findOrCreate(this.position3);
+      let path  = Graph.dijkstra(start, node => node.type === 'food');
+
+      if (!path) {
+        return false;
+      }
+
+      path.shift();
+
+      if (path.length === 0) {
+        return false;
+      }
+
+      this._path = new Queue(path);
+    }
+
+    return this._updateMeshPosition(this._path.dequeue().position3);
   }
 
-  _makeMeshGroup(size, position, face, camera) {
-    let group     = new THREE.Object3D();
-    let position3 = World.position2to3(position, face, camera.up);
+  _moveManual() {
+    if (![this.position3, this._direction].every(Boolean)) {
+      throw new Error('Snake position or direction are not initialized.');
+    }
+
+    let nextVoxel = Voxel.findOrCreate(this.position3).next(this._dirVector);
+    return this._updateMeshPosition(nextVoxel.position3);
+  }
+
+  // TODO(maros): Remove magic color code.
+  _makeVoxelMesh(position3) {
+    return makeVoxelMesh(Const.TILE_SIZE, 0x9586de, position3);
+  }
+
+  _makeMeshGroup(size, world, face) {
+    let headPosition2 = [Math.floor(Const.GAME_SIZE / 2), Math.floor(Const.GAME_SIZE / 4)];
+    let group         = new THREE.Object3D();
+    let position3     = World.position2to3(headPosition2, face);
 
     position3[1] *= -1;
 
-    Utils.times(size, () => {
+    // TODO(maros): Avoid unused variable.
+    for (let _ of times(size)) {
       group.add(this._makeVoxelMesh(position3));
-      position3[1] -= World.TILE_SIZE;
-    });
+      this._world.disable(position3);
+      position3[1] -= Const.TILE_SIZE;
+    }
 
     return group;
   }
 
-  _updateMeshPosition() {
-    if (![this.mesh, this._direction, this._camera].every(Boolean)) {
-      throw new Error('Mesh, direction or camera are not initialized.');
+  // TODO(maros): This should be the only method that manipulates `this.face`
+  // and `this._dirVector`. Use a setter to enforce it.
+  _updateMeshPosition(position3) {
+    // TODO(maros): Use assert.
+    if (![this.head, this.mesh].every(Boolean)) {
+      throw new Error('Snake head or mesh are not initialized.');
     }
 
-    let head         = this.mesh.children[0];
-    let lastPosition = head.position.clone();
+    if (!adjacentPositions(position3, this.head.position.toArray())) {
+      throw new Error('Attempting to update mesh to non-adjacent position.');
+    }
 
-    this._world.updateMeshPosition(head.position, this._direction, this._camera);
+    let currentVoxel = Voxel.findOrCreate(this.position3);
+    let targetVoxel  = Voxel.findOrCreate(position3);
 
-    for (let i = 1; i < this.size; i += 1) {
+    this._dirVector = currentVoxel.directionTo(targetVoxel, false);
+    this.face       = targetVoxel.face;
+
+    for (let i = 0; i < this.size; i += 1) {
       let piece = this.mesh.children[i];
-      let tempPosition = piece.position.clone();
-      piece.position.copy(lastPosition);
-      lastPosition = tempPosition;
+      let tempPosition = piece.position.toArray();
+      piece.position.set(...position3);
+      position3 = tempPosition;
     }
 
-    return head.position.toArray();
+    return this.head.position.toArray();
   }
 
   _eat(voxel) {
     if (!voxel) return;
 
     if (voxel.type === 'food') {
-      this._world.removeVoxel(voxel);
+      this._world.disable(voxel);
       this.mesh.add(this._makeVoxelMesh());
       this.size += 1;
     }

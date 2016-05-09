@@ -3,16 +3,7 @@ var { Graph, Node } = require('../source/graph');
 
 class GraphTests extends Tools {
   static run() {
-    console.log('Running graph tests...');
-
-    let [passed, total, error] = super.run();
-
-    if (passed === total) {
-      console.log('All tests passed');
-    } else {
-      console.log(`${passed}/${total} tests passed.`);
-      throw error;
-    }
+    super.run('graph');
   }
 
   static _dijkstraTest() {
@@ -31,6 +22,41 @@ class GraphTests extends Tools {
     // If the code under tests does not handle cycles, this will enter an
     // infinite loop.
     this.assert(Graph.dijkstra(start, end).length === 5);
+  }
+
+  // . . . . . . .
+  // . a . b . c .
+  // . . . . . . .
+  // . d . e . f .
+  // . . . . . . .
+  // . g . h . i .
+  // . . . . . . .
+  static _dijkstraTileTest() {
+    let nodes = {};
+    for (let name of 'abcdefghi'.split('')) {
+      nodes[name] = new Node();
+    }
+
+    let edges = {
+      a: ['b', 'd'],
+      b: ['a', 'e', 'c'],
+      c: ['b', 'f'],
+      d: ['e', 'g', 'a'],
+      e: ['b', 'f', 'h', 'd'],
+      f: ['c', 'e', 'i'],
+      g: ['d', 'h'],
+      h: ['e', 'g', 'i'],
+      i: ['f', 'h']
+    };
+
+    for (let nodeName in edges) {
+      for (let adjacentNodeName of edges[nodeName]) {
+        nodes[nodeName].adjacent.add(nodes[adjacentNodeName]);
+      }
+    }
+
+    this.assert(Graph.dijkstra(nodes.a, nodes.i).length === 5);
+    this.assert(Graph.dijkstra(nodes.i, nodes.a).length === 5);
   }
 }
 

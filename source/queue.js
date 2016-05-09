@@ -22,14 +22,14 @@ class Queue {
   }
 
   enqueue(item) {
-    this._data.unshift(item);
+    this._data.push(item);
     if (this._data.length > this._maxSize) {
-      this._data.pop();
+      this._data.shift();
     }
   }
 
   dequeue() {
-    return this._data.pop();
+    return this._data.shift();
   }
 }
 

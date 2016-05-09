@@ -1,8 +1,10 @@
 'use strict';
 
 var THREE = require('three');
-var Utils = require('./utils');
 var Voxel = require('./voxel');
+var Const = require('./const');
+
+var { adjacentUnitVector, makeVoxelMesh, shuffle, times, combinations } = require('./utils');
 
 /*
   A game world of size N has 6 faces corresponding to the 6 faces of a cube.
@@ -24,48 +26,42 @@ class World {
   constructor() {
     this.mesh            = this._makeWorldMesh();
     this.lights          = this._makeLights();
+    this._faceVectors    = this._setupFaceVectors();
+    this._voxelMap       = this._setupGraph(this._faceVectors);
     this._availableTiles = this._setupAvailableTiles();
-    this._occupiedTiles  = this._setupOccupiedTiles();
+    this._occupiedTiles  = new Map();
   }
 
-  static position2to3(position2, faceIndex, up) {
-    let a = ((position2[0] + 1) * World.TILE_SIZE) - (World.TILE_SIZE / 2) - (World.MESH_SIZE / 2);
-    let b = ((position2[1] + 1) * World.TILE_SIZE) - (World.TILE_SIZE / 2) - (World.MESH_SIZE / 2);
-    let c = (World.TILE_SIZE / 2) + (World.MESH_SIZE / 2);
+  static adjacentPositions(position2, faceVector) {
+    let [x, y] = position2;
+    let adjacent = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y - 1],
+      [x, y + 1]
+    ];
 
-    let position3  = [];
-    let faceVector = this.faceIndexToVector(faceIndex);
-    let cross      = faceVector.clone().cross(up).negate();
+    return adjacent.map(p => this.position2to3(p, faceVector));
+  }
+
+  static position2to3(position2, faceVector, up = null) {
+    // We need to provide an arbitrary `up` vector.
+    if (!up) {
+      up = adjacentUnitVector(faceVector);
+    }
+
+    let a = ((position2[0] + 1) * Const.TILE_SIZE) - (Const.TILE_SIZE / 2) - (Const.MESH_SIZE / 2);
+    let b = ((position2[1] + 1) * Const.TILE_SIZE) - (Const.TILE_SIZE / 2) - (Const.MESH_SIZE / 2);
+    let c = (Const.TILE_SIZE / 2) + (Const.MESH_SIZE / 2);
+
+    let position3 = [];
+    let cross     = faceVector.clone().cross(up).negate();
 
     this._fillDimension(cross,      position3, a, 1);
     this._fillDimension(up,         position3, b, 2);
     this._fillDimension(faceVector, position3, c, 3);
 
     return position3;
-  }
-
-  static faceIndexToVector(face) {
-    let points = ({
-      0: [0, 1, 0],
-      1: [0, 0, -1],
-      2: [-1, 0, 0],
-      3: [0, 0, 1],
-      4: [1, 0, 0],
-      5: [0, -1, 0]
-    })[face];
-
-    return new THREE.Vector3(...points);
-  }
-
-  static vectorToFaceIndex(vector) {
-    return ({
-      '0,1,0':  0,
-      '0,0,-1': 1,
-      '-1,0,0': 2,
-      '0,0,1':  3,
-      '1,0,0':  4,
-      '0,-1,0': 5,
-    })[vector.toArray()];
   }
 
   static _fillDimension(vector3, position3, scalar, expectedLength = null) {
@@ -78,87 +74,45 @@ class World {
     }
   }
 
-  // TODO(maros): Make this not have to take `camera` but just `up` vector.
-  nextFaceVector(direction, camera) {
-    let up        = camera.up.clone();
-    let target    = this.mesh.position.clone().sub(camera.position).normalize();
-    let position  = null;
-
-    if (direction === 'up')    position = up;
-    if (direction === 'right') position = target.clone().cross(up);
-    if (direction === 'down')  position = camera.up.clone().multiplyScalar(-1);
-    if (direction === 'left')  position = target.clone().cross(up).negate();
-
-    if (position === null) {
-      throw new Error('Something went wrong in the nextFaceVector function.');
-    }
-
-    return position;
-  }
-
-  // TODO(maros): Make this not modify `meshPosition` in place.
-  updateMeshPosition(meshPosition, direction, camera) {
-    let position = this.nextFaceVector(direction, camera);
-    position.multiplyScalar(this.constructor.TILE_SIZE);
-    meshPosition.add(position);
-  }
-
-  positionOutOfBounds(position) {
-    return position[0] < 0 ||
-           position[0] >= this.constructor.GAME_SIZE ||
-           position[1] < 0 ||
-           position[1] >= this.constructor.GAME_SIZE;
-  }
-
-  wrapPosition(position) {
-    position[0] = (position[0] + this.constructor.GAME_SIZE) % this.constructor.GAME_SIZE;
-    position[1] = (position[1] + this.constructor.GAME_SIZE) % this.constructor.GAME_SIZE;
-  }
-
-  nextFace(direction, camera) {
-    return this.constructor.vectorToFaceIndex(this.nextFaceVector(direction, camera));
-  }
-
-  nextPosition(direction, position) {
-    if (direction === 'up')    position[1] -= 1;
-    if (direction === 'right') position[0] += 1;
-    if (direction === 'down')  position[1] += 1;
-    if (direction === 'left')  position[0] -= 1;
-
-    let outside = this.positionOutOfBounds(position);
-
-    if (outside) {
-      this.wrapPosition(position);
-    }
-
-    return outside;
-  }
-
   spawnFood() {
     return this._spawn('food');
-
   }
 
   spawnPoison() {
     return this._spawn('poison');
   }
 
-  voxelAt(position3) {
-    return this._occupiedTiles[position3.toString()];
+  enable(position) {
+    let voxel = Voxel.findOrCreate(position);
+    voxel.enable();
+    this._unoccopyTile(voxel);
   }
 
-  removeVoxel(voxel) {
-    let position3 = voxel.mesh.position.toArray();
-    this._availableTiles.add(position3);
-    return this._occupiedTiles.delete(position3);
+  disable(position) {
+    let voxel = Voxel.findOrCreate(position);
+    voxel.disable();
+    this._occupyTile(voxel.position3, voxel);
+  }
+
+  _setupFaceVectors() {
+    let positions = [
+      [0,  1,  0],
+      [0,  0, -1],
+      [-1, 0,  0],
+      [0,  0,  1],
+      [1,  0,  0],
+      [0, -1,  0]
+    ];
+
+    return positions.map(p => new THREE.Vector3(...p));
   }
 
   _makeWorldMesh() {
-    return Utils.makeVoxelMesh(this.constructor.MESH_SIZE, 0xa5c9f3);
+    return makeVoxelMesh(Const.MESH_SIZE, 0xa5c9f3);
   }
 
   _makeFoodMesh(position) {
-    return Utils.makeVoxelMesh(this.constructor.TILE_SIZE, 0x7fdc50, position);
+    return makeVoxelMesh(Const.TILE_SIZE, 0x7fdc50, position);
   }
 
   // Returns a voxel that will occupy a random tile on the world. If the world
@@ -170,7 +124,10 @@ class World {
 
     let position3 = this._popAvailableTile();
     let mesh      = this._makeFoodMesh(position3);
-    let voxel     = new Voxel(type, mesh);
+    let voxel     = Voxel.findOrCreate(position3);
+
+    voxel.mesh = mesh;
+    voxel.type = type;
 
     this._occupyTile(position3, voxel);
 
@@ -183,7 +140,7 @@ class World {
       new THREE.PointLight(0xffffff, 2)
     ];
 
-    let distance = this.constructor.MESH_SIZE * 1.5;
+    let distance = Const.MESH_SIZE * 1.5;
 
     lights[0].position.set(distance, distance, distance);
     lights[1].position.set(-distance, -distance, -distance);
@@ -191,28 +148,73 @@ class World {
     return lights;
   }
 
-  _setupAvailableTiles() {
-    let positions = [];
-
-    Utils.times(World.FACES, faceIndex => {
-      Utils.times(World.GAME_SIZE, x => {
-        Utils.times(World.GAME_SIZE, y => {
-          let up = Utils.adjacentUnitVector(World.faceIndexToVector(faceIndex));
-          let position3 = this.constructor.position2to3([x, y], faceIndex, up);
-          positions.push(position3);
-        });
-      });
-    });
-
-    return new Set(Utils.shuffle(positions));
+  // TODO(maros): Use a generator here.
+  _eachTile(callback) {
+    for (let faceVector of this._faceVectors) {
+      for (let x of times(Const.GAME_SIZE)) {
+        for (let y of times(Const.GAME_SIZE)) {
+          let position3 = this.constructor.position2to3([x, y], faceVector);
+          let adjacent  = this.constructor.adjacentPositions([x, y], faceVector);
+          callback(position3, adjacent, faceVector, x, y);
+        }
+      }
+    }
   }
 
-  _setupOccupiedTiles() {
-    return new Map();
+  _position2Edge(position2) {
+    let max = Const.GAME_SIZE - 1;
+    let [x, y] = position2;
+    return x === 0 || y === 0 || x === max || y === max;
+  }
+
+  _connectAdjacentPositions(positionA, positionB) {
+    let v1 = Voxel.findOrCreate(positionA);
+    let v2 = Voxel.findOrCreate(positionB);
+    v1.connectTo(v2);
+  }
+
+  _position3OutOfFace(vector3, faceVector) {
+    let max = (Const.TILE_SIZE * Const.GAME_SIZE / 2) + (Const.TILE_SIZE / 2);
+
+    // TODO(maros): Convert to util method.
+    for (let dimension of 'xyz') {
+      if (faceVector[dimension] === 0) {
+        if (Math.abs(vector3[dimension]) >= max) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  _setupGraph(faceVectors) {
+    // Connect voxels on same faces.
+    this._eachTile((position3, adjacent, faceVector) => {
+      adjacent.forEach(adj => {
+        let adjVector = new THREE.Vector3(...adj);
+        if (this._position3OutOfFace(adjVector, faceVector)) {
+          // TODO(maros): Convert to util method.
+          for (let dimension of 'xyz') {
+            if (faceVector[dimension] !== 0) {
+              adjVector[dimension] -= (faceVector[dimension] * Const.TILE_SIZE);
+            }
+          }
+        }
+
+        this._connectAdjacentPositions(adjVector.toArray(), position3);
+      });
+    });
+  }
+
+  _setupAvailableTiles() {
+    let positions = [];
+    this._eachTile(position3 => { positions.push(position3); });
+    return new Set(shuffle(positions));
   }
 
   _validateVoxelType(voxel) {
-    if (!voxel || !['food', 'poison', 'snake'].includes(voxel.type)) {
+    if (!voxel || !['food', 'poison', 'snake', 'tile'].includes(voxel.type)) {
       throw new Error(`Invalid voxel: ${voxel}`);
     }
   }
@@ -220,6 +222,12 @@ class World {
   _occupyTile(position3, voxel) {
     this._validateVoxelType(voxel);
     this._occupiedTiles[position3.toString()] = voxel;
+  }
+
+  _unoccopyTile(voxel) {
+    this._validateVoxelType(voxel);
+    this._availableTiles.add(voxel.position3);
+    delete this._occupiedTiles[voxel.position3];
   }
 
   _noFreeTiles() {
@@ -232,10 +240,5 @@ class World {
     return item;
   }
 }
-
-World.FACES     = 6;
-World.GAME_SIZE = 16;
-World.MESH_SIZE = 200;
-World.TILE_SIZE = World.MESH_SIZE / World.GAME_SIZE;
 
 module.exports = World;
