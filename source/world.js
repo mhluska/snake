@@ -161,12 +161,6 @@ class World {
     }
   }
 
-  _position2Edge(position2) {
-    let max = Const.GAME_SIZE - 1;
-    let [x, y] = position2;
-    return x === 0 || y === 0 || x === max || y === max;
-  }
-
   _connectAdjacentPositions(positionA, positionB) {
     let v1 = Voxel.findOrCreate(positionA);
     let v2 = Voxel.findOrCreate(positionB);

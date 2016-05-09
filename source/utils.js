@@ -68,7 +68,6 @@ module.exports = {
   times,
   random,
   shuffle,
-  combinations,
   adjacentUnitVector,
   adjacentPositions,
   makeVoxelMesh,
