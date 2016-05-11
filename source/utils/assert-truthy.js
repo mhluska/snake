@@ -1,5 +1,5 @@
 const assert = require('assert');
 
-module.exports = function() {
-  assert(true);
+module.exports = function(...args) {
+  assert(args.every(Boolean));
 };
