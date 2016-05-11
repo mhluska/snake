@@ -98,7 +98,7 @@ class Game {
 
     this._snake.move();
     this._updateCamera(this._snake.face);
-    this._processVoxel(Voxel.findOrCreate(this._snake.position3));
+    this._processVoxel(Voxel.findOrCreate(this._snake.position));
   }
 
   _updateWorld() {
@@ -109,7 +109,7 @@ class Game {
     let mesh = voxel.mesh;
 
     if (!mesh) {
-      mesh = makeVoxelMesh(Const.TILE_SIZE, color, voxel.position3);
+      mesh = makeVoxelMesh(Const.TILE_SIZE, color, voxel.position);
       this._debugMeshes.add(mesh);
       this._scene.add(mesh);
     }

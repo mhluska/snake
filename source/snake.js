@@ -35,7 +35,7 @@ module.exports = class Snake {
     return this.mesh.children[this.size - 1];
   }
 
-  get position3() {
+  get position() {
     return this.head.position.toArray();
   }
 
@@ -66,11 +66,11 @@ module.exports = class Snake {
     this._world.enable(this.tail.position.toArray());
 
     let prevHead = this.head.position.clone();
-    let position3 = this._moveAuto() || this._moveManual();
+    let position = this._moveAuto() || this._moveManual();
 
     this._world.disable(prevHead.toArray());
 
-    let voxel = Voxel.findOrCreate(position3);
+    let voxel = Voxel.findOrCreate(position);
     this._eat(voxel);
     return voxel;
   }
@@ -82,7 +82,7 @@ module.exports = class Snake {
 
     if (this._path.empty()) {
       // Find new target.
-      let start = Voxel.findOrCreate(this.position3);
+      let start = Voxel.findOrCreate(this.position);
       let path  = Graph.dijkstra(start, node => node.type === 'food');
 
       if (!path) {
@@ -98,28 +98,27 @@ module.exports = class Snake {
       this._path = new Queue(path);
     }
 
-    return this._updateSnakeMeshPosition(this._path.dequeue().position3);
+    return this._updateSnakeMeshPosition(this._path.dequeue().position);
   }
 
   _moveManual() {
-    assertTruthy(this.position3, this._dirVector);
+    assertTruthy(this.position, this._dirVector);
 
-    let nextVoxel = Voxel.findOrCreate(this.position3).next(this._dirVector);
-    return this._updateSnakeMeshPosition(nextVoxel.position3);
+    let nextVoxel = Voxel.findOrCreate(this.position).next(this._dirVector);
+    return this._updateSnakeMeshPosition(nextVoxel.position);
   }
 
   // TODO(maros): Remove magic color code.
-  _makeVoxelMesh(position3) {
-    return makeVoxelMesh(Const.TILE_SIZE, 0x9586de, position3);
+  _makeVoxelMesh(position) {
+    return makeVoxelMesh(Const.TILE_SIZE, 0x9586de, position);
   }
 
   _makeMeshGroup(size, world, face) {
-    let headPosition2 = [Math.floor(Const.GAME_SIZE / 2), Math.floor(Const.GAME_SIZE / 4)];
-    let group         = new THREE.Object3D();
-    let position3     = World.position2to3(headPosition2, face);
+    let group    = new THREE.Object3D();
+    let position = [-43.75, -6.25, 106.25];
 
     for (let i of times(size)) {
-      let meshPosition = [...position3];
+      let meshPosition = [...position];
       meshPosition[1] *= -1;
       meshPosition[1] -= i * Const.TILE_SIZE;
 
@@ -132,13 +131,13 @@ module.exports = class Snake {
 
   // TODO(maros): This should be the only method that manipulates `this.face`
   // and `this._dirVector`. Use a setter to enforce it.
-  _updateSnakeMeshPosition(position3) {
-    assertTruthy(this.position3, this.mesh, this.head);
-    assert(adjacentPositions(position3, this.head.position.toArray()),
+  _updateSnakeMeshPosition(position) {
+    assertTruthy(this.position, this.mesh, this.head);
+    assert(adjacentPositions(position, this.head.position.toArray()),
       'Attempting to update mesh to non-adjacent position.');
 
-    let currentVoxel = Voxel.findOrCreate(this.position3);
-    let targetVoxel  = Voxel.findOrCreate(position3);
+    let currentVoxel = Voxel.findOrCreate(this.position);
+    let targetVoxel  = Voxel.findOrCreate(position);
 
     this._dirVector = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face       = targetVoxel.face;
@@ -146,8 +145,8 @@ module.exports = class Snake {
     for (let i = 0; i < this.size; i += 1) {
       let piece = this.mesh.children[i];
       let tempPosition = piece.position.toArray();
-      piece.position.set(...position3);
-      position3 = tempPosition;
+      piece.position.set(...position);
+      position = tempPosition;
     }
 
     return this.head.position.toArray();

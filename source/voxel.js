@@ -7,25 +7,25 @@ var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 var { Node }               = require('./graph');
 
 class Voxel extends Node {
-  constructor(position3, mesh = null, type = 'tile') {
+  constructor(position, mesh = null, type = 'tile') {
     super();
 
-    assert(position3, 'Initialized Voxel without position');
+    assert(position, 'Initialized Voxel without position');
 
-    this.position3 = position3;
-    this.mesh      = mesh;
-    this.type      = type;
-    this.face      = this._findFaceVector(this.position3);
-    this.disabled  = new Set();
-    this._next     = new Map();
+    this.position = position;
+    this.mesh     = mesh;
+    this.type     = type;
+    this.face     = this._findFaceVector(this.position);
+    this.disabled = new Set();
+    this._next    = new Map();
   }
 
-  static findOrCreate(position3, mesh = null, type = 'tile') {
-    let key   = position3.toString();
+  static findOrCreate(position, mesh = null, type = 'tile') {
+    let key   = position.toString();
     let voxel = this.VOXEL_CACHE.get(key);
 
     if (!voxel) {
-      voxel = new Voxel(position3, mesh, type);
+      voxel = new Voxel(position, mesh, type);
       this.VOXEL_CACHE.set(key, voxel);
     }
 
@@ -33,7 +33,7 @@ class Voxel extends Node {
   }
 
   toString() {
-    return this.position3.toString();
+    return this.position.toString();
   }
 
   next(direction) {
@@ -47,8 +47,9 @@ class Voxel extends Node {
   directionTo(voxel, options={}) {
     let sourcePlane = options.sourcePlane === undefined ? true : options.sourcePlane;
 
-    let v1  = new THREE.Vector3(...this.position3);
-    let v2  = new THREE.Vector3(...voxel.position3);
+    let v1 = new THREE.Vector3(...this.position);
+    let v2 = new THREE.Vector3(...voxel.position);
+
     let direction = v2.sub(v1);
 
     if (sourcePlane) {
@@ -70,8 +71,8 @@ class Voxel extends Node {
   }
 
   adjacentTo(voxel) {
-    let v1 = new THREE.Vector3(...this.position3);
-    let v2 = new THREE.Vector3(...voxel.position3);
+    let v1 = new THREE.Vector3(...this.position);
+    let v2 = new THREE.Vector3(...voxel.position);
     let distance = v1.distanceTo(v2);
     return distance === Const.TILE_SIZE ||
            distance === Math.sqrt(2 * Const.TILE_SIZE * Const.TILE_SIZE);
@@ -119,11 +120,11 @@ class Voxel extends Node {
 
   // TODO(maros): This is not saving references to the actual face vectors from
   // the world class but creating ones that resemble them. Consider fixing this.
-  _findFaceVector(position3) {
+  _findFaceVector(position) {
     let facePosition = [0, 0, 0];
     let distance     = Const.MESH_SIZE / 2 + (Const.TILE_SIZE / 2);
 
-    position3.forEach((dimension, index) => {
+    position.forEach((dimension, index) => {
       if (Math.abs(dimension) === distance) {
         facePosition[index] = dimension / distance;
       }

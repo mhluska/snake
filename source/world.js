@@ -9,22 +9,7 @@ var shuffle                = require('./utils/shuffle');
 var makeVoxelMesh          = require('./utils/make-voxel-mesh');
 var adjacentUnitVector     = require('./utils/adjacent-unit-vector');
 var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
-
-/*
-  A game world of size N has 6 faces corresponding to the 6 faces of a cube.
-  Each face has a 2D NxN array.
-
-  Movement between faces happens as you would expect on a cube: moving up from 0
-  goes to 5, moving right from 0 goes to 4 etc.
-
-           . . .
-           . 0 .
-   . . . . . . . . .
-   . 1 . 2 . 3 . 4 .
-   . . . . . . . . .
-           . 5 .
-           . . .
-*/
+var position2to3           = require('./utils/position2-to-3.js');
 
 class World {
   constructor() {
@@ -35,47 +20,6 @@ class World {
     this._occupiedTiles  = new Map();
 
     this._setupGraph();
-  }
-
-  static adjacentPositions(position2, faceVector) {
-    let [x, y] = position2;
-    let adjacent = [
-      [x + 1, y],
-      [x - 1, y],
-      [x, y - 1],
-      [x, y + 1]
-    ];
-
-    return adjacent.map(p => this.position2to3(p, faceVector));
-  }
-
-  static position2to3(position2, faceVector, up = null) {
-    // We need to provide an arbitrary `up` vector.
-    if (!up) {
-      up = adjacentUnitVector(faceVector);
-    }
-
-    let a = ((position2[0] + 1) * Const.TILE_SIZE) - (Const.TILE_SIZE / 2) - (Const.MESH_SIZE / 2);
-    let b = ((position2[1] + 1) * Const.TILE_SIZE) - (Const.TILE_SIZE / 2) - (Const.MESH_SIZE / 2);
-    let c = (Const.TILE_SIZE / 2) + (Const.MESH_SIZE / 2);
-
-    let position3 = [];
-    let cross     = faceVector.clone().cross(up).negate();
-
-    this._fillDimension(cross,      position3, a, 1);
-    this._fillDimension(up,         position3, b, 2);
-    this._fillDimension(faceVector, position3, c, 3);
-
-    return position3;
-  }
-
-  static _fillDimension(vector3, position3, scalar, expectedLength = null) {
-    if (vector3.x !== 0) position3[0] = scalar * vector3.x;
-    if (vector3.y !== 0) position3[1] = scalar * vector3.y;
-    if (vector3.z !== 0) position3[2] = scalar * vector3.z;
-
-    assert(expectedLength && position3.filter(Boolean).length === expectedLength,
-      'Something went wrong during position translation.');
   }
 
   spawnFood() {
@@ -95,7 +39,18 @@ class World {
   disable(position) {
     let voxel = Voxel.findOrCreate(position);
     voxel.disable();
-    this._occupyTile(voxel.position3, voxel);
+    this._occupyTile(voxel.position, voxel);
+  }
+
+  _adjacentPositions(x, y, faceVector) {
+    const adjacent = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y - 1],
+      [x, y + 1]
+    ];
+
+    return adjacent.map(p => position2to3(p[0], p[1], faceVector));
   }
 
   _setupFaceVectors() {
@@ -126,14 +81,14 @@ class World {
       return;
     }
 
-    let position3 = this._popAvailableTile();
-    let mesh      = this._makeFoodMesh(position3);
-    let voxel     = Voxel.findOrCreate(position3);
+    let position = this._popAvailableTile();
+    let mesh     = this._makeFoodMesh(position);
+    let voxel    = Voxel.findOrCreate(position);
 
     voxel.mesh = mesh;
     voxel.type = type;
 
-    this._occupyTile(position3, voxel);
+    this._occupyTile(position, voxel);
 
     return voxel;
   }
@@ -157,9 +112,9 @@ class World {
     for (let faceVector of this._faceVectors) {
       for (let x of times(Const.GAME_SIZE)) {
         for (let y of times(Const.GAME_SIZE)) {
-          let position3 = this.constructor.position2to3([x, y], faceVector);
-          let adjacent  = this.constructor.adjacentPositions([x, y], faceVector);
-          callback(position3, adjacent, faceVector, x, y);
+          let position = position2to3(x, y, faceVector);
+          let adjacent  = this._adjacentPositions(x, y, faceVector);
+          callback(position, adjacent, faceVector, x, y);
         }
       }
     }
@@ -171,7 +126,7 @@ class World {
     v1.connectTo(v2);
   }
 
-  _position3OutOfFace(vector3, faceVector) {
+  _positionOutOfFace(vector3, faceVector) {
     const max = (Const.TILE_SIZE * Const.GAME_SIZE / 2) + (Const.TILE_SIZE / 2);
 
     for (let dimension of 'xyz') {
@@ -185,23 +140,23 @@ class World {
 
   _setupGraph() {
     // Connect voxels on same faces.
-    this._eachTile((position3, adjacent, faceVector) => {
+    this._eachTile((position, adjacent, faceVector) => {
       adjacent.forEach(adj => {
         let adjVector = new THREE.Vector3(...adj);
 
-        if (this._position3OutOfFace(adjVector, faceVector)) {
+        if (this._positionOutOfFace(adjVector, faceVector)) {
           let dimension = getUnitVectorDimension(faceVector);
           adjVector[dimension] -= (faceVector[dimension] * Const.TILE_SIZE);
         }
 
-        this._connectAdjacentPositions(adjVector.toArray(), position3);
+        this._connectAdjacentPositions(adjVector.toArray(), position);
       });
     });
   }
 
   _setupAvailableTiles() {
     let positions = [];
-    this._eachTile(position3 => { positions.push(position3); });
+    this._eachTile(position => { positions.push(position); });
     return new Set(shuffle(positions));
   }
 
@@ -211,15 +166,15 @@ class World {
     assert(test, message);
   }
 
-  _occupyTile(position3, voxel) {
+  _occupyTile(position, voxel) {
     this._validateVoxelType(voxel);
-    this._occupiedTiles[position3.toString()] = voxel;
+    this._occupiedTiles[position.toString()] = voxel;
   }
 
   _unoccopyTile(voxel) {
     this._validateVoxelType(voxel);
-    this._availableTiles.add(voxel.position3);
-    delete this._occupiedTiles[voxel.position3];
+    this._availableTiles.add(voxel.position);
+    delete this._occupiedTiles[voxel.position];
   }
 
   _noFreeTiles() {
