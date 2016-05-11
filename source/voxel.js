@@ -1,9 +1,10 @@
 'use strict';
 
-var assert = require('assert');
-var THREE = require('three');
-var Const = require('./const');
-var { Node } = require('./graph');
+var assert                 = require('assert');
+var THREE                  = require('three');
+var Const                  = require('./const');
+var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+var { Node }               = require('./graph');
 
 class Voxel extends Node {
   constructor(position3, mesh = null, type = 'tile') {
@@ -55,12 +56,7 @@ class Voxel extends Node {
       // direction that is not a unit vector. E.g. (1,1,0) instead of (1,0,0). We
       // use info about the face we are on to pretend the target voxel is on the
       // same face as far as direction is concerned.
-      for (let dimension of 'xyz') {
-        if (this.face[dimension] !== 0) {
-          direction[dimension] = 0;
-          break;
-        }
-      }
+      direction[getUnitVectorDimension(this.face)] = 0;
     } else {
       if (direction.length() === Math.sqrt(2 * Const.TILE_SIZE * Const.TILE_SIZE)) {
         direction = this.face.clone();

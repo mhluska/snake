@@ -7,7 +7,8 @@ var Queue = require('./queue');
 var Voxel = require('./voxel');
 var Const = require('./const');
 var Tests = require('../test/tests');
-var { makeVoxelMesh, assertTruthy } = require('./utils');
+var makeVoxelMesh = require('./utils/make-voxel-mesh');
+var assertTruthy = require('./utils/assert-truthy');
 
 class Game {
   constructor(container) {

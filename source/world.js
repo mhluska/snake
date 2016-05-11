@@ -1,11 +1,14 @@
 'use strict';
 
-var assert = require('assert');
-var THREE  = require('three');
-var Voxel  = require('./voxel');
-var Const  = require('./const');
-
-var { adjacentUnitVector, makeVoxelMesh, shuffle, times } = require('./utils');
+var assert                 = require('assert');
+var THREE                  = require('three');
+var Voxel                  = require('./voxel');
+var Const                  = require('./const');
+var times                  = require('./utils/times');
+var shuffle                = require('./utils/shuffle');
+var makeVoxelMesh          = require('./utils/make-voxel-mesh');
+var adjacentUnitVector     = require('./utils/adjacent-unit-vector');
+var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 /*
   A game world of size N has 6 faces corresponding to the 6 faces of a cube.
@@ -169,14 +172,11 @@ class World {
   }
 
   _position3OutOfFace(vector3, faceVector) {
-    let max = (Const.TILE_SIZE * Const.GAME_SIZE / 2) + (Const.TILE_SIZE / 2);
+    const max = (Const.TILE_SIZE * Const.GAME_SIZE / 2) + (Const.TILE_SIZE / 2);
 
-    // TODO(maros): Convert to util method.
     for (let dimension of 'xyz') {
-      if (faceVector[dimension] === 0) {
-        if (Math.abs(vector3[dimension]) >= max) {
-          return true;
-        }
+      if (faceVector[dimension] === 0 && Math.abs(vector3[dimension]) >= max) {
+        return true;
       }
     }
 
@@ -188,13 +188,10 @@ class World {
     this._eachTile((position3, adjacent, faceVector) => {
       adjacent.forEach(adj => {
         let adjVector = new THREE.Vector3(...adj);
+
         if (this._position3OutOfFace(adjVector, faceVector)) {
-          // TODO(maros): Convert to util method.
-          for (let dimension of 'xyz') {
-            if (faceVector[dimension] !== 0) {
-              adjVector[dimension] -= (faceVector[dimension] * Const.TILE_SIZE);
-            }
-          }
+          let dimension = getUnitVectorDimension(faceVector);
+          adjVector[dimension] -= (faceVector[dimension] * Const.TILE_SIZE);
         }
 
         this._connectAdjacentPositions(adjVector.toArray(), position3);
