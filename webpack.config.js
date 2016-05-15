@@ -1,3 +1,17 @@
+var webpack = require("webpack");
+var DEPLOY  = process.env.DEPLOY === undefined ? false : true;
+var plugins = [];
+
+if (DEPLOY) {
+  plugins = [
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: false,
+      compress: { warnings: false }
+    })
+  ];
+}
+
 module.exports = {
   entry: './source/game.js',
   output: {
@@ -6,6 +20,7 @@ module.exports = {
     libraryTarget: 'var',
     library: 'SnakeGame'
   },
+  plugins: plugins,
   module: {
     preLoaders: [
       {
