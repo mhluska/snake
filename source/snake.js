@@ -12,16 +12,13 @@ var assertTruthy      = require('./utils/assert-truthy');
 var { Graph }         = require('./graph');
 
 module.exports = class Snake {
-  constructor(world, direction) {
+  constructor(world, direction, face) {
     this._path      = new Queue();
     this._autoMove  = true;
-    this._direction = 'up';
-    this._dirVector = direction;
+    this._direction = direction;
     this._world     = world;
 
-    // TODO(maros): Don't arbitrarily pick face. Use knowledge of what face the
-    // camera is looking at.
-    this.face = this._world._faceVectors[3];
+    this.face = face;
     this.size = 6;
     this.mesh = this._makeMeshGroup(this.size);
   }
@@ -39,26 +36,19 @@ module.exports = class Snake {
   }
 
   get direction() {
-    return this._dirVector;
+    return this._direction;
   }
 
-  set direction(val) {
-    if (!['up', 'right', 'down', 'left'].includes(val)) return;
-    if (['up', 'down'].includes(val)    && ['up', 'down'].includes(this._direction))    return;
-    if (['left', 'right'].includes(val) && ['left', 'right'].includes(this._direction)) return;
+  set direction(vector) {
+    assert(vector.length() === 1, 'Non unit vector passed to direction setter.');
 
-    this._dirVector.cross(this.face);
-
-    if (this._direction === 'up'    && val === 'left' ||
-        this._direction === 'right' && val === 'up' ||
-        this._direction === 'down'  && val === 'right' ||
-        this._direction === 'left'  && val === 'down') {
-
-      this._dirVector.negate();
+    // Disallow movement in opposite directions.
+    if (vector.dot(this._direction) !== 0) {
+      return;
     }
 
-    this._direction = val;
-    this._autoMove  = false;
+    this._direction.copy(vector);
+    this._autoMove = false;
   }
 
   move() {
@@ -101,9 +91,9 @@ module.exports = class Snake {
   }
 
   _moveManual() {
-    assertTruthy(this.position, this._dirVector);
+    assertTruthy(this.position, this._direction);
 
-    let nextVoxel = Voxel.findOrCreate(this.position).next(this._dirVector);
+    let nextVoxel = Voxel.findOrCreate(this.position).next(this._direction);
     return this._updateSnakeMeshPosition(nextVoxel.position);
   }
 
@@ -130,7 +120,7 @@ module.exports = class Snake {
   }
 
   // TODO(maros): This should be the only method that manipulates `this.face`
-  // and `this._dirVector`. Use a setter to enforce it.
+  // and `this._direction`. Use a setter to enforce it.
   _updateSnakeMeshPosition(position) {
     assertTruthy(this.position, this.mesh, this.head);
     assert(adjacentPositions(position, this.head.position.toArray()),
@@ -139,7 +129,7 @@ module.exports = class Snake {
     let currentVoxel = Voxel.findOrCreate(this.position);
     let targetVoxel  = Voxel.findOrCreate(position);
 
-    this._dirVector = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
+    this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face       = targetVoxel.face;
 
     for (let i = 0; i < this.size; i += 1) {

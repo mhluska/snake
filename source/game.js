@@ -20,8 +20,8 @@ class Game {
     [this._scene, this._camera, this._renderer] = this._setupScene(container);
 
     this._world = new World();
-    this._snake = new Snake(this._world, this._camera.up);
-    this._cameraFace = this._snake.face;
+    this._cameraFace = this._world._faceVectors[3];
+    this._snake = new Snake(this._world, this._camera.up, this._cameraFace);
 
     this._container.appendChild(this._renderer.domElement);
 
@@ -71,8 +71,20 @@ class Game {
   }
 
   _updateSnakeDirection(event) {
-    var direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
-    this._moveQueue.enqueue(direction);
+    const direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
+
+    let directionVector = this._camera.up.clone();
+    switch (direction) {
+      case 'left':
+        directionVector.cross(this._cameraFace);
+      case 'down':
+        directionVector.cross(this._cameraFace);
+      case 'right':
+        directionVector.cross(this._cameraFace);
+        break;
+    }
+
+    this._moveQueue.enqueue(directionVector);
   }
 
   _processVoxel(voxel) {
