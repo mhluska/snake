@@ -3,7 +3,6 @@
 var assert            = require('assert');
 var THREE             = require('three');
 var Const             = require('./const');
-var World             = require('./world');
 var Voxel             = require('./voxel');
 var Queue             = require('./queue');
 var makeVoxelMesh     = require('./utils/make-voxel-mesh');
@@ -24,7 +23,7 @@ module.exports = class Snake {
     // camera is looking at.
     this.face = this._world._faceVectors[3];
     this.size = 6;
-    this.mesh = this._makeMeshGroup(this.size, this._world, this.face);
+    this.mesh = this._makeMeshGroup(this.size);
   }
 
   get head() {
@@ -113,9 +112,10 @@ module.exports = class Snake {
     return makeVoxelMesh(Const.TILE_SIZE, 0x9586de, position);
   }
 
-  _makeMeshGroup(size, world, face) {
-    let group    = new THREE.Object3D();
+  _makeMeshGroup(size) {
+    // TODO(maros): Make this not magic.
     let position = [-43.75, -6.25, 106.25];
+    let group    = new THREE.Object3D();
 
     for (let i of times(size)) {
       let meshPosition = [...position];

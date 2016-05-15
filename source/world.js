@@ -7,7 +7,6 @@ var Const                  = require('./const');
 var times                  = require('./utils/times');
 var shuffle                = require('./utils/shuffle');
 var makeVoxelMesh          = require('./utils/make-voxel-mesh');
-var adjacentUnitVector     = require('./utils/adjacent-unit-vector');
 var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 var position2to3           = require('./utils/position2-to-3.js');
 
@@ -107,14 +106,13 @@ class World {
     return lights;
   }
 
-  // TODO(maros): Use a generator here.
-  _eachTile(callback) {
+  *_eachPosition() {
     for (let faceVector of this._faceVectors) {
       for (let x of times(Const.GAME_SIZE)) {
         for (let y of times(Const.GAME_SIZE)) {
           let position = position2to3(x, y, faceVector);
-          let adjacent  = this._adjacentPositions(x, y, faceVector);
-          callback(position, adjacent, faceVector, x, y);
+          let adjacent = this._adjacentPositions(x, y, faceVector);
+          yield [position, adjacent, faceVector, x, y];
         }
       }
     }
@@ -139,8 +137,7 @@ class World {
   }
 
   _setupGraph() {
-    // Connect voxels on same faces.
-    this._eachTile((position, adjacent, faceVector) => {
+    for (let [position, adjacent, faceVector] of this._eachPosition()) {
       adjacent.forEach(adj => {
         let adjVector = new THREE.Vector3(...adj);
 
@@ -151,13 +148,11 @@ class World {
 
         this._connectAdjacentPositions(adjVector.toArray(), position);
       });
-    });
+    }
   }
 
   _setupAvailableTiles() {
-    let positions = [];
-    this._eachTile(position => { positions.push(position); });
-    return new Set(shuffle(positions));
+    return new Set(shuffle(Array.from(this._eachPosition()).map(el => el[0])));
   }
 
   _validateVoxelType(voxel) {
