@@ -9,6 +9,7 @@ var Const = require('./const');
 var Tests = require('../test/tests');
 var makeVoxelMesh = require('./utils/make-voxel-mesh');
 var assertTruthy = require('./utils/assert-truthy');
+var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 class Game {
   constructor(container) {
@@ -22,6 +23,18 @@ class Game {
     this._world = new World();
     this._cameraFace = this._world._faceVectors[3];
     this._snake = new Snake(this._world, this._camera.up, this._cameraFace);
+
+    this._lastTime = window.performance.now();
+
+    this._cameraAnimation = {
+      primaryAxis: null,
+      primaryMultiplier: null,
+      secondaryAxis: null,
+      secondaryMultiplier: null,
+      targetPosition: null,
+      animating: false,
+      doneCallback: null,
+    };
 
     this._container.appendChild(this._renderer.domElement);
 
@@ -101,16 +114,23 @@ class Game {
     this._scene.add(voxel.mesh);
   }
 
-  _updateSnake() {
-    // Update snake direction.
-    let move = this._moveQueue.dequeue();
-    if (move) {
-      this._snake.direction = move;
+  _updateSnake(timeDelta) {
+    // TODO(maros): Get rid of steps.
+    if (this._steps % 5 === 0) {
+      // TODO(maros): This direction-updating mechanism should be a function of
+      // the snake.
+      // Update snake direction.
+      let move = this._moveQueue.dequeue();
+      if (move) {
+        this._snake.direction = move;
+      }
+
+      this._snake.move();
+      this._updateDebugInfo();
     }
 
-    this._snake.move();
-    this._updateCamera(this._snake.face);
     this._processVoxel(Voxel.findOrCreate(this._snake.position));
+    this._updateCamera(this._snake.face, timeDelta);
   }
 
   _updateWorld() {
@@ -155,11 +175,11 @@ class Game {
   // TODO(maros): Don't update per frame but per time delta. Use
   // `window.performance.now`.
   _update() {
-    // Move snake every 5 frames.
-    if (this._steps % 5 === 0) {
-      this._updateSnake();
-      this._updateDebugInfo();
-    }
+    const now = window.performance.now();
+    const timeDelta = now - this._lastTime;
+    this._lastTime = now;
+
+    this._updateSnake(timeDelta);
 
     // Add food to the game every 100 frames.
     if (this._steps % 100 === 0) {
@@ -180,22 +200,56 @@ class Game {
     requestAnimationFrame(() => this._animate());
   }
 
-  _updateCamera(face) {
-    assertTruthy(this._camera, this._cameraFace);
+  _updateCamera(face, timeDelta) {
+    assertTruthy(this._camera, this._cameraFace, this._world, this._cameraAnimation);
 
-    if (this._cameraFace.equals(face)) {
+    if (!this._cameraFace.equals(face)) {
+
+      let dot = this._camera.up.dot(face);
+      if (dot === 0) {
+        this._cameraAnimation.doneCallback = function(){};
+      } else {
+        this._cameraAnimation.doneCallback = (function(cameraFace, dot) {
+          this._camera.up.copy(cameraFace);
+          this._camera.up.multiplyScalar(-dot);
+          this._camera.rotation.set(0, 0, 0);
+          this._camera.lookAt(this._world.mesh.position);
+        }).bind(this, this._cameraFace.clone(), dot);
+      }
+
+      const faceDirection = face.clone().sub(this._cameraFace);
+
+      // TODO(maros): Use object merge.
+      this._cameraAnimation.primaryAxis = getUnitVectorDimension(this._cameraFace);
+      this._cameraAnimation.secondaryAxis = getUnitVectorDimension(face);
+      this._cameraAnimation.primaryMultiplier = faceDirection[this._cameraAnimation.primaryAxis];
+      this._cameraAnimation.secondaryMultiplier = faceDirection[this._cameraAnimation.secondaryAxis];
+      this._cameraAnimation.targetPosition = face.clone().multiplyScalar(Const.CAMERA_DISTANCE);
+      this._cameraAnimation.animating = true;
+
+      this._cameraFace = face;
+    }
+
+    if (!this._cameraAnimation.animating) {
       return;
     }
 
-    let dot = this._camera.up.dot(face);
-    if (dot !== 0) {
-      this._camera.up.copy(this._cameraFace.clone());
-      this._camera.up.multiplyScalar(-dot);
-    }
+    const primary = this._cameraAnimation.primaryAxis;
+    const secondary = this._cameraAnimation.secondaryAxis;
+    const speed = 40 / 16; // 40 units per 16ms
+    const distanceRemaining = Math.abs(this._cameraAnimation.targetPosition[primary] - this._camera.position[primary]);
+    const distanceDelta = Math.min(speed * timeDelta, distanceRemaining);
+    const circular = (x) => Math.sqrt((Const.CAMERA_DISTANCE * Const.CAMERA_DISTANCE) - (x * x));
 
-    this._camera.position.copy(face.clone().multiplyScalar(Const.CAMERA_DISTANCE));
+    this._camera.position[primary] += this._cameraAnimation.primaryMultiplier * distanceDelta;
+    this._camera.position[secondary] = this._cameraAnimation.secondaryMultiplier * circular(distanceRemaining - distanceDelta);
+
     this._camera.lookAt(this._world.mesh.position);
-    this._cameraFace = face;
+
+    if (this._camera.position.equals(this._cameraAnimation.targetPosition)) {
+      this._cameraAnimation.doneCallback();
+      this._cameraAnimation.animating = false;
+    }
   }
 }
 
