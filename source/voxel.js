@@ -10,7 +10,7 @@ class Voxel extends Node {
   constructor(position, mesh = null, type = 'tile') {
     super();
 
-    assert(position, 'Initialized Voxel without position');
+    assert(position && position.length === 3, 'Initialized Voxel without 3-position');
 
     this.position = position;
     this.mesh     = mesh;

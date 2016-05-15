@@ -22,6 +22,7 @@ class Game {
 
     this._world = new World();
     this._cameraFace = this._world._faceVectors[3];
+    this._cameraUpCached = this._camera.up.clone();
     this._snake = new Snake(this._world, this._camera.up, this._cameraFace);
 
     this._lastTime = window.performance.now();
@@ -33,7 +34,7 @@ class Game {
       secondaryMultiplier: null,
       targetPosition: null,
       animating: false,
-      doneCallback: null,
+      doneCallback: function(){},
     };
 
     this._container.appendChild(this._renderer.domElement);
@@ -86,7 +87,7 @@ class Game {
   _updateSnakeDirection(event) {
     const direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
 
-    let directionVector = this._camera.up.clone();
+    let directionVector = this._cameraUpCached.clone();
     switch (direction) {
       case 'left':
         directionVector.cross(this._cameraFace);
@@ -204,22 +205,27 @@ class Game {
     assertTruthy(this._camera, this._cameraFace, this._world, this._cameraAnimation);
 
     if (!this._cameraFace.equals(face)) {
+      // We finish any previously running animation. This is helpful when
+      // rapidly turning multiple corners.
+      this._cameraAnimation.doneCallback();
 
-      let dot = this._camera.up.dot(face);
-      if (dot === 0) {
-        this._cameraAnimation.doneCallback = function(){};
-      } else {
-        this._cameraAnimation.doneCallback = (function(cameraFace, dot) {
-          this._camera.up.copy(cameraFace);
-          this._camera.up.multiplyScalar(-dot);
-          this._camera.rotation.set(0, 0, 0);
-          this._camera.lookAt(this._world.mesh.position);
-        }).bind(this, this._cameraFace.clone(), dot);
+      const dot = this._camera.up.dot(face);
+
+      if (dot !== 0) {
+        this._cameraUpCached = this._cameraFace.clone();
+        this._cameraUpCached.multiplyScalar(-dot);
       }
+
+      this._cameraAnimation.doneCallback = () => {
+        this._camera.up.copy(this._cameraUpCached);
+        this._camera.position.copy(this._cameraAnimation.targetPosition);
+        this._camera.rotation.set(0, 0, 0);
+        this._camera.lookAt(this._world.mesh.position);
+        this._cameraAnimation.animating = false;
+      };
 
       const faceDirection = face.clone().sub(this._cameraFace);
 
-      // TODO(maros): Use object merge.
       this._cameraAnimation.primaryAxis = getUnitVectorDimension(this._cameraFace);
       this._cameraAnimation.secondaryAxis = getUnitVectorDimension(face);
       this._cameraAnimation.primaryMultiplier = faceDirection[this._cameraAnimation.primaryAxis];
@@ -236,7 +242,7 @@ class Game {
 
     const primary = this._cameraAnimation.primaryAxis;
     const secondary = this._cameraAnimation.secondaryAxis;
-    const speed = 40 / 16; // 40 units per 16ms
+    const speed = 2.5;
     const distanceRemaining = Math.abs(this._cameraAnimation.targetPosition[primary] - this._camera.position[primary]);
     const distanceDelta = Math.min(speed * timeDelta, distanceRemaining);
     const circular = (x) => Math.sqrt((Const.CAMERA_DISTANCE * Const.CAMERA_DISTANCE) - (x * x));
@@ -248,7 +254,6 @@ class Game {
 
     if (this._camera.position.equals(this._cameraAnimation.targetPosition)) {
       this._cameraAnimation.doneCallback();
-      this._cameraAnimation.animating = false;
     }
   }
 }
