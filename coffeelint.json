@@ -1,8 +1,0 @@
-{
-    "indentation": {
-        "value": 4
-    },
-    "no_plusplus": {
-        "level": "error"
-    }
-}

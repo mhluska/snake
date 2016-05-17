@@ -1,7 +1,0 @@
-#!/bin/bash
-
-ln -fs ../../../node_modules/grunt-requirejs/node_modules/requirejs/require.js src/js/lib/
-ln -fs ../../../sub/jquery/dist/jquery.js src/js/lib
-ln -fs ../../../sub/threejs/build/three.js src/js/lib
-ln -fs ../../../sub/tweenjs/build/tween.min.js src/js/lib/tween.js
-ln -fs ../../../sub/stimpackjs/build/js/stim.js src/js/lib/

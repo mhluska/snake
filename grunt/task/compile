@@ -1,3 +1,0 @@
-#!/bin/bash
-
-find src/js test/ -type f -name '*.coffee' -exec coffee -c '{}' +
