@@ -87,6 +87,10 @@ class Game {
   _updateSnakeDirection(event) {
     const direction = { 38: 'up', 39: 'right', 40: 'down', 37: 'left' }[event.keyCode];
 
+    if (!direction) {
+      return;
+    }
+
     let directionVector = this._cameraUpCached.clone();
     switch (direction) {
       case 'left':
