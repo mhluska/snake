@@ -201,6 +201,23 @@ class Game {
     requestAnimationFrame(() => this._animate());
   }
 
+  _circular(x) {
+    return Math.sqrt((Const.CAMERA_DISTANCE * Const.CAMERA_DISTANCE) - (x * x));
+  }
+
+  // Cubic approximation of a bezier transform.
+  _bezier(x) {
+    const max = Const.CAMERA_DISTANCE;
+
+    x = max - x;             // Change input from 500 -> 0 to 0 -> 500
+    x /= max;                // Bring it in the range [0, 1]
+    x = ((--x) * x * x) + 1; // Apply the transform
+    x *= max;                // Back to the range [0, 500]
+    x = max - x;             // Back to 500 -> 0
+
+    return x;
+  }
+
   _updateCamera(face, timeDelta) {
     assertTruthy(this._camera, this._cameraFace, this._world, this._cameraAnimation);
 
@@ -228,8 +245,9 @@ class Game {
 
       this._cameraAnimation.primaryAxis = getUnitVectorDimension(this._cameraFace);
       this._cameraAnimation.secondaryAxis = getUnitVectorDimension(face);
-      this._cameraAnimation.primaryMultiplier = faceDirection[this._cameraAnimation.primaryAxis];
+      this._cameraAnimation.primaryMultiplier = -faceDirection[this._cameraAnimation.primaryAxis];
       this._cameraAnimation.secondaryMultiplier = faceDirection[this._cameraAnimation.secondaryAxis];
+      this._cameraAnimation.position = this._camera.position.clone();
       this._cameraAnimation.targetPosition = face.clone().multiplyScalar(Const.CAMERA_DISTANCE);
       this._cameraAnimation.animating = true;
 
@@ -240,16 +258,24 @@ class Game {
       return;
     }
 
-    const primary = this._cameraAnimation.primaryAxis;
-    const secondary = this._cameraAnimation.secondaryAxis;
-    const speed = 2.5;
-    const distanceRemaining = Math.abs(this._cameraAnimation.targetPosition[primary] - this._camera.position[primary]);
-    const distanceDelta = Math.min(speed * timeDelta, distanceRemaining);
-    const circular = (x) => Math.sqrt((Const.CAMERA_DISTANCE * Const.CAMERA_DISTANCE) - (x * x));
+    const x = this._cameraAnimation.primaryAxis;
+    const y = this._cameraAnimation.secondaryAxis;
+    const speed = 1;
+    const delta = this._cameraAnimation.targetPosition[x] - this._cameraAnimation.position[x];
+    const distanceRemaining = Math.max(0, Math.abs(delta) - (speed * timeDelta));
 
-    this._camera.position[primary] += this._cameraAnimation.primaryMultiplier * distanceDelta;
-    this._camera.position[secondary] = this._cameraAnimation.secondaryMultiplier * circular(distanceRemaining - distanceDelta);
+    // We keep track of a reference position which is not affected by our
+    // bezier transform. We do this so that the effects don't accumulate across
+    // animation frames.
+    this._cameraAnimation.position[x] = this._cameraAnimation.primaryMultiplier * distanceRemaining;
 
+    // Apply bezier to the primary dimension and circular motion to the range.
+    // The result is a smooth, circular camera movement.
+    this._camera.position[x] = this._cameraAnimation.primaryMultiplier   * this._bezier(distanceRemaining);
+    this._camera.position[y] = this._cameraAnimation.secondaryMultiplier * this._circular(this._camera.position[x]);
+
+    // This allows us to avoid worrying about rotation coordinates for the
+    // camera.
     this._camera.lookAt(this._world.mesh.position);
 
     if (this._camera.position.equals(this._cameraAnimation.targetPosition)) {
