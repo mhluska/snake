@@ -1,4 +1,4 @@
-var Queue = require('./queue');
+let Queue = require('./queue');
 
 class Node {
   constructor(adjacent = []) {

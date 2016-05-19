@@ -1,10 +1,10 @@
 'use strict';
 
-var assert                 = require('assert');
-var THREE                  = require('three');
-var Const                  = require('./const');
-var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
-var { Node }               = require('./graph');
+let assert                 = require('assert');
+let THREE                  = require('three');
+let Const                  = require('./const');
+let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+let { Node }               = require('./graph');
 
 class Voxel extends Node {
   constructor(position, mesh = null, type = 'tile') {

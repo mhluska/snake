@@ -1,15 +1,15 @@
 'use strict';
 
-var assert            = require('assert');
-var THREE             = require('three');
-var Const             = require('./const');
-var Voxel             = require('./voxel');
-var Queue             = require('./queue');
-var makeVoxelMesh     = require('./utils/make-voxel-mesh');
-var times             = require('./utils/times');
-var adjacentPositions = require('./utils/adjacent-positions');
-var assertTruthy      = require('./utils/assert-truthy');
-var { Graph }         = require('./graph');
+let assert            = require('assert');
+let THREE             = require('three');
+let Const             = require('./const');
+let Voxel             = require('./voxel');
+let Queue             = require('./queue');
+let makeVoxelMesh     = require('./utils/make-voxel-mesh');
+let times             = require('./utils/times');
+let adjacentPositions = require('./utils/adjacent-positions');
+let assertTruthy      = require('./utils/assert-truthy');
+let { Graph }         = require('./graph');
 
 module.exports = class Snake {
   constructor(world, direction, face) {

@@ -1,15 +1,15 @@
 'use strict';
 
-var THREE = require('three');
-var World = require('./world');
-var Snake = require('./snake');
-var Queue = require('./queue');
-var Voxel = require('./voxel');
-var Const = require('./const');
-var Tests = require('../test/tests');
-var makeVoxelMesh = require('./utils/make-voxel-mesh');
-var assertTruthy = require('./utils/assert-truthy');
-var getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+let THREE = require('three');
+let World = require('./world');
+let Snake = require('./snake');
+let Queue = require('./queue');
+let Voxel = require('./voxel');
+let Const = require('./const');
+let Tests = require('../test/tests');
+let makeVoxelMesh = require('./utils/make-voxel-mesh');
+let assertTruthy = require('./utils/assert-truthy');
+let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 class Game {
   constructor(container) {
@@ -70,8 +70,8 @@ class Game {
   }
 
   _updateScreenSize(container, camera, renderer) {
-    var width  = container.clientWidth;
-    var height = container.clientHeight;
+    let width  = container.clientWidth;
+    let height = container.clientHeight;
 
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
