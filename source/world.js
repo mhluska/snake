@@ -13,7 +13,6 @@ let position2to3           = require('./utils/position2-to-3.js');
 class World {
   constructor() {
     this.mesh            = this._makeWorldMesh();
-    this.lights          = this._makeLights();
     this._faceVectors    = this._setupFaceVectors();
     this._availableTiles = this._setupAvailableTiles();
     this._occupiedTiles  = new Map();
@@ -90,20 +89,6 @@ class World {
     this._occupyTile(position, voxel);
 
     return voxel;
-  }
-
-  _makeLights() {
-    let lights = [
-      new THREE.PointLight(0xffffff, 2),
-      new THREE.PointLight(0xffffff, 2)
-    ];
-
-    let distance = Const.MESH_SIZE * 1.5;
-
-    lights[0].position.set(distance, distance, distance);
-    lights[1].position.set(-distance, -distance, -distance);
-
-    return lights;
   }
 
   *_eachPosition() {

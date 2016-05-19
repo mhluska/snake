@@ -41,7 +41,6 @@ class Game {
 
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
-    this._scene.add(...this._world.lights);
 
     window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
     window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
@@ -62,9 +61,22 @@ class Game {
     let renderer = new THREE.WebGLRenderer({ antialias: true });
 
     camera.position.z = Const.CAMERA_DISTANCE;
-    renderer.shadowMap.enabled = true;
 
     this._updateScreenSize(container, camera, renderer);
+
+    let light1   = new THREE.PointLight(0xffffff, 0.75);
+    let light2   = new THREE.PointLight(0xffffff, 0.75);
+    let distance = Const.MESH_SIZE * 1.5;
+
+    light1.position.set(distance, distance, distance);
+    light2.position.copy(light1.position).negate();
+
+    camera.add(light1);
+    camera.add(light2);
+
+    scene.add(camera);
+
+    renderer.shadowMap.enabled = true;
 
     return [scene, camera, renderer];
   }
