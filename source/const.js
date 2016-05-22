@@ -1,5 +1,5 @@
 let constants = {
-  CAMERA_DISTANCE: 500,
+  CAMERA_DISTANCE: 450,
   GAME_SIZE:       16,
   MESH_SIZE:       200,
   DEBUG:           false,
