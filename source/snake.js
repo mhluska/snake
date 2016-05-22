@@ -103,7 +103,7 @@ module.exports = class Snake {
 
   // TODO(maros): Remove magic color code.
   _makeVoxelMesh(position) {
-    return makeVoxelMesh(Const.TILE_SIZE, 0x9586de, position);
+    return makeVoxelMesh(Const.TILE_SIZE, Const.Colors.SNAKE, position);
   }
 
   _makeMeshGroup(size) {

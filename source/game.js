@@ -64,8 +64,8 @@ class Game {
 
     this._updateScreenSize(container, camera, renderer);
 
-    let light1   = new THREE.PointLight(0xffffff, 0.75);
-    let light2   = new THREE.PointLight(0xffffff, 0.75);
+    let light1   = new THREE.PointLight(Const.Colors.LIGHT, 0.75);
+    let light2   = new THREE.PointLight(Const.Colors.LIGHT, 0.75);
     let distance = Const.MESH_SIZE * 1.5;
 
     light1.position.set(distance, distance, distance);
@@ -181,11 +181,11 @@ class Game {
 
     // TODO(maros): Figure out why Map iteration is not working.
     for (let key of Object.keys(this._world._occupiedTiles)) {
-      this._addDebugMesh(this._world._occupiedTiles[key], 0xf2ff9e);
+      this._addDebugMesh(this._world._occupiedTiles[key], Const.Colors.DEBUG_PATH);
     }
 
     for (let voxel of this._snake._path._data.slice(0, -1)) {
-      this._addDebugMesh(voxel, 0xeb3b3b);
+      this._addDebugMesh(voxel, Const.Colors.DEBUG_SNAKE);
     }
   }
 

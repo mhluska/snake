@@ -65,11 +65,11 @@ class World {
   }
 
   _makeWorldMesh() {
-    return makeVoxelMesh(Const.MESH_SIZE, 0xa5c9f3);
+    return makeVoxelMesh(Const.MESH_SIZE, Const.Colors.WORLD);
   }
 
   _makeFoodMesh(position) {
-    let mesh = makeVoxelMesh(Const.TILE_SIZE, 0x7fdc50, position);
+    let mesh = makeVoxelMesh(Const.TILE_SIZE, Const.Colors.FOOD, position);
 
     // This pushes the food mesh into the world to give the appearance of half
     // the height of the snake. We also reduce the scale by a fraction to avoid
