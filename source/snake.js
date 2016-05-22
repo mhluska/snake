@@ -31,6 +31,10 @@ module.exports = class Snake {
     return this.mesh.children[this.size - 1];
   }
 
+  get tailFace() {
+    return Voxel.findOrCreate(this.tail.position.toArray()).face;
+  }
+
   get position() {
     return this.head.position.toArray();
   }
@@ -119,6 +123,27 @@ module.exports = class Snake {
     return group;
   }
 
+  _addEdgeMesh(currentVoxel, targetVoxel) {
+    const direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: true });
+    const currentVec = new THREE.Vector3(...currentVoxel.position);
+
+    currentVec.add(direction.multiplyScalar(Const.TILE_SIZE));
+
+    const mesh = this._makeVoxelMesh(currentVec.toArray());
+
+    // We add the mesh but rearrange to put it at the start of the array since
+    // it becomes the head piece. This is a linear time operation and could be
+    // optimized if needed.
+    this.mesh.add(mesh);
+    this.mesh.children.unshift(this.mesh.children.pop());
+    this.size += 1;
+  }
+
+  _removeEdgeMesh() {
+    this.mesh.remove(this.tail);
+    this.size -= 1;
+  }
+
   // TODO(maros): This should be the only method that manipulates `this.face`
   // and `this._direction`. Use a setter to enforce it.
   _updateSnakeMeshPosition(position) {
@@ -129,14 +154,24 @@ module.exports = class Snake {
     let currentVoxel = Voxel.findOrCreate(this.position);
     let targetVoxel  = Voxel.findOrCreate(position);
 
+    if (!currentVoxel.face.equals(targetVoxel.face)) {
+      this._addEdgeMesh(currentVoxel, targetVoxel);
+    }
+
     this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face       = targetVoxel.face;
+
+    const tailFace = this.tailFace;
 
     for (let i = 0; i < this.size; i += 1) {
       let piece = this.mesh.children[i];
       let tempPosition = piece.position.toArray();
       piece.position.set(...position);
       position = tempPosition;
+    }
+
+    if (!tailFace.equals(this.tailFace)) {
+      this._removeEdgeMesh();
     }
 
     return this.head.position.toArray();
@@ -147,7 +182,7 @@ module.exports = class Snake {
 
     if (voxel.type === 'food') {
       this._world.disable(voxel);
-      this.mesh.add(this._makeVoxelMesh());
+      this.mesh.add(this._makeVoxelMesh(this.tail.position.toArray()));
       this.size += 1;
     }
   }
