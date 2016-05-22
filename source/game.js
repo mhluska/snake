@@ -58,7 +58,7 @@ class Game {
   _setupScene(container) {
     let scene    = new THREE.Scene();
     let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
-    let renderer = new THREE.WebGLRenderer({ antialias: true });
+    let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
     camera.position.z = Const.CAMERA_DISTANCE;
 
