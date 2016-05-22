@@ -302,4 +302,8 @@ class Game {
 
 Game.MAX_QUEUED_MOVES = 2;
 
+if (typeof window.snakeGameLoaded === 'function') {
+  window.snakeGameLoaded(Game);
+}
+
 module.exports = Game;
