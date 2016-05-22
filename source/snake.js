@@ -31,10 +31,6 @@ module.exports = class Snake {
     return this.mesh.children[this.size - 1];
   }
 
-  get tailFace() {
-    return Voxel.findOrCreate(this.tail.position.toArray()).face;
-  }
-
   get position() {
     return this.head.position.toArray();
   }
@@ -101,7 +97,6 @@ module.exports = class Snake {
     return this._updateSnakeMeshPosition(nextVoxel.position);
   }
 
-  // TODO(maros): Remove magic color code.
   _makeVoxelMesh(position) {
     return makeVoxelMesh(Const.TILE_SIZE, Const.Colors.SNAKE, position);
   }
@@ -144,6 +139,10 @@ module.exports = class Snake {
     this.size -= 1;
   }
 
+  _getTailFace() {
+    return Voxel.findOrCreate(this.tail.position.toArray()).face;
+  }
+
   // TODO(maros): This should be the only method that manipulates `this.face`
   // and `this._direction`. Use a setter to enforce it.
   _updateSnakeMeshPosition(position) {
@@ -161,16 +160,12 @@ module.exports = class Snake {
     this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face       = targetVoxel.face;
 
-    const tailFace = this.tailFace;
+    const prevTailFace = this._getTailFace();
 
-    for (let i = 0; i < this.size; i += 1) {
-      let piece = this.mesh.children[i];
-      let tempPosition = piece.position.toArray();
-      piece.position.set(...position);
-      position = tempPosition;
-    }
+    this.tail.position.set(...position);
+    this.mesh.children.unshift(this.mesh.children.pop());
 
-    if (!tailFace.equals(this.tailFace)) {
+    if (!prevTailFace.equals(this._getTailFace())) {
       this._removeEdgeMesh();
     }
 
