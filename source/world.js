@@ -69,7 +69,17 @@ class World {
   }
 
   _makeFoodMesh(position) {
-    return makeVoxelMesh(Const.TILE_SIZE, 0x7fdc50, position);
+    let mesh = makeVoxelMesh(Const.TILE_SIZE, 0x7fdc50, position);
+
+    // This pushes the food mesh into the world to give the appearance of half
+    // the height of the snake. We also reduce the scale by a fraction to avoid
+    // visual issues with food items on world edges.
+    let voxel = Voxel.findOrCreate(mesh.position.toArray());
+    let offset = voxel.face.clone().negate().multiplyScalar(Const.TILE_SIZE / 2);
+    mesh.scale.subScalar(0.01);
+    mesh.position.add(offset);
+
+    return mesh;
   }
 
   // Returns a voxel that will occupy a random tile on the world. If the world
