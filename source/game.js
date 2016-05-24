@@ -27,11 +27,13 @@ class Game {
 
     this._lastTime = window.performance.now();
 
+    // TODO(maros): Use the `Animation` class.
     this._cameraAnimation = {
       primaryAxis: null,
       primaryMultiplier: null,
       secondaryAxis: null,
       secondaryMultiplier: null,
+      position: null,
       targetPosition: null,
       animating: false,
       doneCallback: function(){},
@@ -132,19 +134,16 @@ class Game {
   }
 
   _updateSnake(timeDelta) {
-    // TODO(maros): Get rid of steps.
-    if (this._steps % 5 === 0) {
-      // TODO(maros): This direction-updating mechanism should be a function of
-      // the snake.
-      // Update snake direction.
-      let move = this._moveQueue.dequeue();
-      if (move) {
-        this._snake.direction = move;
-      }
-
-      this._snake.move();
-      this._updateDebugInfo();
+    // TODO(maros): This direction-updating mechanism should be a function of
+    // the snake.
+    // Update snake direction.
+    let move = this._moveQueue.dequeue();
+    if (move) {
+      this._snake.direction = move;
     }
+
+    this._snake.move(timeDelta);
+    this._updateDebugInfo();
 
     this._processVoxel(Voxel.findOrCreate(this._snake.position));
     this._updateCamera(this._snake.face, timeDelta);

@@ -1,38 +1,40 @@
 'use strict';
 
-let assert            = require('assert');
-let THREE             = require('three');
-let Const             = require('./const');
-let Voxel             = require('./voxel');
-let Queue             = require('./queue');
-let makeVoxelMesh     = require('./utils/make-voxel-mesh');
-let times             = require('./utils/times');
-let adjacentPositions = require('./utils/adjacent-positions');
-let assertTruthy      = require('./utils/assert-truthy');
-let { Graph }         = require('./graph');
+let assert        = require('assert');
+let THREE         = require('three');
+let Const         = require('./const');
+let Voxel         = require('./voxel');
+let Queue         = require('./queue');
+let Animation     = require('./animation');
+let makeVoxelMesh = require('./utils/make-voxel-mesh');
+let times         = require('./utils/times');
+let assertTruthy  = require('./utils/assert-truthy');
+let { Graph }     = require('./graph');
 
 module.exports = class Snake {
   constructor(world, direction, face) {
+    this.world    = world;
+    this.speed    = 0.15;
+    this.face     = face;
+    this.size     = 6;
+    this.mesh     = this._makeMeshGroup(this.size);
+    this.position = this.head.position.toArray();
+
     this._path      = new Queue();
     this._autoMove  = true;
     this._direction = direction;
-    this._world     = world;
 
-    this.face = face;
-    this.size = 6;
-    this.mesh = this._makeMeshGroup(this.size);
+    this._animationTail = null;
+    this._animationHead = null;
+    this._prevTailFace  = this._getTailFace();
   }
 
   get head() {
-    return this.mesh.children[0];
+    return this.mesh ? this.mesh.children[0] : null;
   }
 
   get tail() {
-    return this.mesh.children[this.size - 1];
-  }
-
-  get position() {
-    return this.head.position.toArray();
+    return this.mesh ? this.mesh.children[this.size - 1] : null;
   }
 
   get direction() {
@@ -51,20 +53,65 @@ module.exports = class Snake {
     this._autoMove = false;
   }
 
-  move() {
-    this._world.enable(this.tail.position.toArray());
+  move(timeDelta) {
+    if (this._animationHead && this._animationHead.animating) {
+      this._animationHead.update(timeDelta);
+    }
 
-    let prevHead = this.head.position.clone();
-    let position = this._moveAuto() || this._moveManual();
+    if (this._animationTail && this._animationTail.animating) {
+      this._animationTail.update(timeDelta);
+    }
 
-    this._world.disable(prevHead.toArray());
+    if ((this._animationHead && this._animationHead.animating) ||
+        (this._animationTail && this._animationTail.animating)) {
+      return;
+    }
+
+    const position = this._nextPositionAuto() || this._moveManual();
+
+    this.world.enable(this.tail.position.toArray());
+    this.world.disable(this.head.position.toArray());
+
+    this._resetAnimationHead(new THREE.Vector3(...position));
+    this._resetAnimationTail(this.tail.position);
 
     let voxel = Voxel.findOrCreate(position);
     this._eat(voxel);
     return voxel;
   }
 
-  _moveAuto() {
+  _resetAnimationHead(end) {
+    const headClone = this.head.clone();
+
+    this.mesh.add(headClone);
+
+    this._animationHead = new Animation({
+      speed: this.speed,
+      start: headClone.position,
+      end:   end,
+      done:  (end) => {
+        this.mesh.remove(headClone);
+        this._updateSnakePosition(end.toArray());
+        this._animationTail.stop();
+        this.tail.position.copy(end);
+        this.mesh.children.unshift(this.mesh.children.pop());
+      }
+    });
+  }
+
+  _resetAnimationTail(start) {
+    if (this._animationTail) {
+      this._animationTail.stop();
+    }
+
+    this._animationTail = new Animation({
+      speed: this.speed,
+      start: start,
+      end:   this.mesh.children[this.size - 2].position
+    });
+  }
+
+  _nextPositionAuto() {
     if (!this._autoMove) {
       return false;
     }
@@ -87,14 +134,12 @@ module.exports = class Snake {
       this._path = new Queue(path);
     }
 
-    return this._updateSnakeMeshPosition(this._path.dequeue().position);
+    return this._path.dequeue().position;
   }
 
   _moveManual() {
     assertTruthy(this.position, this._direction);
-
-    let nextVoxel = Voxel.findOrCreate(this.position).next(this._direction);
-    return this._updateSnakeMeshPosition(nextVoxel.position);
+    return Voxel.findOrCreate(this.position).next(this._direction).position;
   }
 
   _makeVoxelMesh(position) {
@@ -112,7 +157,7 @@ module.exports = class Snake {
       meshPosition[1] -= i * Const.TILE_SIZE;
 
       group.add(this._makeVoxelMesh(meshPosition));
-      this._world.disable(meshPosition);
+      this.world.disable(meshPosition);
     }
 
     return group;
@@ -140,45 +185,45 @@ module.exports = class Snake {
   }
 
   _getTailFace() {
+    assertTruthy(this.tail);
     return Voxel.findOrCreate(this.tail.position.toArray()).face;
   }
 
   // TODO(maros): This should be the only method that manipulates `this.face`
   // and `this._direction`. Use a setter to enforce it.
-  _updateSnakeMeshPosition(position) {
+  _updateSnakePosition(position) {
     assertTruthy(this.position, this.mesh, this.head);
-    assert(adjacentPositions(position, this.head.position.toArray()),
-      'Attempting to update mesh to non-adjacent position.');
 
     let currentVoxel = Voxel.findOrCreate(this.position);
     let targetVoxel  = Voxel.findOrCreate(position);
+
+    assert(currentVoxel.adjacentTo(targetVoxel), 'Current voxel not adjacent to target');
 
     if (!currentVoxel.face.equals(targetVoxel.face)) {
       this._addEdgeMesh(currentVoxel, targetVoxel);
     }
 
-    this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
-    this.face       = targetVoxel.face;
-
-    const prevTailFace = this._getTailFace();
-
-    this.tail.position.set(...position);
-    this.mesh.children.unshift(this.mesh.children.pop());
-
-    if (!prevTailFace.equals(this._getTailFace())) {
+    if (!this._prevTailFace.equals(this._getTailFace())) {
       this._removeEdgeMesh();
     }
 
-    return this.head.position.toArray();
+    this._prevTailFace = this._getTailFace();
+
+    this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
+    this.face       = targetVoxel.face;
+    this.position   = position;
   }
 
   _eat(voxel) {
     if (!voxel) return;
 
     if (voxel.type === 'food') {
-      this._world.disable(voxel);
-      this.mesh.add(this._makeVoxelMesh(this.tail.position.toArray()));
+      const mesh = this._makeVoxelMesh(this.tail.position.toArray());
+      this.world.disable(voxel);
+      this.mesh.add(mesh);
       this.size += 1;
+
+      this._resetAnimationTail(mesh.position);
     }
   }
 };
