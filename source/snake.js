@@ -117,26 +117,28 @@ module.exports = class Snake {
     });
   }
 
+  // TOOD(maros): If this is inefficient, react to a world food drop event
+  // instead.
   _nextPositionAuto() {
     if (!this._autoMove) {
       return false;
     }
 
-    if (this._path.empty()) {
-      // Find new target.
-      let start = Voxel.findOrCreate(this.position);
-      let path  = Graph.dijkstra(start, node => node.type === 'food');
+    // Find new target.
+    let start = Voxel.findOrCreate(this.position);
+    let path  = Graph.dijkstra(start, node => node.type === 'food');
 
-      if (!path) {
-        return false;
-      }
+    if (!path) {
+      return false;
+    }
 
-      path.shift();
+    path.shift();
 
-      if (path.length === 0) {
-        return false;
-      }
+    if (path.length === 0) {
+      return false;
+    }
 
+    if (this._path.empty() || path.length < this._path.size()) {
       this._path = new Queue(path);
     }
 
