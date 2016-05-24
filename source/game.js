@@ -12,7 +12,7 @@ let assertTruthy = require('./utils/assert-truthy');
 let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 class Game {
-  constructor(container) {
+  constructor(container, { keys = true } = {}) {
     this._container = container;
     this._steps = 0;
     this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
@@ -45,7 +45,10 @@ class Game {
     this._scene.add(this._snake.mesh);
 
     window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
-    window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
+
+    if (keys) {
+      window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
+    }
   }
 
   static tests() {
