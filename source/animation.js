@@ -16,12 +16,19 @@ class Animation {
     this.speed       = speed;
     this.animating   = true;
     this._updateStep = update;
+    this._then       = () => {};
+  }
+
+  // TODO(maros): Use real promises.
+  then(callback) {
+    this._then = callback;
   }
 
   stop() {
     if (this.animating) {
       this.done(this.end);
       this.animating = false;
+      this._then();
     }
   }
 

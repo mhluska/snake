@@ -49,8 +49,10 @@ module.exports = class Snake {
       return;
     }
 
-    this._direction.copy(vector);
-    this._autoMove = false;
+    this._animationHead.then(() => {
+      this._direction.copy(vector);
+      this._autoMove = false;
+    });
   }
 
   move(timeDelta) {
@@ -67,7 +69,7 @@ module.exports = class Snake {
       return;
     }
 
-    const position = this._nextPositionAuto() || this._moveManual();
+    const position = this._nextPositionAuto() || this._nextPositionManual();
 
     this.world.enable(this.tail.position.toArray());
     this.world.disable(this.head.position.toArray());
@@ -81,6 +83,10 @@ module.exports = class Snake {
   }
 
   _resetAnimationHead(end) {
+    if (this._animationHead) {
+      this._animationHead.stop();
+    }
+
     const headClone = this.head.clone();
 
     this.mesh.add(headClone);
@@ -137,7 +143,7 @@ module.exports = class Snake {
     return this._path.dequeue().position;
   }
 
-  _moveManual() {
+  _nextPositionManual() {
     assertTruthy(this.position, this._direction);
     return Voxel.findOrCreate(this.position).next(this._direction).position;
   }
@@ -208,10 +214,9 @@ module.exports = class Snake {
     }
 
     this._prevTailFace = this._getTailFace();
-
-    this._direction = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
-    this.face       = targetVoxel.face;
-    this.position   = position;
+    this._direction    = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
+    this.face          = targetVoxel.face;
+    this.position      = position;
   }
 
   _eat(voxel) {
