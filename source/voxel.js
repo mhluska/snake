@@ -20,6 +20,19 @@ class Voxel extends Node {
     this._next    = new Map();
   }
 
+  static middleVoxel(face) {
+    face = face.clone();
+    face.multiplyScalar((Const.MESH_SIZE + Const.TILE_SIZE) / 2);
+
+    for (let dimension of 'xyz') {
+      if (face[dimension] === 0) {
+        face[dimension] = (((Const.GAME_SIZE + 1) * Const.TILE_SIZE) - Const.MESH_SIZE) / 2;
+      }
+    }
+
+    return face;
+  }
+
   static findOrCreate(position, mesh = null, type = 'tile') {
     let key   = position.toString();
     let voxel = this.VOXEL_CACHE.get(key);
@@ -88,13 +101,14 @@ class Voxel extends Node {
     this._connectAdjacent(voxel);
   }
 
-  disable() {
+  disable(type) {
     for (let neighbor of this.adjacent) {
       neighbor.adjacent.delete(this);
       neighbor.disabled.add(this);
       this.disabled.add(neighbor);
     }
 
+    this.type = type;
     this.adjacent.clear();
   }
 
@@ -105,6 +119,7 @@ class Voxel extends Node {
       this.adjacent.add(neighbor);
     }
 
+    this.type = 'tile';
     this.disabled.clear();
   }
 

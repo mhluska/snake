@@ -1,3 +1,5 @@
+'use strict';
+
 let constants = {
   CAMERA_DISTANCE: 450,
   GAME_SIZE:       16,
@@ -8,6 +10,7 @@ let constants = {
     WORLD: 0x00bdd1,
     LIGHT: 0xffffff,
     SNAKE: 0x885f4d,
+    ENEMY: 0xC97373,
     DEBUG_SNAKE: 0xeb3b3b,
     DEBUG_PATH: 0xf2ff9e
   }

@@ -1,6 +1,5 @@
 'use strict';
 
-let assert                 = require('assert');
 let THREE                  = require('three');
 let Voxel                  = require('./voxel');
 let Const                  = require('./const');
@@ -34,9 +33,9 @@ class World {
     this._unoccopyTile(voxel);
   }
 
-  disable(position) {
+  disable(position, type) {
     let voxel = Voxel.findOrCreate(position);
-    voxel.disable();
+    voxel.disable(type);
     this._occupyTile(voxel.position, voxel);
   }
 
@@ -150,19 +149,11 @@ class World {
     return new Set(shuffle(Array.from(this._eachPosition()).map(el => el[0])));
   }
 
-  _validateVoxelType(voxel) {
-    let test = voxel && ['food', 'poison', 'snake', 'tile'].includes(voxel.type);
-    let message = `Invalid voxel: ${voxel}`;
-    assert(test, message);
-  }
-
   _occupyTile(position, voxel) {
-    this._validateVoxelType(voxel);
     this._occupiedTiles[position.toString()] = voxel;
   }
 
   _unoccopyTile(voxel) {
-    this._validateVoxelType(voxel);
     this._availableTiles.add(voxel.position);
     delete this._occupiedTiles[voxel.position];
   }

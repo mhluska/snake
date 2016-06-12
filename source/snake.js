@@ -12,12 +12,18 @@ let assertTruthy  = require('./utils/assert-truthy');
 let { Graph }     = require('./graph');
 
 module.exports = class Snake {
-  constructor(world, direction, face) {
+  constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, name = '' } = {}) {
+    if (!startPosition) {
+       startPosition = Voxel.middleVoxel(face);
+    }
+
     this.world    = world;
     this.speed    = 0.15;
+    this.name     = name;
+    this.color    = color;
     this.face     = face;
     this.size     = 6;
-    this.mesh     = this._makeMeshGroup(this.size);
+    this.mesh     = this._makeMeshGroup(this.size, startPosition, direction);
     this.position = this.head.position.toArray();
 
     this._path      = new Queue();
@@ -55,6 +61,11 @@ module.exports = class Snake {
     });
   }
 
+  die() {
+    // TODO(maros): Finish this.
+    window.location.reload();
+  }
+
   move(timeDelta) {
     if (this._animationHead && this._animationHead.animating) {
       this._animationHead.update(timeDelta);
@@ -69,17 +80,17 @@ module.exports = class Snake {
       return;
     }
 
+    const voxel = Voxel.findOrCreate(this.position);
+    const foodMesh = this._eat(voxel);
     const position = this._nextPositionAuto() || this._nextPositionManual();
 
     this.world.enable(this.tail.position.toArray());
-    this.world.disable(this.head.position.toArray());
+    this.world.disable(this.head.position.toArray(), 'snake');
 
-    this._resetAnimationHead(new THREE.Vector3(...position));
     this._resetAnimationTail(this.tail.position);
+    this._resetAnimationHead(new THREE.Vector3(...position));
 
-    let voxel = Voxel.findOrCreate(position);
-    this._eat(voxel);
-    return voxel;
+    return foodMesh;
   }
 
   _resetAnimationHead(end) {
@@ -97,8 +108,8 @@ module.exports = class Snake {
       end:   end,
       done:  (end) => {
         this.mesh.remove(headClone);
-        this._updateSnakePosition(end.toArray());
         this._animationTail.stop();
+        this._updateSnakePosition(end.toArray());
         this.tail.position.copy(end);
         this.mesh.children.unshift(this.mesh.children.pop());
       }
@@ -138,31 +149,39 @@ module.exports = class Snake {
       return false;
     }
 
-    if (this._path.empty() || path.length < this._path.size()) {
-      this._path = new Queue(path);
-    }
-
-    return this._path.dequeue().position;
+    // TODO(maros): Memoize path.
+    return path[0].position;
   }
 
   _nextPositionManual() {
     assertTruthy(this.position, this._direction);
-    return Voxel.findOrCreate(this.position).next(this._direction).position;
+
+    const voxel = Voxel.findOrCreate(this.position);
+    const next  = voxel.next(this._direction);
+
+    if (next.type === 'snake') {
+      for (let neighbor of voxel._next.values()) {
+        if (neighbor.type !== 'snake') {
+          return neighbor.position;
+        }
+      }
+
+      this.die();
+    } else {
+      return next.position;
+    }
   }
 
   _makeVoxelMesh(position) {
-    return makeVoxelMesh(Const.TILE_SIZE, Const.Colors.SNAKE, position);
+    return makeVoxelMesh(Const.TILE_SIZE, this.color, position);
   }
 
-  _makeMeshGroup(size) {
-    // TODO(maros): Make this not magic.
-    let position = [-43.75, -6.25, 106.25];
-    let group    = new THREE.Object3D();
+  _makeMeshGroup(size, startPosition, unitDirection) {
+    const group = new THREE.Object3D();
 
     for (let i of times(size)) {
-      let meshPosition = [...position];
-      meshPosition[1] *= -1;
-      meshPosition[1] -= i * Const.TILE_SIZE;
+      const direction = unitDirection.clone().multiplyScalar(i * Const.TILE_SIZE);
+      const meshPosition = startPosition.clone().sub(direction).toArray();
 
       group.add(this._makeVoxelMesh(meshPosition));
       this.world.disable(meshPosition);
@@ -226,11 +245,12 @@ module.exports = class Snake {
 
     if (voxel.type === 'food') {
       const mesh = this._makeVoxelMesh(this.tail.position.toArray());
-      this.world.disable(voxel);
       this.mesh.add(mesh);
       this.size += 1;
 
       this._resetAnimationTail(mesh.position);
+
+      return voxel.mesh;
     }
   }
 };

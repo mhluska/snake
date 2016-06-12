@@ -4,7 +4,6 @@ let THREE = require('three');
 let World = require('./world');
 let Snake = require('./snake');
 let Queue = require('./queue');
-let Voxel = require('./voxel');
 let Const = require('./const');
 let Tests = require('../test/tests');
 let makeVoxelMesh = require('./utils/make-voxel-mesh');
@@ -23,7 +22,9 @@ class Game {
     this._world = new World();
     this._cameraFace = this._world._faceVectors[3];
     this._cameraUpCached = this._camera.up.clone();
-    this._snake = new Snake(this._world, this._camera.up, this._cameraFace);
+
+    this._snake = new Snake(this._world, this._camera.up.clone(), this._cameraFace, { name: 'player' });
+    this._snakeEnemy = new Snake(this._world, this._camera.up.clone(), this._cameraFace.clone().negate(), { name: 'enemy', color: Const.Colors.ENEMY });
 
     this._lastTime = window.performance.now();
 
@@ -43,6 +44,7 @@ class Game {
 
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
+    this._scene.add(this._snakeEnemy.mesh);
 
     window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
 
@@ -122,18 +124,15 @@ class Game {
     this._moveQueue.enqueue(directionVector);
   }
 
-  _processVoxel(voxel) {
-    if (!voxel) return;
-
-    if (['food', 'poison'].includes(voxel.type)) {
-      this._scene.remove(voxel.mesh);
-      voxel.type = 'tile';
-    }
-  }
-
   _addVoxel(voxel) {
     if (!voxel) return;
     this._scene.add(voxel.mesh);
+  }
+
+  _processMesh(foodMesh) {
+    if (foodMesh) {
+      this._scene.remove(foodMesh);
+    }
   }
 
   _updateSnake(timeDelta) {
@@ -145,11 +144,14 @@ class Game {
       this._snake.direction = move;
     }
 
-    this._snake.move(timeDelta);
-    this._updateDebugInfo();
+    this._processMesh(this._snake.move(timeDelta));
 
-    this._processVoxel(Voxel.findOrCreate(this._snake.position));
+    this._updateDebugInfo();
     this._updateCamera(this._snake.face, timeDelta);
+  }
+
+  _updateSnakeEnemy(snake, timeDelta) {
+    this._processMesh(snake.move(timeDelta));
   }
 
   _updateWorld() {
@@ -199,6 +201,7 @@ class Game {
     this._lastTime = now;
 
     this._updateSnake(timeDelta);
+    this._updateSnakeEnemy(this._snakeEnemy, timeDelta);
 
     // Add food to the game every 100 frames.
     if (this._steps % 100 === 0) {
