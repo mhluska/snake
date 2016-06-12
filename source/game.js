@@ -129,9 +129,11 @@ class Game {
     this._scene.add(voxel.mesh);
   }
 
-  _processMesh(foodMesh) {
-    if (foodMesh) {
-      this._scene.remove(foodMesh);
+  _processMesh(promise) {
+    if (promise) {
+      promise.then((foodMesh) => {
+        this._scene.remove(foodMesh);
+      });
     }
   }
 

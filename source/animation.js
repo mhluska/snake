@@ -16,19 +16,28 @@ class Animation {
     this.speed       = speed;
     this.animating   = true;
     this._updateStep = update;
-    this._then       = () => {};
+    this._deferred   = [];
   }
 
-  // TODO(maros): Use real promises.
   then(callback) {
-    this._then = callback;
+    let res;
+
+    const promise = new Promise((resolve) => {
+      res = () => resolve(callback());
+    });
+
+    this._deferred.push(res);
+
+    return promise;
   }
 
   stop() {
     if (this.animating) {
       this.done(this.end);
       this.animating = false;
-      this._then();
+      for (let resolve of this._deferred) {
+        resolve();
+      }
     }
   }
 

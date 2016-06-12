@@ -1,6 +1,7 @@
 'use strict';
 
 let THREE                  = require('three');
+let assert                 = require('assert');
 let Voxel                  = require('./voxel');
 let Const                  = require('./const');
 let times                  = require('./utils/times');
@@ -34,6 +35,8 @@ class World {
   }
 
   disable(position, type) {
+    assert(type, 'Type required to disable voxel');
+
     let voxel = Voxel.findOrCreate(position);
     voxel.disable(type);
     this._occupyTile(voxel.position, voxel);

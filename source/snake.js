@@ -80,17 +80,17 @@ module.exports = class Snake {
       return;
     }
 
-    const voxel = Voxel.findOrCreate(this.position);
-    const foodMesh = this._eat(voxel);
     const position = this._nextPositionAuto() || this._nextPositionManual();
+    const voxel = Voxel.findOrCreate(position);
+    const foodMesh = this._eat(voxel);
 
     this.world.enable(this.tail.position.toArray());
-    this.world.disable(this.head.position.toArray(), 'snake');
+    this.world.disable(position, 'snake');
 
     this._resetAnimationTail(this.tail.position);
     this._resetAnimationHead(new THREE.Vector3(...position));
 
-    return foodMesh;
+    return this._animationHead.then(() => foodMesh);
   }
 
   _resetAnimationHead(end) {
@@ -135,9 +135,13 @@ module.exports = class Snake {
       return false;
     }
 
+    this.world.enable(this.position);
+
     // Find new target.
     let start = Voxel.findOrCreate(this.position);
     let path  = Graph.dijkstra(start, node => node.type === 'food');
+
+    this.world.disable(this.position, 'snake');
 
     if (!path) {
       return false;
@@ -184,7 +188,7 @@ module.exports = class Snake {
       const meshPosition = startPosition.clone().sub(direction).toArray();
 
       group.add(this._makeVoxelMesh(meshPosition));
-      this.world.disable(meshPosition);
+      this.world.disable(meshPosition, 'snake');
     }
 
     return group;
