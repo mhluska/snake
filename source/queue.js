@@ -1,7 +1,7 @@
 // TODO(maros): Implement using linked list if widely used.
 class Queue {
-  constructor(data = [], maxSize = Infinity) {
-    this._data    = data;
+  constructor(data, maxSize = Infinity) {
+    this._data    = data || [];
     this._maxSize = maxSize;
   }
 

@@ -135,26 +135,26 @@ module.exports = class Snake {
       return false;
     }
 
-    this.world.enable(this.position);
+    // Recompute path.
+    if (this._path.empty() || Voxel.findOrCreate(this._path.peek()).type === 'snake') {
 
-    // Find new target.
-    let start = Voxel.findOrCreate(this.position);
-    let path  = Graph.dijkstra(start, node => node.type === 'food');
+      this.world.enable(this.position);
 
-    this.world.disable(this.position, 'snake');
+      // Find new target.
+      const start = Voxel.findOrCreate(this.position);
+      this._path  = new Queue(Graph.dijkstra(start, node => node.type === 'food'));
 
-    if (!path) {
+      // Remove the current position.
+      this._path.dequeue();
+
+      this.world.disable(this.position, 'snake');
+    }
+
+    if (this._path.empty()) {
       return false;
     }
 
-    path.shift();
-
-    if (path.length === 0) {
-      return false;
-    }
-
-    // TODO(maros): Memoize path.
-    return path[0].position;
+    return this._path.dequeue().position;
   }
 
   _nextPositionManual() {
