@@ -1,5 +1,3 @@
-'use strict';
-
 let THREE                  = require('three');
 let assert                 = require('assert');
 let Voxel                  = require('./voxel');

@@ -1,5 +1,3 @@
-'use strict';
-
 let assert              = require('assert');
 let THREE               = require('three');
 let Const               = require('./const');

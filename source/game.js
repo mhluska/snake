@@ -1,5 +1,3 @@
-'use strict';
-
 let THREE = require('three');
 let World = require('./world');
 let Snake = require('./snake');
@@ -9,7 +7,6 @@ let Tests = require('../test/tests');
 let makeVoxelMesh = require('./utils/make-voxel-mesh');
 let assertTruthy = require('./utils/assert-truthy');
 let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
-let { SnakeDeathError } = require('./error');
 
 class Game {
   constructor(container, { keys = true } = {}) {

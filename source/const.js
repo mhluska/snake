@@ -1,5 +1,3 @@
-'use strict';
-
 let constants = {
   CAMERA_DISTANCE: 450,
   GAME_SIZE:       16,

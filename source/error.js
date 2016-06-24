@@ -1,5 +1,3 @@
-'use strict';
-
 class SnakeDeathError extends Error {
   constructor(message) {
     super(message);
