@@ -213,6 +213,9 @@ module.exports = class Snake {
   _removeEdgeMesh() {
     this.mesh.remove(this.tail);
     this.size -= 1;
+
+    // NOTE(maros): This is the new tail after updating `this.size`.
+    this.world.enable(this.tail.position.toArray());
   }
 
   _getTailFace() {
