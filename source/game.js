@@ -9,15 +9,37 @@ let Tests = require('../test/tests');
 let makeVoxelMesh = require('./utils/make-voxel-mesh');
 let assertTruthy = require('./utils/assert-truthy');
 let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+let { SnakeDeathError } = require('./error');
 
 class Game {
   constructor(container, { keys = true } = {}) {
     this._container = container;
+    this.reset();
+    this.setupEventListeners(keys);
+  }
+
+  static tests() {
+    Tests.run();
+  }
+
+  run() {
+    this._animate();
+  }
+
+  reset() {
+    if (this._renderer) {
+      this._container.removeChild(this._renderer.domElement);
+    }
+
+    if (this._world) {
+      this._world.reset();
+    }
+
     this._steps = 0;
     this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
     this._debugMeshes = new Set();
 
-    [this._scene, this._camera, this._renderer] = this._setupScene(container);
+    [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
 
     this._world = new World();
     this._cameraFace = this._world._faceVectors[3];
@@ -45,20 +67,14 @@ class Game {
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
     this._scene.add(this._snakeEnemy.mesh);
+  }
 
+  setupEventListeners(keys) {
     window.addEventListener('resize',  this._updateScreenSizeResize.bind(this));
 
     if (keys) {
       window.addEventListener('keydown', this._updateSnakeDirection.bind(this));
     }
-  }
-
-  static tests() {
-    Tests.run();
-  }
-
-  run() {
-    this._animate();
   }
 
   _initSnake(face, options) {
@@ -211,7 +227,14 @@ class Game {
   }
 
   _animate() {
-    this._update();
+    try {
+      this._update();
+    } catch(error) {
+      if (error.name === 'SnakeDeathError') {
+        this.reset();
+      }
+    }
+
     this._render();
     requestAnimationFrame(() => this._animate());
   }

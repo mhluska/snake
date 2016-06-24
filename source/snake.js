@@ -1,15 +1,16 @@
 'use strict';
 
-let assert        = require('assert');
-let THREE         = require('three');
-let Const         = require('./const');
-let Voxel         = require('./voxel');
-let Queue         = require('./queue');
-let Animation     = require('./animation');
-let makeVoxelMesh = require('./utils/make-voxel-mesh');
-let times         = require('./utils/times');
-let assertTruthy  = require('./utils/assert-truthy');
-let { Graph }     = require('./graph');
+let assert              = require('assert');
+let THREE               = require('three');
+let Const               = require('./const');
+let Voxel               = require('./voxel');
+let Queue               = require('./queue');
+let Animation           = require('./animation');
+let makeVoxelMesh       = require('./utils/make-voxel-mesh');
+let times               = require('./utils/times');
+let assertTruthy        = require('./utils/assert-truthy');
+let { Graph }           = require('./graph');
+let { SnakeDeathError } = require('./error');
 
 module.exports = class Snake {
   constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, type = 'player' } = {}) {
@@ -62,8 +63,7 @@ module.exports = class Snake {
   }
 
   die() {
-    // TODO(maros): Finish this.
-    window.location.reload();
+    throw new SnakeDeathError();
   }
 
   move(timeDelta) {

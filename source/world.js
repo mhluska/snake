@@ -38,6 +38,12 @@ class World {
     voxel.disable(type);
   }
 
+  reset() {
+    for (let [position] of this._eachPosition()) {
+      Voxel.findOrCreate(position).enable();
+    }
+  }
+
   _adjacentPositions(x, y, faceVector) {
     const adjacent = [
       [x + 1, y],
