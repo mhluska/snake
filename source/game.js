@@ -182,19 +182,6 @@ class Game {
       return;
     }
 
-    // TODO(maros): Figure out why Set iteration is not working.
-    for (let debugMesh of this._debugMeshes._c.values()) {
-      if (!this._world._occupiedTiles[debugMesh.position.toString()] || this._snake._path._data.indexOf(debugMesh) === -1) {
-        this._debugMeshes.delete(debugMesh);
-        this._scene.remove(debugMesh);
-      }
-    }
-
-    // TODO(maros): Figure out why Map iteration is not working.
-    for (let key of Object.keys(this._world._occupiedTiles)) {
-      this._addDebugMesh(this._world._occupiedTiles[key], Const.Colors.DEBUG_PATH);
-    }
-
     for (let voxel of this._snake._path._data.slice(0, -1)) {
       this._addDebugMesh(voxel, Const.Colors.DEBUG_SNAKE);
     }

@@ -14,8 +14,7 @@ class World {
   constructor() {
     this.mesh            = this._makeWorldMesh();
     this._faceVectors    = this._setupFaceVectors();
-    this._availableTiles = this._setupAvailableTiles();
-    this._occupiedTiles  = new Map();
+    this._positions      = this._setupRandomPositions();
 
     this._setupGraph();
   }
@@ -29,9 +28,7 @@ class World {
   }
 
   enable(position) {
-    let voxel = Voxel.findOrCreate(position);
-    voxel.enable();
-    this._unoccopyTile(voxel);
+    Voxel.findOrCreate(position).enable();
   }
 
   disable(position, type) {
@@ -39,7 +36,6 @@ class World {
 
     let voxel = Voxel.findOrCreate(position);
     voxel.disable(type);
-    this._occupyTile(voxel.position, voxel);
   }
 
   _adjacentPositions(x, y, faceVector) {
@@ -84,21 +80,19 @@ class World {
     return mesh;
   }
 
-  // Returns a voxel that will occupy a random tile on the world. If the world
+  // Returns a voxel that will occupy a random voxel in the world. If the world
   // is full, it returns `undefind`.
   _spawn(type) {
-    if (this._noFreeTiles()) {
+    if (this._noFreePositions()) {
       return;
     }
 
-    let position = this._popAvailableTile();
+    let position = this._popAvailablePosition();
     let mesh     = this._makeFoodMesh(position);
     let voxel    = Voxel.findOrCreate(position);
 
     voxel.mesh = mesh;
     voxel.type = type;
-
-    this._occupyTile(position, voxel);
 
     return voxel;
   }
@@ -148,26 +142,22 @@ class World {
     }
   }
 
-  _setupAvailableTiles() {
+  _setupRandomPositions() {
     return new Set(shuffle(Array.from(this._eachPosition()).map(el => el[0])));
   }
 
-  _occupyTile(position, voxel) {
-    this._occupiedTiles[position.toString()] = voxel;
+  _noFreePositions() {
+    return this._positions.size === 0;
   }
 
-  _unoccopyTile(voxel) {
-    this._availableTiles.add(voxel.position);
-    delete this._occupiedTiles[voxel.position];
-  }
+  _popAvailablePosition() {
+    let item;
 
-  _noFreeTiles() {
-    return this._availableTiles.size === 0;
-  }
+    do {
+      item = this._positions.values().next().value;
+    } while (item && Voxel.findOrCreate(item).type !== 'tile');
 
-  _popAvailableTile() {
-    let item = this._availableTiles.values().next().value;
-    this._availableTiles.delete(item);
+    this._positions.delete(item);
     return item;
   }
 }
