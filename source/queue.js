@@ -5,16 +5,16 @@ class Queue {
     this._maxSize = maxSize;
   }
 
+  get length() {
+    return this._data.length;
+  }
+
   toArray() {
     return this._data;
   }
 
-  size() {
-    return this._data.length;
-  }
-
   empty() {
-    return this.size() === 0;
+    return this.length === 0;
   }
 
   peek() {

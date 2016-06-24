@@ -200,8 +200,6 @@ class Game {
     }
   }
 
-  // TODO(maros): Don't update per frame but per time delta. Use
-  // `window.performance.now`.
   _update() {
     const now = window.performance.now();
     const timeDelta = now - this._lastTime;
@@ -211,6 +209,7 @@ class Game {
     this._updateSnakeEnemy(this._snakeEnemy, timeDelta);
 
     // Add food to the game every 100 frames.
+    // TODO(maros): Don't update per frame but per time delta.
     if (this._steps % 100 === 0) {
       this._updateWorld();
       this._updateDebugInfo();
