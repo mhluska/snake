@@ -12,14 +12,14 @@ let assertTruthy  = require('./utils/assert-truthy');
 let { Graph }     = require('./graph');
 
 module.exports = class Snake {
-  constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, name = '' } = {}) {
+  constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, type = 'player' } = {}) {
     if (!startPosition) {
        startPosition = Voxel.middleVoxel(face);
     }
 
     this.world    = world;
     this.speed    = 0.15;
-    this.name     = name;
+    this.type     = type;
     this.color    = color;
     this.face     = face;
     this.size     = 6;
@@ -161,18 +161,22 @@ module.exports = class Snake {
     assertTruthy(this.position, this._direction);
 
     const voxel = Voxel.findOrCreate(this.position);
-    const next  = voxel.next(this._direction);
+    const nextVoxel = voxel.next(this._direction);
 
-    if (next.type === 'snake') {
+    if (this.type === 'player' && nextVoxel.type === 'snake' && !this._autoMove) {
+      return this.die();
+    }
+
+    if (nextVoxel.type === 'snake') {
       for (let neighbor of voxel._next.values()) {
         if (neighbor.type !== 'snake') {
           return neighbor.position;
         }
       }
 
-      this.die();
+      return this.die();
     } else {
-      return next.position;
+      return nextVoxel.position;
     }
   }
 

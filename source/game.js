@@ -23,8 +23,8 @@ class Game {
     this._cameraFace = this._world._faceVectors[3];
     this._cameraUpCached = this._camera.up.clone();
 
-    this._snake = new Snake(this._world, this._camera.up.clone(), this._cameraFace, { name: 'player' });
-    this._snakeEnemy = new Snake(this._world, this._camera.up.clone(), this._cameraFace.clone().negate(), { name: 'enemy', color: Const.Colors.ENEMY });
+    this._snake      = this._initSnake({ type: 'player' });
+    this._snakeEnemy = this._initSnake({ type: 'enemy', color: Const.Colors.ENEMY });
 
     this._lastTime = window.performance.now();
 
@@ -59,6 +59,11 @@ class Game {
 
   run() {
     this._animate();
+  }
+
+  _initSnake(options) {
+    assertTruthy(this._world, this._camera, this._cameraFace);
+    return new Snake(this._world, this._camera.up.clone(), this._cameraFace, options);
   }
 
   // TODO(maros): Move camera to its own class.
