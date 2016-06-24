@@ -1,12 +1,12 @@
-let THREE                  = require('three');
-let assert                 = require('assert');
-let Voxel                  = require('./voxel');
-let Const                  = require('./const');
-let times                  = require('./utils/times');
-let shuffle                = require('./utils/shuffle');
-let makeVoxelMesh          = require('./utils/make-voxel-mesh');
-let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
-let position2to3           = require('./utils/position2-to-3.js');
+const THREE                  = require('three');
+const assert                 = require('assert');
+const Voxel                  = require('./voxel');
+const Const                  = require('./const');
+const times                  = require('./utils/times');
+const shuffle                = require('./utils/shuffle');
+const makeVoxelMesh          = require('./utils/make-voxel-mesh');
+const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+const position2to3           = require('./utils/position2-to-3.js');
 
 class World {
   constructor() {

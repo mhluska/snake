@@ -1,14 +1,14 @@
-let assert              = require('assert');
-let THREE               = require('three');
-let Const               = require('./const');
-let Voxel               = require('./voxel');
-let Queue               = require('./queue');
-let Animation           = require('./animation');
-let makeVoxelMesh       = require('./utils/make-voxel-mesh');
-let times               = require('./utils/times');
-let assertTruthy        = require('./utils/assert-truthy');
-let { Graph }           = require('./graph');
-let { SnakeDeathError } = require('./error');
+const assert              = require('assert');
+const THREE               = require('three');
+const Const               = require('./const');
+const Voxel               = require('./voxel');
+const Queue               = require('./queue');
+const Animation           = require('./animation');
+const makeVoxelMesh       = require('./utils/make-voxel-mesh');
+const times               = require('./utils/times');
+const assertTruthy        = require('./utils/assert-truthy');
+const { Graph }           = require('./graph');
+const { SnakeDeathError } = require('./error');
 
 module.exports = class Snake {
   constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, type = 'player' } = {}) {

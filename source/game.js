@@ -1,12 +1,12 @@
-let THREE = require('three');
-let World = require('./world');
-let Snake = require('./snake');
-let Queue = require('./queue');
-let Const = require('./const');
-let Tests = require('../test/tests');
-let makeVoxelMesh = require('./utils/make-voxel-mesh');
-let assertTruthy = require('./utils/assert-truthy');
-let getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+const THREE = require('three');
+const World = require('./world');
+const Snake = require('./snake');
+const Queue = require('./queue');
+const Const = require('./const');
+const Tests = require('../test/tests');
+const makeVoxelMesh = require('./utils/make-voxel-mesh');
+const assertTruthy = require('./utils/assert-truthy');
+const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 class Game {
   constructor(container, { keys = true } = {}) {

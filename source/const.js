@@ -1,4 +1,4 @@
-let constants = {
+const constants = {
   CAMERA_DISTANCE: 450,
   GAME_SIZE:       16,
   MESH_SIZE:       200,

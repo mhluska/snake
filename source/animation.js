@@ -1,4 +1,4 @@
-let assert = require('assert');
+const assert = require('assert');
 
 class Animation {
   // `start`:   THREE.Vector3
