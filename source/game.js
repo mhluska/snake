@@ -11,7 +11,11 @@ const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 class Game {
   constructor(container, { keys = true } = {}) {
     this._container = container;
+    [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
     this.reset();
+    this._cameraOriginalPosition = this._camera.position.clone();
+    this._cameraOriginalUp = this._camera.up.clone();
+    this._container.appendChild(this._renderer.domElement);
     this.setupEventListeners(keys);
   }
 
@@ -23,27 +27,24 @@ class Game {
     this._animate();
   }
 
-  reset() {
-    if (this._renderer) {
-      this._container.removeChild(this._renderer.domElement);
-    }
-
-    if (this._world) {
+  reset({ firstRun = true } = {}) {
+    if (!firstRun) {
       this._world.reset();
+      this._clearSceneMeshes();
+      this._camera.position.copy(this._cameraOriginalPosition);
+      this._camera.up.copy(this._cameraOriginalUp);
     }
 
     this._steps = 0;
     this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
     this._debugMeshes = new Set();
 
-    [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
-
     this._world = new World();
     this._cameraFace = this._world._faceVectors[3];
     this._cameraUpCached = this._camera.up.clone();
 
     this._snake      = this._initSnake(this._cameraFace);
-    this._snakeEnemy = this._initSnake(this._cameraFace.clone().negate(), { type: 'enemy', color: Const.Colors.ENEMY });
+    this._snakeEnemy = this._initSnakeEnemy(this._cameraFace.clone().negate());
 
     this._lastTime = window.performance.now();
 
@@ -59,8 +60,6 @@ class Game {
       doneCallback: function(){},
     };
 
-    this._container.appendChild(this._renderer.domElement);
-
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
     this._scene.add(this._snakeEnemy.mesh);
@@ -74,9 +73,22 @@ class Game {
     }
   }
 
+  _clearSceneMeshes() {
+    for (let i = this._scene.children.length; i >= 0; i -= 1) {
+      const child = this._scene.children[i];
+      if (!(child instanceof THREE.Camera)) {
+        this._scene.remove(child);
+      }
+    }
+  }
+
   _initSnake(face, options) {
     assertTruthy(this._world, this._camera);
     return new Snake(this._world, this._camera.up.clone(), face, options);
+  }
+
+  _initSnakeEnemy(face) {
+    return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY });
   }
 
   // TODO(maros): Move camera to its own class.
@@ -226,9 +238,8 @@ class Game {
     try {
       this._update();
     } catch(error) {
-      if (error.name === 'SnakeDeathError') {
-        this.reset();
-      }
+      this.reset({ firstRun: false });
+      this._update();
     }
 
     this._render();
