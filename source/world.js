@@ -155,14 +155,15 @@ class World {
   }
 
   _popAvailablePosition() {
-    let item;
+    let value, done;
+    let iter = this._positions.values();
 
     do {
-      item = this._positions.values().next().value;
-    } while (item && Voxel.findOrCreate(item).type !== 'tile');
+      ({ value, done } = iter.next());
+    } while (!done && Voxel.findOrCreate(value).type !== 'tile');
 
-    this._positions.delete(item);
-    return item;
+    this._positions.delete(value);
+    return value;
   }
 }
 
