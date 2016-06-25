@@ -10,7 +10,7 @@ const assertTruthy        = require('./utils/assert-truthy');
 const { Graph }           = require('./graph');
 const { SnakeDeathError } = require('./error');
 
-module.exports = class Snake {
+class Snake {
   constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, type = 'player' } = {}) {
     if (!startPosition) {
        startPosition = Voxel.middleVoxel(face);
@@ -28,6 +28,7 @@ module.exports = class Snake {
     this._path      = new Queue();
     this._autoMove  = true;
     this._direction = direction;
+    this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
 
     this._animationTail = null;
     this._animationHead = null;
@@ -42,22 +43,17 @@ module.exports = class Snake {
     return this.mesh ? this.mesh.children[this.size - 1] : null;
   }
 
-  get direction() {
-    return this._direction;
-  }
-
-  set direction(vector) {
+  enqueueDirection(vector) {
     assert(vector.length() === 1, 'Non unit vector passed to direction setter.');
 
+    const previousVector = this._moveQueue.peek() || this._direction;
+
     // Disallow movement in opposite directions.
-    if (vector.dot(this._direction) !== 0) {
+    if (vector.dot(previousVector) !== 0) {
       return;
     }
 
-    this._animationHead.then(() => {
-      this._direction.copy(vector);
-      this._autoMove = false;
-    });
+    this._moveQueue.enqueue(vector);
   }
 
   die() {
@@ -78,9 +74,14 @@ module.exports = class Snake {
       return;
     }
 
+    if (this._dequeueDirection()) {
+      this._autoMove = false;
+    }
+
     const position = this._nextPositionAuto() || this._nextPositionManual();
-    const voxel = Voxel.findOrCreate(position);
-    const foodMesh = this._eat(voxel);
+    const foodMesh = this._eat(Voxel.findOrCreate(position));
+
+    this._updateDirection(position);
 
     this.world.enable(this.tail.position.toArray());
     this.world.disable(position, 'snake');
@@ -89,6 +90,33 @@ module.exports = class Snake {
     this._resetAnimationHead(new THREE.Vector3(...position));
 
     return this._animationHead.then(() => foodMesh);
+  }
+
+  _dequeueDirection() {
+    const vector = this._moveQueue.dequeue();
+
+    if (!vector) {
+      return false;
+    }
+
+    // NOTE(maros): This will throw an error if the snake has changed to a new
+    // face but the direction was enqueued while on the previous face.
+    try {
+      Voxel.findOrCreate(this.position).next(vector);
+    } catch(error) {
+      return false;
+    }
+
+    this._direction.copy(vector);
+
+    return true;
+  }
+
+  _updateDirection(targetPosition) {
+    const currentVoxel = Voxel.findOrCreate(this.position);
+    const targetVoxel  = Voxel.findOrCreate(targetPosition);
+
+    this._direction.copy(currentVoxel.directionTo(targetVoxel, { sourcePlane: false }));
   }
 
   _resetAnimationHead(end) {
@@ -126,8 +154,6 @@ module.exports = class Snake {
     });
   }
 
-  // TOOD(maros): If this is inefficient, react to a world food drop event
-  // instead.
   _nextPositionAuto() {
     if (!this._autoMove) {
       return false;
@@ -225,13 +251,11 @@ module.exports = class Snake {
     return Voxel.findOrCreate(this.tail.position.toArray()).face;
   }
 
-  // TODO(maros): This should be the only method that manipulates `this.face`
-  // and `this._direction`. Use a setter to enforce it.
   _updateSnakePosition(position) {
     assertTruthy(this.position, this.mesh, this.head);
 
-    let currentVoxel = Voxel.findOrCreate(this.position);
-    let targetVoxel  = Voxel.findOrCreate(position);
+    const currentVoxel = Voxel.findOrCreate(this.position);
+    const targetVoxel  = Voxel.findOrCreate(position);
 
     assert(currentVoxel.adjacentTo(targetVoxel), 'Current voxel not adjacent to target');
 
@@ -244,7 +268,6 @@ module.exports = class Snake {
     }
 
     this._prevTailFace = this._getTailFace();
-    this._direction    = currentVoxel.directionTo(targetVoxel, { sourcePlane: false });
     this.face          = targetVoxel.face;
     this.position      = position;
   }
@@ -263,3 +286,8 @@ module.exports = class Snake {
     }
   }
 };
+
+Snake.MAX_QUEUED_MOVES = 2;
+
+module.exports = Snake;
+

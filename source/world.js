@@ -10,9 +10,9 @@ const position2to3           = require('./utils/position2-to-3.js');
 
 class World {
   constructor() {
-    this.mesh            = this._makeWorldMesh();
-    this._faceVectors    = this._setupFaceVectors();
-    this._positions      = this._setupRandomPositions();
+    this.mesh         = this._makeWorldMesh();
+    this._faceVectors = this._setupFaceVectors();
+    this._positions   = this._setupRandomPositions();
 
     this._setupGraph();
   }

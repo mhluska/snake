@@ -1,7 +1,6 @@
 const THREE = require('three');
 const World = require('./world');
 const Snake = require('./snake');
-const Queue = require('./queue');
 const Const = require('./const');
 const Tests = require('../test/tests');
 const makeVoxelMesh = require('./utils/make-voxel-mesh');
@@ -36,7 +35,6 @@ class Game {
     }
 
     this._steps = 0;
-    this._moveQueue = new Queue([], this.constructor.MAX_QUEUED_MOVES);
     this._debugMeshes = new Set();
 
     this._world = new World();
@@ -151,7 +149,7 @@ class Game {
         break;
     }
 
-    this._moveQueue.enqueue(directionVector);
+    this._snake.enqueueDirection(directionVector);
   }
 
   _addVoxel(voxel) {
@@ -168,16 +166,7 @@ class Game {
   }
 
   _updateSnake(timeDelta) {
-    // TODO(maros): This direction-updating mechanism should be a function of
-    // the snake.
-    // Update snake direction.
-    let move = this._moveQueue.dequeue();
-    if (move) {
-      this._snake.direction = move;
-    }
-
     this._processMesh(this._snake.move(timeDelta));
-
     this._updateDebugInfo();
     this._updateCamera(this._snake.face, timeDelta);
   }
@@ -328,8 +317,6 @@ class Game {
     }
   }
 }
-
-Game.MAX_QUEUED_MOVES = 2;
 
 if (typeof window.snakeGameLoaded === 'function') {
   window.snakeGameLoaded(Game);
