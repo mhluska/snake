@@ -13,17 +13,12 @@ class Game {
     this._keys = keys;
     this._enemies = enemies;
     this._container = container;
+    this._world = new World();
 
     [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
 
     this.setup();
 
-    for (let i of times(Const.FOOD_START)) {
-      this._addFoodToScene(i);
-    }
-
-    this._cameraOriginalPosition = this._camera.position.clone();
-    this._cameraOriginalUp = this._camera.up.clone();
     this._container.appendChild(this._renderer.domElement);
     this.setupEventListeners(keys);
   }
@@ -42,15 +37,23 @@ class Game {
     this._steps = 0;
     this._debugMeshes = new Set();
 
-    this._world = new World();
-    this._cameraFace = this._initialCameraFace();
+    // TODO(maros): The game seems to only work if the starting face index is 3.
+    // The bug is likely related to the camera up vector. Fix that.
+    const playerFaceIndex = 3;
+
+    this._cameraFace = this._world._faceVectors[playerFaceIndex];
     this._cameraUpCached = this._camera.up.clone();
     this._snake = this._initSnake(this._cameraFace);
-    this._enemies = World.faceVectors().slice(1, this._enemies + 1).map(v => this._initSnakeEnemy(v))
+
+    this._snakeEnemies = this._world._faceVectors
+      .slice(0, playerFaceIndex)
+      .concat(this._world._faceVectors.slice(playerFaceIndex + 1))
+      .slice(0, this._enemies)
+      .map(v => this._initSnakeEnemy(v));
 
     // We make this a function of the number of enemies + player so that they
     // don't run out of food.
-    this._foodDropRate = 25 / (this._enemies.length + 1);
+    this._foodDropRate = Math.floor(50 / (this._snakeEnemies.length + 1));
 
     this._lastTime = window.performance.now();
 
@@ -68,14 +71,17 @@ class Game {
 
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
-    this._scene.add(...this._enemies.map(enemy => enemy.mesh));
+    this._scene.add(...this._snakeEnemies.map(enemy => enemy.mesh));
+
+    for (let i of times(Const.FOOD_START)) {
+      this._addFoodToScene(i);
+    }
   }
 
   reset() {
     this._world.reset();
     this._clearSceneMeshes();
-    this._camera.position.copy(this._cameraOriginalPosition);
-    this._camera.up.copy(this._cameraOriginalUp);
+    this._setupCameraOrientation(this._camera, this._world);
     this.setup();
   }
 
@@ -101,22 +107,28 @@ class Game {
     return new Snake(this._world, this._camera.up.clone(), face, options);
   }
 
+  // TODO(maros): The initial direction for the enemy snakes is incorrect. It
+  // has no effect because enemy snakes are in AI mode. This may be a problem
+  // if they enter manual movement mode if food runs out.
   _initSnakeEnemy(face) {
     return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.1 });
   }
 
-  _initialCameraFace() {
-    return World.faceVectors()[0];
+  _setupCameraOrientation(camera, world) {
+    camera.up.set(0, 1, 0);
+    camera.position.copy(world._faceVectors[3].clone().multiplyScalar(Const.CAMERA_DISTANCE));
+    camera.lookAt(world.mesh);
   }
 
   // TODO(maros): Move camera to its own class.
   _setupScene(container) {
+    assertTruthy(this._world);
+
     let scene    = new THREE.Scene();
     let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
     let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-    camera.position.copy(this._initialCameraFace().multiplyScalar(Const.CAMERA_DISTANCE));
-
+    this._setupCameraOrientation(camera, this._world);
     this._updateScreenSize(container, camera, renderer);
 
     let light1   = new THREE.PointLight(Const.Colors.LIGHT, 0.75);
@@ -225,7 +237,7 @@ class Game {
     this._lastTime = now;
 
     this._updateSnake(timeDelta);
-    this._enemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
+    this._snakeEnemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
 
     // Add food to the game every x frames.
     // TODO(maros): Don't update per frame but per time delta.

@@ -1,6 +1,11 @@
 (function () {
   window.snakeGameLoaded = function(SnakeGame) {
-    var game = new SnakeGame(document.querySelector('.snake-game'), { keys: true });
+    var isMobile = typeof window.orientation !== 'undefined';
+    var game = new SnakeGame(document.querySelector('.snake-game'), {
+      keys: true,
+      enemies: isMobile ? 1 : 5
+    });
+
     game.run();
   };
 })();
