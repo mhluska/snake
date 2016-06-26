@@ -9,8 +9,11 @@ const assertTruthy = require('./utils/assert-truthy');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
 class Game {
-  constructor(container, { keys = true } = {}) {
+  constructor(container, { keys = true, enemies = 5 } = {}) {
+    this._keys = keys;
+    this._enemies = enemies;
     this._container = container;
+
     [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
 
     this.setup();
@@ -40,15 +43,10 @@ class Game {
     this._debugMeshes = new Set();
 
     this._world = new World();
-    this._cameraFace = this._world._faceVectors[3];
+    this._cameraFace = this._initialCameraFace();
     this._cameraUpCached = this._camera.up.clone();
-
     this._snake = this._initSnake(this._cameraFace);
-    this._enemies = [
-      this._initSnakeEnemy(this._cameraFace.clone().negate()),
-      this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up)),
-      this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up).negate())
-    ];
+    this._enemies = World.faceVectors().slice(1, this._enemies + 1).map(v => this._initSnakeEnemy(v))
 
     // We make this a function of the number of enemies + player so that they
     // don't run out of food.
@@ -107,13 +105,17 @@ class Game {
     return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.1 });
   }
 
+  _initialCameraFace() {
+    return World.faceVectors()[0];
+  }
+
   // TODO(maros): Move camera to its own class.
   _setupScene(container) {
     let scene    = new THREE.Scene();
     let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
     let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-    camera.position.z = Const.CAMERA_DISTANCE;
+    camera.position.copy(this._initialCameraFace().multiplyScalar(Const.CAMERA_DISTANCE));
 
     this._updateScreenSize(container, camera, renderer);
 

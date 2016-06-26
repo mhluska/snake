@@ -11,10 +11,23 @@ const position2to3           = require('./utils/position2-to-3.js');
 class World {
   constructor() {
     this.mesh         = this._makeWorldMesh();
-    this._faceVectors = this._setupFaceVectors();
+    this._faceVectors = this.constructor.faceVectors();
     this._positions   = this._setupRandomPositions();
 
     this._setupGraph();
+  }
+
+  static faceVectors() {
+    const positions = [
+      [0,  1,  0],
+      [0,  0, -1],
+      [-1, 0,  0],
+      [0,  0,  1],
+      [1,  0,  0],
+      [0, -1,  0]
+    ];
+
+    return positions.map(p => new THREE.Vector3(...p));
   }
 
   spawnFood() {
@@ -51,19 +64,6 @@ class World {
     ];
 
     return adjacent.map(p => position2to3(p[0], p[1], faceVector));
-  }
-
-  _setupFaceVectors() {
-    let positions = [
-      [0,  1,  0],
-      [0,  0, -1],
-      [-1, 0,  0],
-      [0,  0,  1],
-      [1,  0,  0],
-      [0, -1,  0]
-    ];
-
-    return positions.map(p => new THREE.Vector3(...p));
   }
 
   _makeWorldMesh() {
