@@ -3,6 +3,7 @@ const World = require('./world');
 const Snake = require('./snake');
 const Const = require('./const');
 const Tests = require('../test/tests');
+const times = require('./utils/times');
 const makeVoxelMesh = require('./utils/make-voxel-mesh');
 const assertTruthy = require('./utils/assert-truthy');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
@@ -11,7 +12,13 @@ class Game {
   constructor(container, { keys = true } = {}) {
     this._container = container;
     [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
+
     this.setup();
+
+    for (let i of times(Const.FOOD_START)) {
+      this._addFoodToScene(i);
+    }
+
     this._cameraOriginalPosition = this._camera.position.clone();
     this._cameraOriginalUp = this._camera.up.clone();
     this._container.appendChild(this._renderer.domElement);
@@ -36,12 +43,16 @@ class Game {
     this._cameraFace = this._world._faceVectors[3];
     this._cameraUpCached = this._camera.up.clone();
 
-    this._snake   = this._initSnake(this._cameraFace);
+    this._snake = this._initSnake(this._cameraFace);
     this._enemies = [
       this._initSnakeEnemy(this._cameraFace.clone().negate()),
       this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up)),
       this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up).negate())
     ];
+
+    // We make this a function of the number of enemies + player so that they
+    // don't run out of food.
+    this._foodDropRate = 25 / (this._enemies.length + 1);
 
     this._lastTime = window.performance.now();
 
@@ -159,11 +170,6 @@ class Game {
     this._snake.enqueueDirection(directionVector);
   }
 
-  _addVoxel(voxel) {
-    if (!voxel) return;
-    this._scene.add(voxel.mesh);
-  }
-
   _processMesh(promise) {
     if (promise) {
       promise.then((foodMesh) => {
@@ -182,8 +188,11 @@ class Game {
     this._processMesh(snake.move(timeDelta));
   }
 
-  _updateWorld() {
-    this._addVoxel(this._world.spawnFood());
+  _addFoodToScene() {
+    const food = this._world.spawnFood();
+    if (food) {
+      this._scene.add(food.mesh);
+    }
   }
 
   _addDebugMesh(voxel, color) {
@@ -216,10 +225,10 @@ class Game {
     this._updateSnake(timeDelta);
     this._enemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
 
-    // Add food to the game every 100 frames.
+    // Add food to the game every x frames.
     // TODO(maros): Don't update per frame but per time delta.
-    if (this._steps % 100 === 0) {
-      this._updateWorld();
+    if (this._steps % this._foodDropRate === 0) {
+      this._addFoodToScene();
       this._updateDebugInfo();
     }
 

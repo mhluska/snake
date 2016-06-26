@@ -1,8 +1,9 @@
 const constants = {
+  DEBUG:           false,
   CAMERA_DISTANCE: 450,
   GAME_SIZE:       16,
   MESH_SIZE:       200,
-  DEBUG:           false,
+  FOOD_START:      16,
   Colors: {
     FOOD: 0xee7f5e,
     WORLD: 0x00bdd1,
