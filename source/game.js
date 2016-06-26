@@ -11,7 +11,7 @@ class Game {
   constructor(container, { keys = true } = {}) {
     this._container = container;
     [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
-    this.reset();
+    this.setup();
     this._cameraOriginalPosition = this._camera.position.clone();
     this._cameraOriginalUp = this._camera.up.clone();
     this._container.appendChild(this._renderer.domElement);
@@ -26,14 +26,9 @@ class Game {
     this._animate();
   }
 
-  reset({ firstRun = true } = {}) {
-    if (!firstRun) {
-      this._world.reset();
-      this._clearSceneMeshes();
-      this._camera.position.copy(this._cameraOriginalPosition);
-      this._camera.up.copy(this._cameraOriginalUp);
-    }
-
+  // NOTE(maros): This should be idempotent because it is called whenever the
+  // player dies.
+  setup() {
     this._steps = 0;
     this._debugMeshes = new Set();
 
@@ -65,6 +60,14 @@ class Game {
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
     this._scene.add(...this._enemies.map(enemy => enemy.mesh));
+  }
+
+  reset() {
+    this._world.reset();
+    this._clearSceneMeshes();
+    this._camera.position.copy(this._cameraOriginalPosition);
+    this._camera.up.copy(this._cameraOriginalUp);
+    this.setup();
   }
 
   setupEventListeners(keys) {
@@ -231,7 +234,7 @@ class Game {
     try {
       this._update();
     } catch(error) {
-      this.reset({ firstRun: false });
+      this.reset();
       this._update();
     }
 
