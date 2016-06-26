@@ -41,8 +41,12 @@ class Game {
     this._cameraFace = this._world._faceVectors[3];
     this._cameraUpCached = this._camera.up.clone();
 
-    this._snake      = this._initSnake(this._cameraFace);
-    this._snakeEnemy = this._initSnakeEnemy(this._cameraFace.clone().negate());
+    this._snake   = this._initSnake(this._cameraFace);
+    this._enemies = [
+      this._initSnakeEnemy(this._cameraFace.clone().negate()),
+      this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up)),
+      this._initSnakeEnemy(this._cameraFace.clone().cross(this._camera.up).negate())
+    ];
 
     this._lastTime = window.performance.now();
 
@@ -60,7 +64,7 @@ class Game {
 
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
-    this._scene.add(this._snakeEnemy.mesh);
+    this._scene.add(...this._enemies.map(enemy => enemy.mesh));
   }
 
   setupEventListeners(keys) {
@@ -86,7 +90,7 @@ class Game {
   }
 
   _initSnakeEnemy(face) {
-    return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY });
+    return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.1 });
   }
 
   // TODO(maros): Move camera to its own class.
@@ -207,7 +211,7 @@ class Game {
     this._lastTime = now;
 
     this._updateSnake(timeDelta);
-    this._updateSnakeEnemy(this._snakeEnemy, timeDelta);
+    this._enemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
 
     // Add food to the game every 100 frames.
     // TODO(maros): Don't update per frame but per time delta.

@@ -11,13 +11,15 @@ const { Graph }           = require('./graph');
 const { SnakeDeathError } = require('./error');
 
 class Snake {
-  constructor(world, direction, face, { startPosition = null, color = Const.Colors.SNAKE, type = 'player' } = {}) {
-    if (!startPosition) {
-       startPosition = Voxel.middleVoxel(face);
-    }
+  constructor(world, direction, face, {
+      startPosition = Voxel.middleVoxel(face),
+      color = Const.Colors.SNAKE,
+      type = 'player',
+      speed = 0.15
+    } = {}) {
 
     this.world    = world;
-    this.speed    = 0.15;
+    this.speed    = speed;
     this.type     = type;
     this.color    = color;
     this.face     = face;
