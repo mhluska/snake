@@ -31,7 +31,7 @@ class Voxel extends Node {
     return face;
   }
 
-  static findOrCreate(position, mesh = null, type = 'tile') {
+  static at(position, mesh = null, type = 'tile') {
     let key   = position.toString();
     let voxel = this.VOXEL_CACHE.get(key);
 

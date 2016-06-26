@@ -10,7 +10,7 @@ module.exports = function(size, color, position=null) {
     mesh.position.set(...position);
 
     // TODO(maros): Remove this side effect.
-    Voxel.findOrCreate(position, mesh);
+    Voxel.at(position, mesh);
   }
 
   return mesh;

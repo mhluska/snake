@@ -26,19 +26,19 @@ class World {
   }
 
   enable(position) {
-    Voxel.findOrCreate(position).enable();
+    Voxel.at(position).enable();
   }
 
   disable(position, type) {
     assert(type, 'Type required to disable voxel');
 
-    let voxel = Voxel.findOrCreate(position);
+    let voxel = Voxel.at(position);
     voxel.disable(type);
   }
 
   reset() {
     for (let [position] of this._eachPosition()) {
-      Voxel.findOrCreate(position).enable();
+      Voxel.at(position).enable();
     }
   }
 
@@ -76,7 +76,7 @@ class World {
     // This pushes the food mesh into the world to give the appearance of half
     // the height of the snake. We also reduce the scale by a fraction to avoid
     // visual issues with food items on world edges.
-    let voxel = Voxel.findOrCreate(mesh.position.toArray());
+    let voxel = Voxel.at(mesh.position.toArray());
     let offset = voxel.face.clone().negate().multiplyScalar(Const.TILE_SIZE / 2);
     mesh.scale.subScalar(0.01);
     mesh.position.add(offset);
@@ -93,7 +93,7 @@ class World {
 
     let position = this._popAvailablePosition();
     let mesh     = this._makeFoodMesh(position);
-    let voxel    = Voxel.findOrCreate(position);
+    let voxel    = Voxel.at(position);
 
     voxel.mesh = mesh;
     voxel.type = type;
@@ -114,8 +114,8 @@ class World {
   }
 
   _connectAdjacentPositions(positionA, positionB) {
-    let v1 = Voxel.findOrCreate(positionA);
-    let v2 = Voxel.findOrCreate(positionB);
+    let v1 = Voxel.at(positionA);
+    let v2 = Voxel.at(positionB);
     v1.connectTo(v2);
   }
 
@@ -160,7 +160,7 @@ class World {
 
     do {
       ({ value, done } = iter.next());
-    } while (!done && Voxel.findOrCreate(value).type !== 'tile');
+    } while (!done && Voxel.at(value).type !== 'tile');
 
     this._positions.delete(value);
     return value;

@@ -79,7 +79,7 @@ class Snake {
     }
 
     const position = this._nextPositionAuto() || this._nextPositionManual();
-    const foodMesh = this._eat(Voxel.findOrCreate(position));
+    const foodMesh = this._eat(Voxel.at(position));
 
     this._updateDirection(position);
 
@@ -102,7 +102,7 @@ class Snake {
     // NOTE(maros): This will throw an error if the snake has changed to a new
     // face but the direction was enqueued while on the previous face.
     try {
-      Voxel.findOrCreate(this.position).next(vector);
+      Voxel.at(this.position).next(vector);
     } catch(error) {
       return false;
     }
@@ -113,8 +113,8 @@ class Snake {
   }
 
   _updateDirection(targetPosition) {
-    const currentVoxel = Voxel.findOrCreate(this.position);
-    const targetVoxel  = Voxel.findOrCreate(targetPosition);
+    const currentVoxel = Voxel.at(this.position);
+    const targetVoxel  = Voxel.at(targetPosition);
 
     // TODO(maros): Remove this side effect.
     this.face = targetVoxel.face;
@@ -163,12 +163,12 @@ class Snake {
     }
 
     // Recompute path.
-    if (this._path.empty() || Voxel.findOrCreate(this._path.peek()).type === 'snake') {
+    if (this._path.empty() || Voxel.at(this._path.peek()).type === 'snake') {
 
       this.world.enable(this.position);
 
       // Find new target.
-      const start = Voxel.findOrCreate(this.position);
+      const start = Voxel.at(this.position);
       this._path  = new Queue(Graph.dijkstra(start, node => node.type === 'food'));
 
       // Remove the current position.
@@ -187,7 +187,7 @@ class Snake {
   _nextPositionManual() {
     assertTruthy(this.position, this._direction);
 
-    const voxel = Voxel.findOrCreate(this.position);
+    const voxel = Voxel.at(this.position);
     const nextVoxel = voxel.next(this._direction);
 
     if (this.type === 'player' && nextVoxel.type === 'snake' && !this._autoMove) {
@@ -251,14 +251,14 @@ class Snake {
 
   _getTailFace() {
     assertTruthy(this.tail);
-    return Voxel.findOrCreate(this.tail.position.toArray()).face;
+    return Voxel.at(this.tail.position.toArray()).face;
   }
 
   _updateSnakePosition(position) {
     assertTruthy(this.position, this.mesh, this.head);
 
-    const currentVoxel = Voxel.findOrCreate(this.position);
-    const targetVoxel  = Voxel.findOrCreate(position);
+    const currentVoxel = Voxel.at(this.position);
+    const targetVoxel  = Voxel.at(position);
 
     assert(currentVoxel.adjacentTo(targetVoxel), 'Current voxel not adjacent to target');
 
