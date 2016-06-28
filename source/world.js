@@ -76,7 +76,7 @@ class World {
     // This pushes the food mesh into the world to give the appearance of half
     // the height of the snake. We also reduce the scale by a fraction to avoid
     // visual issues with food items on world edges.
-    let voxel = Voxel.at(mesh.position.toArray());
+    let voxel = Voxel.at(mesh.position);
     let offset = voxel.face.clone().negate().multiplyScalar(Const.TILE_SIZE / 2);
     mesh.scale.subScalar(0.01);
     mesh.position.add(offset);
@@ -141,7 +141,7 @@ class World {
           adjVector[dimension] -= (faceVector[dimension] * Const.TILE_SIZE);
         }
 
-        this._connectAdjacentPositions(adjVector.toArray(), position);
+        this._connectAdjacentPositions(adjVector, position);
       });
     }
   }

@@ -25,7 +25,7 @@ class Snake {
     this.face     = face;
     this.size     = 6;
     this.mesh     = this._makeMeshGroup(this.size, startPosition, direction);
-    this.position = this.head.position.toArray();
+    this.position = this.head.position;
 
     this._path      = new Queue();
     this._autoMove  = true;
@@ -90,7 +90,7 @@ class Snake {
     this._updateDirection(position);
     this._updateEyesOrientation(position);
 
-    this.world.enable(this.tail.position.toArray());
+    this.world.enable(this.tail.position);
     this.world.disable(position, 'snake');
 
     this._resetAnimationTail(this.tail.position);
@@ -158,7 +158,7 @@ class Snake {
       done:  (end) => {
         this.mesh.remove(headClone);
         this._animationTail.stop();
-        this._updateSnakePosition(end.toArray());
+        this._updateSnakePosition(end);
         this.tail.position.copy(end);
         this.mesh.children.unshift(this.mesh.children.pop());
         this._transferEyes(headClone, this.head);
@@ -184,7 +184,7 @@ class Snake {
     }
 
     // Recompute path.
-    if (this._path.empty() || Voxel.at(this._path.peek()).type === 'snake') {
+    if (this._path.empty() || Voxel.at(this._path.peek().position).type === 'snake') {
 
       this.world.enable(this.position);
 
@@ -237,7 +237,7 @@ class Snake {
 
     for (let i of times(size)) {
       const direction = unitDirection.clone().multiplyScalar(i * Const.TILE_SIZE);
-      const meshPosition = startPosition.clone().sub(direction).toArray();
+      const meshPosition = startPosition.clone().sub(direction);
 
       group.add(this._makeVoxelMesh(meshPosition));
       this.world.disable(meshPosition, 'snake');
@@ -281,7 +281,7 @@ class Snake {
   _addEyesTo(mesh, direction) {
     assertTruthy(mesh);
 
-    const face = Voxel.at(mesh.position.toArray()).face;
+    const face = Voxel.at(mesh.position).face;
 
     mesh.add(this._makeEyeMesh(face, direction, 'left'),
              this._makeEyeMesh(face, direction, 'right'));
@@ -305,7 +305,7 @@ class Snake {
 
     currentVec.add(direction.multiplyScalar(Const.TILE_SIZE));
 
-    const mesh = this._makeVoxelMesh(currentVec.toArray());
+    const mesh = this._makeVoxelMesh(currentVec);
 
     // We add the mesh but rearrange to put it at the start of the array since
     // it becomes the head piece. This is a linear time operation and could be
@@ -320,12 +320,12 @@ class Snake {
     this.size -= 1;
 
     // NOTE(maros): This is the new tail after updating `this.size`.
-    this.world.enable(this.tail.position.toArray());
+    this.world.enable(this.tail.position);
   }
 
   _getTailFace() {
     assertTruthy(this.tail);
-    return Voxel.at(this.tail.position.toArray()).face;
+    return Voxel.at(this.tail.position).face;
   }
 
   _updateSnakePosition(position) {
@@ -357,7 +357,7 @@ class Snake {
       return;
     }
 
-    const mesh = this._makeVoxelMesh(this.tail.position.toArray());
+    const mesh = this._makeVoxelMesh(this.tail.position);
     this.mesh.add(mesh);
     this.size += 1;
 

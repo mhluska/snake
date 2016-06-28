@@ -2,15 +2,14 @@ const assert                 = require('assert');
 const THREE                  = require('three');
 const Const                  = require('./const');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+const to3Array               = require('./utils/to-3-array');
 const { Node }               = require('./graph');
 
 class Voxel extends Node {
   constructor(position, mesh = null, type = 'tile') {
     super();
 
-    assert(position && position.length === 3, 'Initialized Voxel without 3-position');
-
-    this.position = position;
+    this.position = to3Array(position);
     this.mesh     = mesh;
     this.type     = type;
     this.face     = this._findFaceVector(this.position);
@@ -32,7 +31,7 @@ class Voxel extends Node {
   }
 
   static at(position, mesh = null, type = 'tile') {
-    let key   = position.toString();
+    let key   = to3Array(position).toString();
     let voxel = this.VOXEL_CACHE.get(key);
 
     if (!voxel) {
@@ -48,7 +47,7 @@ class Voxel extends Node {
   }
 
   next(direction) {
-    let key   = direction.toArray().toString();
+    let key   = to3Array(direction).toString();
     let voxel = this._next.get(key);
 
     assert(voxel, `Could not find next vector using direction ${key}`);
@@ -123,7 +122,7 @@ class Voxel extends Node {
 
   _connectNext(voxel) {
     let direction = this.directionTo(voxel);
-    this._next.set(direction.toArray().toString(), voxel);
+    this._next.set(to3Array(direction).toString(), voxel);
   }
 
   _connectAdjacent(voxel) {

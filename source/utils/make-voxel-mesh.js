@@ -1,5 +1,5 @@
 const THREE = require('three');
-const Voxel = require('../voxel');
+const to3Array = require('./to-3-array');
 
 module.exports = function(size, color, position=null) {
   const geometry = new THREE.BoxGeometry(size, size, size);
@@ -7,10 +7,7 @@ module.exports = function(size, color, position=null) {
   const mesh     = new THREE.Mesh(geometry, material);
 
   if (position) {
-    mesh.position.set(...position);
-
-    // TODO(maros): Remove this side effect.
-    Voxel.at(position, mesh);
+    mesh.position.set(...to3Array(position));
   }
 
   return mesh;

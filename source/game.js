@@ -220,6 +220,7 @@ class Game {
       return;
     }
 
+    snake.mesh.children.map(mesh => this._world.enable(mesh.position));
     this._snakeEnemies.splice(index, 1);
     this._scene.remove(snake.mesh);
   }
