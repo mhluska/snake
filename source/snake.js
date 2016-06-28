@@ -67,16 +67,7 @@ class Snake {
   }
 
   move(timeDelta) {
-    if (this._animationHead && this._animationHead.animating) {
-      this._animationHead.update(timeDelta);
-    }
-
-    if (this._animationTail && this._animationTail.animating) {
-      this._animationTail.update(timeDelta);
-    }
-
-    if ((this._animationHead && this._animationHead.animating) ||
-        (this._animationTail && this._animationTail.animating)) {
+    if (this._updateAnimations(timeDelta)) {
       return;
     }
 
@@ -97,6 +88,19 @@ class Snake {
     this._resetAnimationHead(new THREE.Vector3(...position));
 
     return this._animationHead.then(() => foodMesh);
+  }
+
+  _updateAnimations(timeDelta) {
+    if (this._animationHead && this._animationHead.animating) {
+      this._animationHead.update(timeDelta);
+    }
+
+    if (this._animationTail && this._animationTail.animating) {
+      this._animationTail.update(timeDelta);
+    }
+
+    return ((this._animationHead && this._animationHead.animating) ||
+            (this._animationTail && this._animationTail.animating));
   }
 
   _dequeueDirection() {
