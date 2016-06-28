@@ -229,7 +229,7 @@ class Snake {
   }
 
   _makeVoxelMesh(position) {
-    return makeVoxelMesh(Const.TILE_SIZE, this.color, position);
+    return makeVoxelMesh(Const.TILE_SIZE, { color: this.color, position: position });
   }
 
   _makeMeshGroup(size, startPosition, unitDirection) {

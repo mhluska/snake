@@ -229,7 +229,7 @@ class Game {
     let mesh = voxel.mesh;
 
     if (!mesh) {
-      mesh = makeVoxelMesh(Const.TILE_SIZE, color, voxel.position);
+      mesh = makeVoxelMesh(Const.TILE_SIZE, { color: color, position: voxel.position });
       this._debugMeshes.add(mesh);
       this._scene.add(mesh);
     }

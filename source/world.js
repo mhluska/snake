@@ -67,11 +67,41 @@ class World {
   }
 
   _makeWorldMesh() {
-    return makeVoxelMesh(Const.MESH_SIZE, Const.Colors.WORLD);
+    return makeVoxelMesh(Const.MESH_SIZE, { map: this._makeWorldTexture() });
+  }
+
+  // TODO(maros): Move this to a util module.
+  _makeWorldTexture() {
+    const max = 255;
+    const size = 64;
+    const values = 3;
+    const rgb = new Uint8Array(size * size * values);
+    const color = Const.Colors.WORLD;
+
+    // 1 in 32 chance to return the `high` value.
+    const chance = ({ normal, high }) => {
+      return Math.floor(Math.random() * 32) === 0 ? high : normal;
+    };
+
+    for (let i of times(size * size)) {
+
+      const shift = chance({ normal: 0, high: 24 });
+      const variance = chance({ normal: 32, high: 64 });
+      const brightness = max - (Math.random() * variance);
+
+      rgb[(i * values) + 0] = (((color >> 16) & max) * (brightness / max) + shift);
+      rgb[(i * values) + 1] = (((color >> 8)  & max) * (brightness / max) + shift);
+      rgb[(i * values) + 2] = (((color)       & max) * (brightness / max) + shift);
+    }
+
+    const texture = new THREE.DataTexture(rgb, size, size, THREE.RGBFormat);
+    texture.needsUpdate = true;
+
+    return texture;
   }
 
   _makeFoodMesh(position) {
-    let mesh = makeVoxelMesh(Const.TILE_SIZE, Const.Colors.FOOD, position);
+    let mesh = makeVoxelMesh(Const.TILE_SIZE, { color: Const.Colors.FOOD, position: position });
 
     // This pushes the food mesh into the world to give the appearance of half
     // the height of the snake. We also reduce the scale by a fraction to avoid

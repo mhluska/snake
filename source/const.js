@@ -6,7 +6,7 @@ const constants = {
   FOOD_START:      16,
   Colors: {
     FOOD: 0xee7f5e,
-    WORLD: 0x00bdd1,
+    WORLD: 0xe1d8a8,
     LIGHT: 0xffffff,
     SNAKE: 0x885f4d,
     ENEMY: 0xc97373,
