@@ -5,6 +5,7 @@ const Const = require('./const');
 const Tests = require('../test/tests');
 const times = require('./utils/times');
 const makeVoxelMesh = require('./utils/make-voxel-mesh');
+const assert = require('assert');
 const assertTruthy = require('./utils/assert-truthy');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 
@@ -209,6 +210,19 @@ class Game {
     }
   }
 
+  _removeSnakeEnemyFromScene(snake) {
+    assert(snake.type === 'enemy', 'Snake is not of type enemy');
+
+    const index = this._snakeEnemies.indexOf(snake);
+
+    if (index === -1) {
+      return;
+    }
+
+    this._snakeEnemies.splice(index, 1);
+    this._scene.remove(snake.mesh);
+  }
+
   _addDebugMesh(voxel, color) {
     let mesh = voxel.mesh;
 
@@ -257,7 +271,12 @@ class Game {
     try {
       this._update();
     } catch(error) {
-      this.reset();
+      if (error.snake && error.snake.type === 'enemy') {
+        this._removeSnakeEnemyFromScene(error.snake);
+      } else {
+        this.reset();
+      }
+
       this._update();
     }
 

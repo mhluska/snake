@@ -1,6 +1,7 @@
 class SnakeDeathError extends Error {
-  constructor(message) {
+  constructor({ message = '', snake } = {}) {
     super(message);
+    this.snake = snake;
     this.message = message;
     this.name = 'SnakeDeathError';
   }

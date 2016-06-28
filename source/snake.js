@@ -59,7 +59,7 @@ class Snake {
   }
 
   die() {
-    throw new SnakeDeathError();
+    throw new SnakeDeathError({ snake: this });
   }
 
   move(timeDelta) {
@@ -277,17 +277,21 @@ class Snake {
   }
 
   _eat(voxel) {
-    if (!voxel) return;
-
-    if (voxel.type === 'food') {
-      const mesh = this._makeVoxelMesh(this.tail.position.toArray());
-      this.mesh.add(mesh);
-      this.size += 1;
-
-      this._resetAnimationTail(mesh.position);
-
-      return voxel.mesh;
+    if (!voxel) {
+      return;
     }
+
+    if (voxel.type !== 'food') {
+      return;
+    }
+
+    const mesh = this._makeVoxelMesh(this.tail.position.toArray());
+    this.mesh.add(mesh);
+    this.size += 1;
+
+    this._resetAnimationTail(mesh.position);
+
+    return voxel.mesh;
   }
 };
 
