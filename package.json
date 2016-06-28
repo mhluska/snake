@@ -1,6 +1,6 @@
 {
   "name": "snake",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "3D self-playing snake game",
   "main": "snake.js",
   "scripts": {
