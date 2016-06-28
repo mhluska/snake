@@ -54,7 +54,8 @@ class Game {
 
     // We make this a function of the number of enemies + player so that they
     // don't run out of food.
-    this._foodDropRate = Math.floor(50 / (this._snakeEnemies.length + 1));
+    // TODO(maros): This should also be a function of the snake speed.
+    this._foodDropRate = Math.floor(200 / (this._snakeEnemies.length + 1));
 
     this._lastTime = window.performance.now();
 
@@ -112,7 +113,7 @@ class Game {
   // has no effect because enemy snakes are in AI mode. This may be a problem
   // if they enter manual movement mode if food runs out.
   _initSnakeEnemy(face) {
-    return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.1 });
+    return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.05 });
   }
 
   _setupCameraOrientation(camera, world) {
@@ -343,7 +344,7 @@ class Game {
 
     const x = this._cameraAnimation.primaryAxis;
     const y = this._cameraAnimation.secondaryAxis;
-    const speed = 1;
+    const speed = 0.75;
     const delta = this._cameraAnimation.targetPosition[x] - this._cameraAnimation.position[x];
     const distanceRemaining = Math.max(0, Math.abs(delta) - (speed * timeDelta));
 

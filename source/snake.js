@@ -15,7 +15,7 @@ class Snake {
       startPosition = Voxel.middleVoxel(face),
       color = Const.Colors.SNAKE,
       type = 'player',
-      speed = 0.15
+      speed = 0.075
     } = {}) {
 
     this.world    = world;
@@ -35,6 +35,10 @@ class Snake {
     this._animationTail = null;
     this._animationHead = null;
     this._prevTailFace  = this._getTailFace();
+  }
+
+  get eyes() {
+    return this.head ? this.head.children : null;
   }
 
   get head() {
@@ -84,6 +88,7 @@ class Snake {
     const foodMesh = this._eat(Voxel.at(position));
 
     this._updateDirection(position);
+    this._updateEyesOrientation(position);
 
     this.world.enable(this.tail.position.toArray());
     this.world.disable(position, 'snake');
@@ -124,12 +129,25 @@ class Snake {
     this._direction.copy(currentVoxel.directionTo(targetVoxel, { sourcePlane: false }));
   }
 
+  _updateEyesOrientation(position) {
+    assertTruthy(this.eyes, this._direction);
+
+    const face = Voxel.at(position).face;
+
+    this._setEyeOrientation(this.eyes[1], face, this._direction, 'left');
+    this._setEyeOrientation(this.eyes[0], face, this._direction, 'right');
+  }
+
   _resetAnimationHead(end) {
     if (this._animationHead) {
       this._animationHead.stop();
     }
 
     const headClone = this.head.clone();
+
+    // Since the snake eyes end up in `headClone`, we remove the original ones.
+    this.eyes.pop();
+    this.eyes.pop();
 
     this.mesh.add(headClone);
 
@@ -143,6 +161,7 @@ class Snake {
         this._updateSnakePosition(end.toArray());
         this.tail.position.copy(end);
         this.mesh.children.unshift(this.mesh.children.pop());
+        this._transferEyes(headClone, this.head);
       }
     });
   }
@@ -224,7 +243,60 @@ class Snake {
       this.world.disable(meshPosition, 'snake');
     }
 
+    this._addEyesTo(group.children[0], unitDirection);
+
     return group;
+  }
+
+  _setEyeOrientation(mesh, face, direction, eyeSide) {
+    const eyeShift = direction.clone().cross(face);
+    const eyeShiftScalar = 4.75;
+
+    if (eyeSide === 'left') {
+      eyeShift.negate();
+    }
+
+    mesh.position.set(0, 0, 0);
+    mesh.lookAt(face);
+
+    // NOTE(maros): We add `0.01` so that the eyes render above the snake
+    // meshes. Otherwise there are rendering issues after the snake eats a
+    // voxel.
+    mesh.position.add(face.clone().multiplyScalar((Const.TILE_SIZE / 2) + 0.01));
+    mesh.position.add(eyeShift.multiplyScalar(Const.TILE_SIZE / eyeShiftScalar));
+    mesh.position.add(direction.clone().multiplyScalar(Const.TILE_SIZE / eyeShiftScalar));
+  }
+
+  _makeEyeMesh(face, direction, eyeSide) {
+    const size = Const.TILE_SIZE / 4;
+    const geometry = new THREE.PlaneGeometry(size, size);
+    const material = new THREE.MeshBasicMaterial({ color: Const.Colors.EYES, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    this._setEyeOrientation(mesh, face, direction, eyeSide);
+
+    return mesh;
+  }
+
+  _addEyesTo(mesh, direction) {
+    assertTruthy(mesh);
+
+    const face = Voxel.at(mesh.position.toArray()).face;
+
+    mesh.add(this._makeEyeMesh(face, direction, 'left'),
+             this._makeEyeMesh(face, direction, 'right'));
+  }
+
+  _transferEyes(fromMesh, toMesh) {
+    assert(fromMesh, 'fromMesh missing');
+    assert(fromMesh.children.length === 2, 'fromMesh eyes missing');
+
+    if (!toMesh) {
+      return;
+    }
+
+    toMesh.add(fromMesh.children.pop());
+    toMesh.add(fromMesh.children.pop());
   }
 
   _addEdgeMesh(currentVoxel, targetVoxel) {
