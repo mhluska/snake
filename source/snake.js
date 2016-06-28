@@ -268,9 +268,15 @@ class Snake {
   }
 
   _makeEyeMesh(face, direction, eyeSide) {
-    const size = Const.TILE_SIZE / 4;
+    const size = Const.TILE_SIZE / 5;
     const geometry = new THREE.PlaneGeometry(size, size);
-    const material = new THREE.MeshBasicMaterial({ color: Const.Colors.EYES, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({
+      color: Const.Colors.EYES,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.25
+    });
+
     const mesh = new THREE.Mesh(geometry, material);
 
     this._setEyeOrientation(mesh, face, direction, eyeSide);
