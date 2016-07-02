@@ -8,6 +8,7 @@ const makeVoxelMesh = require('./utils/make-voxel-mesh');
 const assert = require('assert');
 const assertTruthy = require('./utils/assert-truthy');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
+const adjacentUnitVector = require('./utils/adjacent-unit-vector');
 
 class Game {
   constructor(container, { keys = true, enemies = 5 } = {}) {
@@ -105,13 +106,10 @@ class Game {
   }
 
   _initSnake(face, options) {
-    assertTruthy(this._world, this._camera);
-    return new Snake(this._world, this._camera.up.clone(), face, options);
+    assertTruthy(this._world);
+    return new Snake(this._world, adjacentUnitVector(face), face, options);
   }
 
-  // TODO(maros): The initial direction for the enemy snakes is incorrect. It
-  // has no effect because enemy snakes are in AI mode. This may be a problem
-  // if they enter manual movement mode if food runs out.
   _initSnakeEnemy(face) {
     return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.05 });
   }
@@ -220,7 +218,14 @@ class Game {
       return;
     }
 
-    snake.mesh.children.map(mesh => this._world.enable(mesh.position));
+    snake.mesh.children.map(mesh => {
+      // TODO(maros): We wrap in try/catch because of the pseodo-snake pieces
+      // that can exist on edges. Make those not part of the snake mesh.
+      try {
+        this._world.enable(mesh.position);
+      } catch(error) {}
+    });
+
     this._snakeEnemies.splice(index, 1);
     this._scene.remove(snake.mesh);
   }

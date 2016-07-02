@@ -30,12 +30,13 @@ class Voxel extends Node {
     return face;
   }
 
-  static at(position, mesh = null, type = 'tile') {
-    let key   = to3Array(position).toString();
+  static at(position, { create = false } = {}) {
+    const key = to3Array(position).toString();
     let voxel = this.VOXEL_CACHE.get(key);
 
     if (!voxel) {
-      voxel = new Voxel(position, mesh, type);
+      assert(create, `Unknown voxel requested at ${key}`);
+      voxel = new Voxel(position);
       this.VOXEL_CACHE.set(key, voxel);
     }
 
@@ -52,6 +53,17 @@ class Voxel extends Node {
 
     assert(voxel, `Could not find next vector using direction ${key}`);
     return voxel;
+  }
+
+  // TODO(maros): Rename this to `next` and just use everywhere.
+  nextWithDirection(direction) {
+    const next = this.next(direction);
+
+    if (this.face !== next.face) {
+      direction = next.directionTo(this, { sourcePlane: true }).negate();
+    }
+
+    return [next, direction];
   }
 
   directionTo(voxel, options={}) {

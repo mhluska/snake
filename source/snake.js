@@ -5,7 +5,6 @@ const Voxel               = require('./voxel');
 const Queue               = require('./queue');
 const Animation           = require('./animation');
 const makeVoxelMesh       = require('./utils/make-voxel-mesh');
-const times               = require('./utils/times');
 const assertTruthy        = require('./utils/assert-truthy');
 const { Graph }           = require('./graph');
 const { SnakeDeathError } = require('./error');
@@ -239,12 +238,14 @@ class Snake {
   _makeMeshGroup(size, startPosition, unitDirection) {
     const group = new THREE.Object3D();
 
-    for (let i of times(size)) {
-      const direction = unitDirection.clone().multiplyScalar(i * Const.TILE_SIZE);
-      const meshPosition = startPosition.clone().sub(direction);
+    let backwards = unitDirection.clone().negate();
+    let currentVoxel = Voxel.at(startPosition);
 
-      group.add(this._makeVoxelMesh(meshPosition));
-      this.world.disable(meshPosition, 'snake');
+    while (size > 0) {
+      this.world.disable(currentVoxel.position, 'snake');
+      group.add(this._makeVoxelMesh(currentVoxel.position));
+      ([currentVoxel, backwards] = currentVoxel.nextWithDirection(backwards));
+      size -= 1;
     }
 
     this._addEyesTo(group.children[0], unitDirection);
@@ -328,14 +329,14 @@ class Snake {
   _removeEdgeMesh() {
     this.mesh.remove(this.tail);
     this.size -= 1;
-
-    // NOTE(maros): This is the new tail after updating `this.size`.
-    this.world.enable(this.tail.position);
   }
 
   _getTailFace() {
-    assertTruthy(this.tail);
-    return Voxel.at(this.tail.position).face;
+    try {
+      return Voxel.at(this.tail.position).face;
+    } catch(error) {
+      return Voxel.at(this.mesh.children[this.size - 3].position).face;
+    }
   }
 
   _updateSnakePosition(position) {

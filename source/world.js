@@ -26,14 +26,16 @@ class World {
   }
 
   enable(position) {
+    this._positions.add(position);
     Voxel.at(position).enable();
   }
 
   disable(position, type) {
     assert(type, 'Type required to disable voxel');
+    assert(type !== 'food', 'Please use `spawnFood` interface for food type');
 
-    let voxel = Voxel.at(position);
-    voxel.disable(type);
+    this._positions.delete(position);
+    Voxel.at(position).disable(type);
   }
 
   reset() {
@@ -117,13 +119,14 @@ class World {
   // Returns a voxel that will occupy a random voxel in the world. If the world
   // is full, it returns `undefind`.
   _spawn(type) {
-    if (this._noFreePositions()) {
+    const position = this._popAvailablePosition();
+
+    if (!position) {
       return;
     }
 
-    let position = this._popAvailablePosition();
-    let mesh     = this._makeFoodMesh(position);
-    let voxel    = Voxel.at(position);
+    const mesh  = this._makeFoodMesh(position);
+    const voxel = Voxel.at(position);
 
     voxel.mesh = mesh;
     voxel.type = type;
@@ -144,8 +147,8 @@ class World {
   }
 
   _connectAdjacentPositions(positionA, positionB) {
-    let v1 = Voxel.at(positionA);
-    let v2 = Voxel.at(positionB);
+    let v1 = Voxel.at(positionA, { create: true });
+    let v2 = Voxel.at(positionB, { create: true });
     v1.connectTo(v2);
   }
 
@@ -178,10 +181,6 @@ class World {
 
   _setupRandomPositions() {
     return new Set(shuffle(Array.from(this._eachPosition()).map(el => el[0])));
-  }
-
-  _noFreePositions() {
-    return this._positions.size === 0;
   }
 
   _popAvailablePosition() {

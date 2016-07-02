@@ -31,6 +31,7 @@ class Animation {
 
   stop() {
     if (this.animating) {
+      this.start.copy(this.end);
       this.done(this.end);
       this.animating = false;
       for (let resolve of this._deferred) {
