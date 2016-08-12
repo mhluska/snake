@@ -11,11 +11,12 @@ const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 const adjacentUnitVector = require('./utils/adjacent-unit-vector');
 
 class Game {
-  constructor(container, { keys = true, enemies = 5 } = {}) {
+  constructor(container, { keys = true, enemies = 5, zoom = 1 } = {}) {
     this._keys = keys;
     this._enemies = enemies;
     this._container = container;
     this._world = new World();
+    this._zoom = zoom;
 
     [this._scene, this._camera, this._renderer] = this._setupScene(this._container);
 
@@ -114,9 +115,13 @@ class Game {
     return this._initSnake(face, { type: 'enemy', color: Const.Colors.ENEMY, speed: 0.05 });
   }
 
+  _cameraDistance() {
+    return Const.CAMERA_DISTANCE / this._zoom;
+  }
+
   _setupCameraOrientation(camera, world) {
     camera.up.set(0, 1, 0);
-    camera.position.copy(world._faceVectors[3].clone().multiplyScalar(Const.CAMERA_DISTANCE));
+    camera.position.copy(world._faceVectors[3].clone().multiplyScalar(this._cameraDistance()));
     camera.lookAt(world.mesh);
   }
 
@@ -292,12 +297,13 @@ class Game {
   }
 
   _circular(x) {
-    return Math.sqrt((Const.CAMERA_DISTANCE * Const.CAMERA_DISTANCE) - (x * x));
+    const distance = this._cameraDistance();
+    return Math.sqrt((distance * distance) - (x * x));
   }
 
   // Cubic approximation of a bezier transform.
   _bezier(x) {
-    const max = Const.CAMERA_DISTANCE;
+    const max = this._cameraDistance();
 
     x = max - x;             // Change input from 500 -> 0 to 0 -> 500
     x /= max;                // Bring it in the range [0, 1]
@@ -338,7 +344,7 @@ class Game {
       this._cameraAnimation.primaryMultiplier = -faceDirection[this._cameraAnimation.primaryAxis];
       this._cameraAnimation.secondaryMultiplier = faceDirection[this._cameraAnimation.secondaryAxis];
       this._cameraAnimation.position = this._camera.position.clone();
-      this._cameraAnimation.targetPosition = face.clone().multiplyScalar(Const.CAMERA_DISTANCE);
+      this._cameraAnimation.targetPosition = face.clone().multiplyScalar(this._cameraDistance());
       this._cameraAnimation.animating = true;
 
       this._cameraFace = face;
