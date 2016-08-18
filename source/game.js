@@ -129,16 +129,17 @@ class Game {
   _setupScene(container) {
     assertTruthy(this._world);
 
-    let scene    = new THREE.Scene();
-    let camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
-    let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const scene    = new THREE.Scene();
+    const camera   = new THREE.PerspectiveCamera(75, null, 1, 10000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
     this._setupCameraOrientation(camera, this._world);
     this._updateScreenSize(container, camera, renderer);
 
-    let light1   = new THREE.PointLight(Const.Colors.LIGHT, 0.75);
-    let light2   = new THREE.PointLight(Const.Colors.LIGHT, 0.75);
-    let distance = Const.MESH_SIZE * 1.5;
+    const intensity = 1;
+    const light1    = new THREE.PointLight(Const.Colors.LIGHT, intensity);
+    const light2    = new THREE.PointLight(Const.Colors.LIGHT, intensity);
+    const distance  = Const.MESH_SIZE * 1.5;
 
     light1.position.set(distance, distance, distance);
     light2.position.copy(light1.position).negate();
