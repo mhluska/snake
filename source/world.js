@@ -2,6 +2,7 @@ const THREE                  = require('three');
 const assert                 = require('assert');
 const Voxel                  = require('./voxel');
 const Const                  = require('./const');
+const Animation              = require('./animation');
 const times                  = require('./utils/times');
 const shuffle                = require('./utils/shuffle');
 const makeVoxelMesh          = require('./utils/make-voxel-mesh');
@@ -110,7 +111,7 @@ class World {
     // visual issues with food items on world edges.
     let voxel = Voxel.at(mesh.position);
     let offset = voxel.face.clone().negate().multiplyScalar(Const.TILE_SIZE / 2);
-    mesh.scale.subScalar(0.01);
+    mesh.scale.setScalar(World.FOOD_SCALE_MAX);
     mesh.position.add(offset);
 
     return mesh;
@@ -130,6 +131,20 @@ class World {
 
     voxel.mesh = mesh;
     voxel.type = type;
+
+    const min = World.FOOD_SCALE_MIN;
+    const max = World.FOOD_SCALE_MAX;
+
+    mesh.scale.setScalar(min);
+
+    Animation.add({
+      time: 0.5,
+      easing: 'easeOut',
+      step: (percentage) => {
+        const scale = Math.min(max, Math.max(min, percentage));
+        mesh.scale.setScalar(scale);
+      }
+    });
 
     return voxel;
   }
@@ -195,5 +210,8 @@ class World {
     return value;
   }
 }
+
+World.FOOD_SCALE_MIN = 0.01;
+World.FOOD_SCALE_MAX = 0.99;
 
 module.exports = World;
