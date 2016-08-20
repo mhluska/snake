@@ -2,6 +2,7 @@ const THREE = require('three');
 const World = require('./world');
 const Snake = require('./snake');
 const Const = require('./const');
+const Animation = require('./animation');
 const Tests = require('../test/tests');
 const times = require('./utils/times');
 const makeVoxelMesh = require('./utils/make-voxel-mesh');
@@ -263,6 +264,7 @@ class Game {
     const timeDelta = now - this._lastTime;
     this._lastTime = now;
 
+    Animation.update(timeDelta);
     this._updateSnake(timeDelta);
     this._snakeEnemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
 

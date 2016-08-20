@@ -1,16 +1,19 @@
-// TODO(maros): Implement using linked list if widely used.
+const LinkedList = require('./linked-list');
+
 class Queue {
   constructor(data, maxSize = Infinity) {
-    this._data    = data || [];
+    this._list    = new LinkedList(maxSize);
     this._maxSize = maxSize;
+
+    if (data) {
+      for (let item of data) {
+        this._list.append(item);
+      }
+    }
   }
 
   get length() {
-    return this._data.length;
-  }
-
-  toArray() {
-    return this._data;
+    return this._list.length;
   }
 
   empty() {
@@ -18,18 +21,15 @@ class Queue {
   }
 
   peek() {
-    return this._data[0];
+    return this._list.start;
   }
 
   enqueue(item) {
-    this._data.push(item);
-    if (this._data.length > this._maxSize) {
-      this._data.shift();
-    }
+    this._list.append(item);
   }
 
   dequeue() {
-    return this._data.shift();
+    return this._list.removeLeft();
   }
 }
 

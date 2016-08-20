@@ -1,10 +1,12 @@
-var GraphTests = require('./graph');
-var VoxelTests = require('./voxel');
+const GraphTests      = require('./graph');
+const VoxelTests      = require('./voxel');
+const LinkedListTests = require('./linked-list');
 
 class Tests {
   static run() {
     GraphTests.run();
     VoxelTests.run();
+    LinkedListTests.run();
   }
 }
 
