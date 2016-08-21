@@ -71,7 +71,7 @@ class Animation {
   stop() {
     if (this.animating) {
       this.start.copy(this.end);
-      this.step(1);
+      this.step(1, this.start);
       this.done(this.end);
       this.animating = false;
       for (let resolve of this._deferred) {
@@ -90,7 +90,7 @@ class Animation {
     if (this._timeElapsed >= this.time) {
       this.stop();
     } else {
-      this.step(this._timeStep(this._timeElapsed));
+      this.step(this._timeStep(this._timeElapsed), this.start);
     }
   }
 

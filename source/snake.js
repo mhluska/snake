@@ -65,8 +65,8 @@ class Snake {
     throw new SnakeDeathError({ snake: this });
   }
 
-  move(timeDelta) {
-    if (this._updateAnimations(timeDelta)) {
+  move() {
+    if (this._isAnimating()) {
       return;
     }
 
@@ -89,15 +89,7 @@ class Snake {
     return this._animationHead.then(() => foodMesh);
   }
 
-  _updateAnimations(timeDelta) {
-    if (this._animationHead && this._animationHead.animating) {
-      this._animationHead.update(timeDelta);
-    }
-
-    if (this._animationTail && this._animationTail.animating) {
-      this._animationTail.update(timeDelta);
-    }
-
+  _isAnimating() {
     return ((this._animationHead && this._animationHead.animating) ||
             (this._animationTail && this._animationTail.animating));
   }
@@ -154,7 +146,7 @@ class Snake {
 
     this.mesh.add(headClone);
 
-    this._animationHead = new Animation({
+    this._animationHead = Animation.add({
       speed: this.speed,
       start: headClone.position,
       end:   end,
@@ -174,7 +166,7 @@ class Snake {
       this._animationTail.stop();
     }
 
-    this._animationTail = new Animation({
+    this._animationTail = Animation.add({
       speed: this.speed,
       start: start,
       end:   this.mesh.children[this.size - 2].position
@@ -332,10 +324,14 @@ class Snake {
   }
 
   _getTailFace() {
-    try {
-      return Voxel.at(this.tail.position).face;
-    } catch(error) {
-      return Voxel.at(this.mesh.children[this.size - 3].position).face;
+    // This will almost always terminate on the first iteration. The exception
+    // occurs when the tail is on an edge position when transitioning between
+    // faces. In that case, an error will be thrown and we need to check the
+    // next snake piece.
+    for (let i = this.size - 1; i >= 0; i -= 1) {
+      try {
+        return Voxel.at(this.mesh.children[i].position).face;
+      } catch(error) {}
     }
   }
 

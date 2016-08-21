@@ -61,18 +61,7 @@ class Game {
     this._foodDropRate = Math.floor(200 / (this._snakeEnemies.length + 1));
 
     this._lastTime = window.performance.now();
-
-    // TODO(maros): Use the `Animation` class.
-    this._cameraAnimation = {
-      primaryAxis: null,
-      primaryMultiplier: null,
-      secondaryAxis: null,
-      secondaryMultiplier: null,
-      position: null,
-      targetPosition: null,
-      animating: false,
-      doneCallback: function(){},
-    };
+    this._cameraAnimation = null;
 
     this._scene.add(this._world.mesh);
     this._scene.add(this._snake.mesh);
@@ -199,14 +188,14 @@ class Game {
     }
   }
 
-  _updateSnake(timeDelta) {
-    this._processMesh(this._snake.move(timeDelta));
+  _updateSnake() {
+    this._processMesh(this._snake.move());
     this._updateDebugInfo();
-    this._updateCamera(this._snake.face, timeDelta);
+    this._updateCamera(this._snake.face);
   }
 
-  _updateSnakeEnemy(snake, timeDelta) {
-    this._processMesh(snake.move(timeDelta));
+  _updateSnakeEnemy(snake) {
+    this._processMesh(snake.move());
   }
 
   _addFoodToScene() {
@@ -265,8 +254,8 @@ class Game {
     this._lastTime = now;
 
     Animation.update(timeDelta);
-    this._updateSnake(timeDelta);
-    this._snakeEnemies.forEach(enemy => this._updateSnakeEnemy(enemy, timeDelta));
+    this._updateSnake();
+    this._snakeEnemies.forEach(enemy => this._updateSnakeEnemy(enemy));
 
     // Add food to the game every x frames.
     // TODO(maros): Don't update per frame but per time delta.
@@ -303,83 +292,46 @@ class Game {
     const distance = this._cameraDistance();
     return Math.sqrt((distance * distance) - (x * x));
   }
-
-  // Cubic approximation of a bezier transform.
-  _bezier(x) {
-    const max = this._cameraDistance();
-
-    x = max - x;             // Change input from 500 -> 0 to 0 -> 500
-    x /= max;                // Bring it in the range [0, 1]
-    x = ((--x) * x * x) + 1; // Apply the transform
-    x *= max;                // Back to the range [0, 500]
-    x = max - x;             // Back to 500 -> 0
-
-    return x;
-  }
-
-  _updateCamera(face, timeDelta) {
-    assertTruthy(this._camera, this._cameraFace, this._world, this._cameraAnimation);
-
-    if (!this._cameraFace.equals(face)) {
-      // We finish any previously running animation. This is helpful when
-      // rapidly turning multiple corners.
-      this._cameraAnimation.doneCallback();
-
-      const dot = this._camera.up.dot(face);
-
-      if (dot !== 0) {
-        this._cameraUpCached = this._cameraFace.clone();
-        this._cameraUpCached.multiplyScalar(-dot);
-      }
-
-      this._cameraAnimation.doneCallback = () => {
-        this._camera.up.copy(this._cameraUpCached);
-        this._camera.position.copy(this._cameraAnimation.targetPosition);
-        this._camera.rotation.set(0, 0, 0);
-        this._camera.lookAt(this._world.mesh.position);
-        this._cameraAnimation.animating = false;
-      };
-
-      const faceDirection = face.clone().sub(this._cameraFace);
-
-      this._cameraAnimation.primaryAxis = getUnitVectorDimension(this._cameraFace);
-      this._cameraAnimation.secondaryAxis = getUnitVectorDimension(face);
-      this._cameraAnimation.primaryMultiplier = -faceDirection[this._cameraAnimation.primaryAxis];
-      this._cameraAnimation.secondaryMultiplier = faceDirection[this._cameraAnimation.secondaryAxis];
-      this._cameraAnimation.position = this._camera.position.clone();
-      this._cameraAnimation.targetPosition = face.clone().multiplyScalar(this._cameraDistance());
-      this._cameraAnimation.animating = true;
-
-      this._cameraFace = face;
-    }
-
-    if (!this._cameraAnimation.animating) {
+  _updateCamera(face) {
+    if (this._cameraFace.equals(face)) {
       return;
     }
 
-    const x = this._cameraAnimation.primaryAxis;
-    const y = this._cameraAnimation.secondaryAxis;
-    const speed = 0.75;
-    const delta = this._cameraAnimation.targetPosition[x] - this._cameraAnimation.position[x];
-    const distanceRemaining = Math.max(0, Math.abs(delta) - (speed * timeDelta));
-
-    // We keep track of a reference position which is not affected by our
-    // bezier transform. We do this so that the effects don't accumulate across
-    // animation frames.
-    this._cameraAnimation.position[x] = this._cameraAnimation.primaryMultiplier * distanceRemaining;
-
-    // Apply bezier to the primary dimension and circular motion to the range.
-    // The result is a smooth, circular camera movement.
-    this._camera.position[x] = this._cameraAnimation.primaryMultiplier   * this._bezier(distanceRemaining);
-    this._camera.position[y] = this._cameraAnimation.secondaryMultiplier * this._circular(this._camera.position[x]);
-
-    // This allows us to avoid worrying about rotation coordinates for the
-    // camera.
-    this._camera.lookAt(this._world.mesh.position);
-
-    if (this._camera.position.equals(this._cameraAnimation.targetPosition)) {
-      this._cameraAnimation.doneCallback();
+    if (this._cameraAnimation) {
+      this._cameraAnimation.stop();
     }
+
+    const primaryAxis         = getUnitVectorDimension(this._cameraFace);
+    const secondaryAxis       = getUnitVectorDimension(face);
+    const faceDirection       = face.clone().sub(this._cameraFace);
+    const secondaryMultiplier = faceDirection[secondaryAxis];
+    const dot                 = this._camera.up.dot(face);
+
+    if (dot !== 0) {
+      this._cameraUpCached = this._cameraFace.clone();
+      this._cameraUpCached.multiplyScalar(-dot);
+    }
+
+    this._cameraAnimation = Animation.add({
+      start:  this._camera.position.clone(),
+      end:    face.clone().multiplyScalar(this._cameraDistance()),
+      easing: 'easeOut',
+
+      step:  (percent, start) => {
+        this._camera.position[primaryAxis]   = start[primaryAxis];
+        this._camera.position[secondaryAxis] = secondaryMultiplier * this._circular(start[primaryAxis]);
+        this._camera.lookAt(this._world.mesh.position);
+      },
+
+      done:  (end) => {
+        this._camera.up.copy(this._cameraUpCached);
+        this._camera.position.copy(end);
+        this._camera.rotation.set(0, 0, 0);
+        this._camera.lookAt(this._world.mesh.position);
+      },
+    });
+
+    this._cameraFace = face;
   }
 }
 

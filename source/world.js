@@ -76,7 +76,7 @@ class World {
   // TODO(maros): Move this to a util module.
   _makeWorldTexture() {
     const max = 255;
-    const size = 64;
+    const size = 128;
     const values = 3;
     const rgb = new Uint8Array(size * size * values);
     const color = Const.Colors.WORLD;
@@ -140,8 +140,8 @@ class World {
     Animation.add({
       time: 0.5,
       easing: 'easeOut',
-      step: (percentage) => {
-        const scale = Math.min(max, Math.max(min, percentage));
+      step: (percent) => {
+        const scale = Math.min(max, Math.max(min, percent));
         mesh.scale.setScalar(scale);
       }
     });
