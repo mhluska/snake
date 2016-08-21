@@ -76,7 +76,7 @@ class World {
   // TODO(maros): Move this to a util module.
   _makeWorldTexture() {
     const max = 255;
-    const size = 128;
+    const size = 84;
     const values = 3;
     const rgb = new Uint8Array(size * size * values);
     const color = Const.Colors.WORLD;

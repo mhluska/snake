@@ -6,7 +6,6 @@ const Animation = require('./animation');
 const Tests = require('../test/tests');
 const times = require('./utils/times');
 const makeVoxelMesh = require('./utils/make-voxel-mesh');
-const assert = require('assert');
 const assertTruthy = require('./utils/assert-truthy');
 const getUnitVectorDimension = require('./utils/get-unit-vector-dimension');
 const adjacentUnitVector = require('./utils/adjacent-unit-vector');
@@ -49,23 +48,23 @@ class Game {
     this._cameraUpCached = this._camera.up.clone();
     this._snake = this._initSnake(this._cameraFace);
 
-    this._snakeEnemies = this._world._faceVectors
+    this._snakes = this._world._faceVectors
       .slice(0, playerFaceIndex)
       .concat(this._world._faceVectors.slice(playerFaceIndex + 1))
       .slice(0, this._enemies)
-      .map(v => this._initSnakeEnemy(v));
+      .map(v => this._initSnakeEnemy(v))
+      .concat(this._snake);
 
     // We make this a function of the number of enemies + player so that they
     // don't run out of food.
     // TODO(maros): This should also be a function of the snake speed.
-    this._foodDropRate = Math.floor(200 / (this._snakeEnemies.length + 1));
+    this._foodDropRate = Math.floor(200 / (this._snakes.length));
 
     this._lastTime = window.performance.now();
     this._cameraAnimation = null;
 
     this._scene.add(this._world.mesh);
-    this._scene.add(this._snake.mesh);
-    this._scene.add(...this._snakeEnemies.map(enemy => enemy.mesh));
+    this._scene.add(...this._snakes.map(enemy => enemy.mesh));
 
     for (let i of times(Const.FOOD_START)) {
       this._addFoodToScene(i);
@@ -188,16 +187,6 @@ class Game {
     }
   }
 
-  _updateSnake() {
-    this._processMesh(this._snake.move());
-    this._updateDebugInfo();
-    this._updateCamera(this._snake.face);
-  }
-
-  _updateSnakeEnemy(snake) {
-    this._processMesh(snake.move());
-  }
-
   _addFoodToScene() {
     const food = this._world.spawnFood();
     if (food) {
@@ -205,10 +194,8 @@ class Game {
     }
   }
 
-  _removeSnakeEnemyFromScene(snake) {
-    assert(snake.type === 'enemy', 'Snake is not of type enemy');
-
-    const index = this._snakeEnemies.indexOf(snake);
+  _removeSnakeFromScene(snake) {
+    const index = this._snakes.indexOf(snake);
 
     if (index === -1) {
       return;
@@ -222,7 +209,7 @@ class Game {
       } catch(error) {}
     });
 
-    this._snakeEnemies.splice(index, 1);
+    this._snakes.splice(index, 1);
     this._scene.remove(snake.mesh);
   }
 
@@ -254,8 +241,11 @@ class Game {
     this._lastTime = now;
 
     Animation.update(timeDelta);
-    this._updateSnake();
-    this._snakeEnemies.forEach(enemy => this._updateSnakeEnemy(enemy));
+
+    this._snakes.forEach(snake => this._processMesh(snake.move()));
+
+    this._updateDebugInfo();
+    this._updateCamera(this._snake.face);
 
     // Add food to the game every x frames.
     // TODO(maros): Don't update per frame but per time delta.
@@ -276,7 +266,7 @@ class Game {
       this._update();
     } catch(error) {
       if (error.snake && error.snake.type === 'enemy') {
-        this._removeSnakeEnemyFromScene(error.snake);
+        this._removeSnakeFromScene(error.snake);
       } else {
         this.reset();
       }
