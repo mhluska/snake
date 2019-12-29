@@ -1,25 +1,14 @@
-const webpack = require('webpack');
-const plugins = [];
-
-if (process.env.DEPLOY) {
-  plugins = [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: false,
-      compress: { warnings: false }
-    })
-  ];
-}
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   entry: './src/game.js',
   output: {
-    path: __dirname + '/dist',
-    filename: 'snake.js',
-    libraryTarget: 'var',
-    library: 'SnakeGame'
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
   },
-  plugins: plugins,
+  plugins: [
+    new CleanWebpackPlugin()
+  ],
   module: {
     rules: [
       {

@@ -5,8 +5,8 @@
   "main": "snake.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --progress --colors",
-    "start": "webpack-dev-server --watch",
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
     "deploy": "./script/deploy"
   },
   "repository": {
@@ -36,7 +36,8 @@
     "three": "^0.76.1",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
+    "webpack-dev-server": "^3.10.1",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "@babel/runtime": "^7.7.7"
