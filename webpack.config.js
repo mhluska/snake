@@ -1,8 +1,7 @@
-var webpack = require("webpack");
-var DEPLOY  = process.env.DEPLOY === undefined ? false : true;
-var plugins = [];
+const webpack = require('webpack');
+const plugins = [];
 
-if (DEPLOY) {
+if (process.env.DEPLOY) {
   plugins = [
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
@@ -13,36 +12,29 @@ if (DEPLOY) {
 }
 
 module.exports = {
-  entry: './source/game.js',
+  entry: './src/game.js',
   output: {
-    path: __dirname + '/build',
+    path: __dirname + '/dist',
     filename: 'snake.js',
     libraryTarget: 'var',
     library: 'SnakeGame'
   },
   plugins: plugins,
   module: {
-    preLoaders: [
-      {
-          test: /\.js$/,
-          exclude: /(node_modules|bower_components)/,
-          loader: 'eslint-loader'
-      }
-    ],
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015'],
-          plugins: ['transform-runtime']
-        }
-      }
-    ]
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env']
+            },
+          },
+          'eslint-loader'
+        ],
+      },
+    ],
   },
-  eslint: {
-    configFile: '.eslintrc',
-    formatter: require("eslint-friendly-formatter")
-  }
 };

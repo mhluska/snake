@@ -1,7 +1,7 @@
-var assert     = require('assert');
-var Tools      = require('./tools');
-var times      = require('../source/utils/times');
-var LinkedList = require('../source/linked-list');
+const assert     = require('assert');
+const Tools      = require('./tools');
+const times      = require('../src/utils/times');
+const LinkedList = require('../src/linked-list');
 
 class LinkedListTests extends Tools {
   static run() {

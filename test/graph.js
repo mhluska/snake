@@ -1,6 +1,6 @@
-var assert = require('assert');
-var Tools = require('./tools');
-var { Graph, Node } = require('../source/graph');
+const assert = require('assert');
+const Tools = require('./tools');
+const { Graph, Node } = require('../src/graph');
 
 class GraphTests extends Tools {
   static run() {

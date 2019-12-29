@@ -1,6 +1,6 @@
-var assert = require('assert');
-var Tools = require('./tools');
-var Voxel = require('../source/voxel');
+const assert = require('assert');
+const Tools = require('./tools');
+const Voxel = require('../src/voxel');
 
 class VoxelTests extends Tools {
   static run() {

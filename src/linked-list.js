@@ -90,7 +90,6 @@ class LinkedList {
       return this._start.remove();
     }
   }
-
 }
 
 module.exports = LinkedList;
