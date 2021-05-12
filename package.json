@@ -32,7 +32,7 @@
     "babel-loader": "^8.0.6",
     "eslint": "^6.8.0",
     "eslint-loader": "^3.0.3",
-    "three": "^0.76.1",
+    "three": "^0.125.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1",
